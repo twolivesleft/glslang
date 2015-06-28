@@ -930,11 +930,14 @@ TIntermAggregate* TParseContext::handleFunctionDefinition(TSourceLoc loc, TFunct
     //
     // Raise error message if main function takes any parameters or returns anything other than void
     //
+    if (function.getName() == "kore") {
+        function.changeName(NewPoolTString("main"));
+    }
     if (function.getName() == "main") {
         if (function.getParamCount() > 0)
             error(loc, "function cannot take any parameter(s)", function.getName().c_str(), "");
         if (function.getType().getBasicType() != EbtVoid)
-            error(loc, "", function.getType().getBasicTypeString().c_str(), "main function cannot return a value");
+            error(loc, "", function.getType().getBasicTypeString().c_str(), "main/kore function cannot return a value");
         intermediate.addMainCount();
         inMain = true;
     } else

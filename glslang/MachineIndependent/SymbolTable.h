@@ -214,6 +214,7 @@ public:
         p.type->appendMangledName(mangledName);
     }
 
+    virtual void changeName(const TString* newName) { name = newName; mangledName = *name + '('; }
     virtual const TString& getMangledName() const { return mangledName; }
     virtual const TType& getType() const { return returnType; }
     virtual TType& getWritableType() { return returnType; }

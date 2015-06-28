@@ -351,7 +351,7 @@ void TIntermediate::mergeErrorCheck(TInfoSink& infoSink, const TIntermSymbol& sy
 void TIntermediate::finalCheck(TInfoSink& infoSink)
 {   
     if (numMains < 1)
-        error(infoSink, "Missing entry point: Each stage requires one \"void main()\" entry point");
+        error(infoSink, "Missing entry point: Each stage requires one \"void main()\" or \"void kore()\" entry point");
 
     // recursion checking
     checkCallGraphCycles(infoSink);
