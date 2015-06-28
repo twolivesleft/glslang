@@ -465,7 +465,7 @@ void TScanContext::fillInKeywordMap()
     (*KeywordMap)["sampler2DRect"] =           SAMPLER2DRECT;
     (*KeywordMap)["sampler2DRectShadow"] =     SAMPLER2DRECTSHADOW;
     (*KeywordMap)["sampler1DArray"] =          SAMPLER1DARRAY;
-    (*KeywordMap)["samplerExternalOES"] =      SAMPLEREXTERNALOES; // GL_OES_EGL_image_external
+    (*KeywordMap)["samplerVideo"] =            SAMPLEREXTERNALOES; // GL_OES_EGL_image_external
     (*KeywordMap)["noperspective"] =           NOPERSPECTIVE;
     (*KeywordMap)["smooth"] =                  SMOOTH;
     (*KeywordMap)["flat"] =                    FLAT;

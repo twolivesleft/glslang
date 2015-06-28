@@ -819,9 +819,9 @@ void TBuiltIns::initialize(int version, EProfile profile)
 
     if (profile == EEsProfile) {        
         commonBuiltins.append(
-            "vec4 texture2D(samplerExternalOES, vec2 coord);"  // GL_OES_EGL_image_external, caught by keyword check
-            "vec4 texture2DProj(samplerExternalOES, vec3);"    // GL_OES_EGL_image_external, caught by keyword check
-            "vec4 texture2DProj(samplerExternalOES, vec4);"    // GL_OES_EGL_image_external, caught by keyword check
+            "vec4 texture2D(samplerVideo, vec2 coord);"  // GL_OES_EGL_image_external, caught by keyword check
+            "vec4 texture2DProj(samplerVideo, vec3);"    // GL_OES_EGL_image_external, caught by keyword check
+            "vec4 texture2DProj(samplerVideo, vec4);"    // GL_OES_EGL_image_external, caught by keyword check
             "vec4 texture2DGradEXT(sampler2D, vec2, vec2, vec2);"      // GL_EXT_shader_texture_lod
             "vec4 texture2DProjGradEXT(sampler2D, vec3, vec2, vec2);"  // GL_EXT_shader_texture_lod
             "vec4 texture2DProjGradEXT(sampler2D, vec4, vec2, vec2);"  // GL_EXT_shader_texture_lod

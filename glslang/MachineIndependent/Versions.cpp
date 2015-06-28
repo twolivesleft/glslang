@@ -152,7 +152,7 @@ void TParseContext::initializeExtensionBehavior()
     extensionBehavior[GL_OES_texture_3D]                   = EBhDisable;
     extensionBehavior[GL_OES_standard_derivatives]         = EBhDisable;
     extensionBehavior[GL_EXT_frag_depth]                   = EBhDisable;
-    extensionBehavior[GL_OES_EGL_image_external]           = EBhDisable;
+    extensionBehavior[GL_OES_EGL_image_external]           = EBhEnable;
     extensionBehavior[GL_EXT_shader_texture_lod]           = EBhDisable;
                                                           
     extensionBehavior[GL_ARB_texture_rectangle]            = EBhDisable;

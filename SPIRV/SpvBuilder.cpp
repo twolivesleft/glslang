@@ -293,7 +293,7 @@ Id Builder::makeFunctionType(Id returnType, std::vector<Id>& paramTypes)
     return type->getResultId();
 }
 
-Id Builder::makeSampler(Id sampledType, Dim dim, samplerContent content, bool arrayed, bool shadow, bool ms)
+Id Builder::makeSampler(Id sampledType, Dim dim, samplerContent content, bool arrayed, bool shadow, bool ms, bool external)
 {
     // try to find it
     Instruction* type;
@@ -304,7 +304,9 @@ Id Builder::makeSampler(Id sampledType, Dim dim, samplerContent content, bool ar
             type->getImmediateOperand(2) == (unsigned int)content &&
             type->getImmediateOperand(3) == (arrayed ? 1u : 0u) &&
             type->getImmediateOperand(4) == ( shadow ? 1u : 0u) &&
-            type->getImmediateOperand(5) == (     ms ? 1u : 0u))
+            type->getImmediateOperand(5) == (     ms ? 1u : 0u) &&
+			type->getImmediateOperand(6) == 0 &&
+			type->getImmediateOperand(7) == (external ? 1u : 0u))
             return type->getResultId();
     }
 
@@ -316,6 +318,8 @@ Id Builder::makeSampler(Id sampledType, Dim dim, samplerContent content, bool ar
     type->addImmediateOperand(arrayed ? 1 : 0);
     type->addImmediateOperand( shadow ? 1 : 0);
     type->addImmediateOperand(     ms ? 1 : 0);
+	type->addImmediateOperand(0);
+	type->addImmediateOperand(external ? 1 : 0);
 
     groupedTypes[OpTypeSampler].push_back(type);
     constantsTypesGlobals.push_back(type);

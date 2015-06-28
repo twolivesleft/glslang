@@ -106,7 +106,7 @@ public:
         samplerContentImage,
         samplerContentTextureFilter
     };
-    Id makeSampler(Id sampledType, Dim, samplerContent, bool arrayed, bool shadow, bool ms);
+	Id makeSampler(Id sampledType, Dim, samplerContent, bool arrayed, bool shadow, bool ms, bool external);
 
     // For querying about types.
     Id getTypeId(Id resultId) const { return module.getTypeId(resultId); }

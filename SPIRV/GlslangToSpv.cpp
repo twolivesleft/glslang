@@ -1287,7 +1287,7 @@ spv::Id TGlslangToSpvTraverser::convertGlslangToSpvType(const glslang::TType& ty
             const glslang::TSampler& sampler = type.getSampler();
             spvType = builder.makeSampler(getSampledType(sampler), TranslateDimensionality(sampler), 
                                           sampler.image ? spv::Builder::samplerContentImage : spv::Builder::samplerContentTextureFilter,
-                                          sampler.arrayed, sampler.shadow, sampler.ms);
+										  sampler.arrayed, sampler.shadow, sampler.ms, sampler.external);
         }
         break;
     case glslang::EbtStruct:
