@@ -34,7 +34,7 @@
 # define YY_YY_GLSLANG_TAB_CPP_H_INCLUDED
 /* Enabling traces.  */
 #ifndef YYDEBUG
-# define YYDEBUG 1
+# define YYDEBUG 0
 #endif
 #if YYDEBUG
 extern int yydebug;
