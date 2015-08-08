@@ -307,7 +307,7 @@ Id Builder::makeImageType(Id sampledType, Dim dim, bool depth, bool arrayed, boo
             type->getImmediateOperand(3) == (arrayed ? 1u : 0u) &&
             type->getImmediateOperand(4) == (     ms ? 1u : 0u) &&
             type->getImmediateOperand(5) == sampled &&
-            type->getImmediateOperand(6) == (unsigned int)format) &&
+            type->getImmediateOperand(6) == (unsigned int)format &&
             type->getImmediateOperand(7) == (external ? 1u : 0u))
             return type->getResultId();
     }
