@@ -5,19 +5,19 @@ ERROR: 0:66: '#define' : Macro redefined; different substitutions: BIG
 ERROR: 0:81: 'preprocessor evaluation' : bad expression 
 ERROR: 0:81: '#if' : unexpected tokens following directive 
 ERROR: 0:82: '#error' : good macro  
-ERROR: 0:87: 'macro expansion' : end of line in macro substitution: foobar
+ERROR: 0:87: 'macro expansion' : End of line in macro substitution: foobar
 ERROR: 0:88: 'preprocessor evaluation' : can't evaluate expression 
 ERROR: 0:88: 'preprocessor evaluation' : bad expression 
 ERROR: 0:88: '#if' : unexpected tokens following directive 
-ERROR: 0:92: 'macro expansion' : end of line in macro substitution: foobar
+ERROR: 0:92: 'macro expansion' : End of line in macro substitution: foobar
 ERROR: 0:93: 'preprocessor evaluation' : can't evaluate expression 
 ERROR: 0:93: 'preprocessor evaluation' : bad expression 
 ERROR: 0:93: '#if' : unexpected tokens following directive 
-ERROR: 0:99: 'macro expansion' : end of line in macro substitution: foobar
+ERROR: 0:99: 'macro expansion' : End of line in macro substitution: foobar
 ERROR: 0:100: 'preprocessor evaluation' : can't evaluate expression 
 ERROR: 0:100: 'preprocessor evaluation' : bad expression 
 ERROR: 0:100: '#if' : unexpected tokens following directive 
-ERROR: 0:101: 'macro expansion' : end of line in macro substitution: foobar
+ERROR: 0:101: 'macro expansion' : End of line in macro substitution: foobar
 ERROR: 0:102: 'preprocessor evaluation' : can't evaluate expression 
 ERROR: 0:102: 'preprocessor evaluation' : bad expression 
 ERROR: 0:102: '#if' : unexpected tokens following directive 
@@ -42,8 +42,12 @@ ERROR: 0:3006: '#undef' : predefined names can't be (un)defined: __LINE__
 ERROR: 0:3007: '#undef' : predefined names can't be (un)defined: __FILE__
 ERROR: 0:3008: '#undef' : predefined names can't be (un)defined: __VERSION__
 ERROR: 0:3009: '#undef' : names beginning with "GL_" can't be (un)defined: GL_SOME_EXTENSION
+ERROR: 0:4000: 'preprocessor evaluation' : division by 0 
+ERROR: 0:0: 'preprocessor evaluation' : division by 0 
+ERROR: 0:3: 'preprocessor evaluation' : bad expression 
+ERROR: 0:3: 'preprocessor evaluation' : division by 0 
 ERROR: 0:10001: '' : missing #endif 
-ERROR: 44 compilation errors.  No code generated.
+ERROR: 48 compilation errors.  No code generated.
 
 
 Shader version: 300

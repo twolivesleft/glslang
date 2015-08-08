@@ -50,10 +50,10 @@ namespace glslang {
 TParseContext::TParseContext(TSymbolTable& symt, TIntermediate& interm, bool pb, int v, EProfile p, EShLanguage L, TInfoSink& is,
                              bool fc, EShMessages m) :
             intermediate(interm), symbolTable(symt), infoSink(is), language(L),
-            version(v), profile(p), forwardCompatible(fc), messages(m),
+            version(v), profile(p), forwardCompatible(fc), 
             contextPragma(true, false), loopNestingLevel(0), structNestingLevel(0), controlFlowNestingLevel(0), statementNestingLevel(0),
             postMainReturn(false),
-            tokensBeforeEOF(false), limits(resources.limits), currentScanner(0),
+            tokensBeforeEOF(false), limits(resources.limits), messages(m), currentScanner(0),
             numErrors(0), parsingBuiltins(pb), afterEOF(false),
             atomicUintOffsets(0), anyIndexLimits(false)
 {
@@ -168,12 +168,12 @@ void TParseContext::parserError(const char* s)
 {
     if (afterEOF) {
         if (tokensBeforeEOF == 1)
-            error(getCurrentLoc(), "", "pre-mature EOF", s, "");
+            error(getCurrentLoc(), "", "premature end of input", s, "");
     } else
         error(getCurrentLoc(), "", "", s, "");
 }
 
-void TParseContext::handlePragma(TSourceLoc loc, const TVector<TString>& tokens)
+void TParseContext::handlePragma(const TSourceLoc& loc, const TVector<TString>& tokens)
 {
     if (pragmaCallback)
         pragmaCallback(loc.line, tokens);
@@ -244,7 +244,7 @@ void TParseContext::handlePragma(TSourceLoc loc, const TVector<TString>& tokens)
 //
 // Returns true if there is no error.
 //
-bool TParseContext::parseVectorFields(TSourceLoc loc, const TString& compString, int vecSize, TVectorFields& fields)
+bool TParseContext::parseVectorFields(const TSourceLoc& loc, const TString& compString, int vecSize, TVectorFields& fields)
 {
     fields.num = (int) compString.size();
     if (fields.num > 4) {
@@ -341,51 +341,70 @@ bool TParseContext::parseVectorFields(TSourceLoc loc, const TString& compString,
 //
 // Used to output syntax, parsing, and semantic errors.
 //
-void C_DECL TParseContext::error(TSourceLoc loc, const char* szReason, const char* szToken,
-                                 const char* szExtraInfoFormat, ...)
+
+void TParseContext::outputMessage(const TSourceLoc& loc, const char* szReason,
+                                  const char* szToken,
+                                  const char* szExtraInfoFormat,
+                                  TPrefixType prefix, va_list args)
 {
-    const int maxSize = GlslangMaxTokenLength + 200;
+    const int maxSize = MaxTokenLength + 200;
     char szExtraInfo[maxSize];
-    va_list marker;
 
-    va_start(marker, szExtraInfoFormat);
+    safe_vsprintf(szExtraInfo, maxSize, szExtraInfoFormat, args);
 
-    safe_vsprintf(szExtraInfo, maxSize, szExtraInfoFormat, marker);
-
-    infoSink.info.prefix(EPrefixError);
+    infoSink.info.prefix(prefix);
     infoSink.info.location(loc);
     infoSink.info << "'" << szToken <<  "' : " << szReason << " " << szExtraInfo << "\n";
 
-    va_end(marker);
-
-    ++numErrors;
+    if (prefix == EPrefixError) {
+        ++numErrors;
+    }
 }
 
-void C_DECL TParseContext::warn(TSourceLoc loc, const char* szReason, const char* szToken,
+void C_DECL TParseContext::error(const TSourceLoc& loc, const char* szReason, const char* szToken,
                                  const char* szExtraInfoFormat, ...)
 {
-    if (messages & EShMsgSuppressWarnings)
+    if (messages & EShMsgOnlyPreprocessor)
         return;
+    va_list args;
+    va_start(args, szExtraInfoFormat);
+    outputMessage(loc, szReason, szToken, szExtraInfoFormat, EPrefixError, args);
+    va_end(args);
+}
 
-    const int maxSize = GlslangMaxTokenLength + 200;
-    char szExtraInfo[maxSize];
-    va_list marker;
+void C_DECL TParseContext::warn(const TSourceLoc& loc, const char* szReason, const char* szToken,
+                                 const char* szExtraInfoFormat, ...)
+{
+    if (suppressWarnings())
+        return;
+    va_list args;
+    va_start(args, szExtraInfoFormat);
+    outputMessage(loc, szReason, szToken, szExtraInfoFormat, EPrefixWarning, args);
+    va_end(args);
+}
 
-    va_start(marker, szExtraInfoFormat);
+void C_DECL TParseContext::ppError(const TSourceLoc& loc, const char* szReason, const char* szToken,
+                                 const char* szExtraInfoFormat, ...)
+{
+    va_list args;
+    va_start(args, szExtraInfoFormat);
+    outputMessage(loc, szReason, szToken, szExtraInfoFormat, EPrefixError, args);
+    va_end(args);
+}
 
-    safe_vsprintf(szExtraInfo, maxSize, szExtraInfoFormat, marker);
-
-    infoSink.info.prefix(EPrefixWarning);
-    infoSink.info.location(loc);
-    infoSink.info << "'" << szToken <<  "' : " << szReason << " " << szExtraInfo << "\n";
-
-    va_end(marker);
+void C_DECL TParseContext::ppWarn(const TSourceLoc& loc, const char* szReason, const char* szToken,
+                                 const char* szExtraInfoFormat, ...)
+{
+    va_list args;
+    va_start(args, szExtraInfoFormat);
+    outputMessage(loc, szReason, szToken, szExtraInfoFormat, EPrefixWarning, args);
+    va_end(args);
 }
 
 //
 // Handle seeing a variable identifier in the grammar.
 //
-TIntermTyped* TParseContext::handleVariable(TSourceLoc loc, TSymbol* symbol, const TString* string)
+TIntermTyped* TParseContext::handleVariable(const TSourceLoc& loc, TSymbol* symbol, const TString* string)
 {
     TIntermTyped* node = 0;
 
@@ -429,8 +448,16 @@ TIntermTyped* TParseContext::handleVariable(TSourceLoc loc, TSymbol* symbol, con
         // The symbol table search was done in the lexical phase.
         // See if it was a variable.
         variable = symbol ? symbol->getAsVariable() : 0;
-        if (symbol && ! variable)
-            error(loc, "variable name expected", string->c_str(), "");
+        if (variable) {
+            if ((variable->getType().getBasicType() == EbtBlock ||
+                 variable->getType().getBasicType() == EbtStruct) && variable->getType().getStruct() == nullptr) {
+                error(loc, "cannot be used (maybe an instance name is needed)", string->c_str(), "");
+                variable = nullptr;
+            }
+        } else {
+            if (symbol)
+                error(loc, "variable name expected", string->c_str(), "");
+        }
 
         // Recovery, if it wasn't found or was not a variable.
         if (! variable)
@@ -451,7 +478,7 @@ TIntermTyped* TParseContext::handleVariable(TSourceLoc loc, TSymbol* symbol, con
 //
 // Handle seeing a base[index] dereference in the grammar.
 //
-TIntermTyped* TParseContext::handleBracketDereference(TSourceLoc loc, TIntermTyped* base, TIntermTyped* index)
+TIntermTyped* TParseContext::handleBracketDereference(const TSourceLoc& loc, TIntermTyped* base, TIntermTyped* index)
 {
     TIntermTyped* result = 0;
 
@@ -486,13 +513,19 @@ TIntermTyped* TParseContext::handleBracketDereference(TSourceLoc loc, TIntermTyp
                 else
                     error(loc, "", "[", "array must be redeclared with a size before being indexed with a variable");
             }
-            if (base->getBasicType() == EbtBlock)
-                requireProfile(base->getLoc(), ~EEsProfile, "variable indexing block array");
-            else if (language == EShLangFragment && base->getQualifier().isPipeOutput())
+            if (base->getBasicType() == EbtBlock) {
+                if (base->getQualifier().storage == EvqBuffer)
+                    requireProfile(base->getLoc(), ~EEsProfile, "variable indexing buffer block array");
+                else if (base->getQualifier().storage == EvqUniform)
+                    profileRequires(base->getLoc(), EEsProfile, 0, Num_AEP_gpu_shader5, AEP_gpu_shader5, "variable indexing uniform block array");
+                else
+                    requireProfile(base->getLoc(), ~EEsProfile, "variable indexing in/out block array");
+            } else if (language == EShLangFragment && base->getQualifier().isPipeOutput())
                 requireProfile(base->getLoc(), ~EEsProfile, "variable indexing fragment shader ouput array");
             else if (base->getBasicType() == EbtSampler && version >= 130) {
                 const char* explanation = "variable indexing sampler array";
-                requireProfile(base->getLoc(), ECoreProfile | ECompatibilityProfile, explanation);
+                requireProfile(base->getLoc(), EEsProfile | ECoreProfile | ECompatibilityProfile, explanation);
+                profileRequires(base->getLoc(), EEsProfile, 0, Num_AEP_gpu_shader5, AEP_gpu_shader5, explanation);
                 profileRequires(base->getLoc(), ECoreProfile | ECompatibilityProfile, 400, nullptr, explanation);
             }
 
@@ -519,7 +552,7 @@ TIntermTyped* TParseContext::handleBracketDereference(TSourceLoc loc, TIntermTyp
     return result;
 }
 
-void TParseContext::checkIndex(TSourceLoc loc, const TType& type, int& index)
+void TParseContext::checkIndex(const TSourceLoc& loc, const TType& type, int& index)
 {
     if (index < 0) {
         error(loc, "", "[", "index out of range '%d'", index);
@@ -543,7 +576,7 @@ void TParseContext::checkIndex(TSourceLoc loc, const TType& type, int& index)
 }
 
 // for ES 2.0 (version 100) limitations for almost all index operations except vertex-shader uniforms
-void TParseContext::handleIndexLimits(TSourceLoc /*loc*/, TIntermTyped* base, TIntermTyped* index)
+void TParseContext::handleIndexLimits(const TSourceLoc& /*loc*/, TIntermTyped* base, TIntermTyped* index)
 {
     if ((! limits.generalSamplerIndexing && base->getBasicType() == EbtSampler) ||
         (! limits.generalUniformIndexing && base->getQualifier().isUniformOrBuffer() && language != EShLangVertex) ||
@@ -585,7 +618,7 @@ bool TParseContext::isIoResizeArray(const TType& type) const
 }
 
 // If an array is not isIoResizeArray() but is an io array, make sure it has the right size
-void TParseContext::fixIoArraySize(TSourceLoc loc, TType& type)
+void TParseContext::fixIoArraySize(const TSourceLoc& loc, TType& type)
 {
     if (! type.isArray() || type.getQualifier().patch || symbolTable.atBuiltInLevel())
         return;
@@ -607,7 +640,7 @@ void TParseContext::fixIoArraySize(TSourceLoc loc, TType& type)
 // Issue any errors if the non-array object is missing arrayness WRT
 // shader I/O that has array requirements.
 // All arrayness checking is handled in array paths, this is for 
-void TParseContext::ioArrayCheck(TSourceLoc loc, const TType& type, const TString& identifier)
+void TParseContext::ioArrayCheck(const TSourceLoc& loc, const TType& type, const TString& identifier)
 {
     if (! type.isArray() && ! symbolTable.atBuiltInLevel()) {
         if (type.getQualifier().isArrayedIo(language))
@@ -618,7 +651,7 @@ void TParseContext::ioArrayCheck(TSourceLoc loc, const TType& type, const TStrin
 // Handle a dereference of a geometry shader input array or tessellation control output array.
 // See ioArraySymbolResizeList comment in ParseHelper.h.
 //
-void TParseContext::handleIoResizeArrayAccess(TSourceLoc /*loc*/, TIntermTyped* base)
+void TParseContext::handleIoResizeArrayAccess(const TSourceLoc& /*loc*/, TIntermTyped* base)
 {
     TIntermSymbol* symbolNode = base->getAsSymbolNode();
     assert(symbolNode);
@@ -641,7 +674,7 @@ void TParseContext::handleIoResizeArrayAccess(TSourceLoc /*loc*/, TIntermTyped* 
 // Types without an array size will be given one.
 // Types already having a size that is wrong will get an error.
 //
-void TParseContext::checkIoArraysConsistency(TSourceLoc loc, bool tailOnly)
+void TParseContext::checkIoArraysConsistency(const TSourceLoc& loc, bool tailOnly)
 {
     int requiredSize = getIoArrayImplicitSize();
     if (requiredSize == 0)
@@ -674,7 +707,7 @@ int TParseContext::getIoArrayImplicitSize() const
         return 0;
 }
 
-void TParseContext::checkIoArrayConsistency(TSourceLoc loc, int requiredSize, const char* feature, TType& type, const TString& name)
+void TParseContext::checkIoArrayConsistency(const TSourceLoc& loc, int requiredSize, const char* feature, TType& type, const TString& name)
 {
     if (type.isImplicitlySizedArray())
         type.changeArraySize(requiredSize);
@@ -689,7 +722,7 @@ void TParseContext::checkIoArrayConsistency(TSourceLoc loc, int requiredSize, co
 }
 
 // Handle seeing a binary node with a math operation.
-TIntermTyped* TParseContext::handleBinaryMath(TSourceLoc loc, const char* str, TOperator op, TIntermTyped* left, TIntermTyped* right)
+TIntermTyped* TParseContext::handleBinaryMath(const TSourceLoc& loc, const char* str, TOperator op, TIntermTyped* left, TIntermTyped* right)
 {
     rValueErrorCheck(loc, str, left->getAsTyped());
     rValueErrorCheck(loc, str, right->getAsTyped());
@@ -702,7 +735,7 @@ TIntermTyped* TParseContext::handleBinaryMath(TSourceLoc loc, const char* str, T
 }
 
 // Handle seeing a unary node with a math operation.
-TIntermTyped* TParseContext::handleUnaryMath(TSourceLoc loc, const char* str, TOperator op, TIntermTyped* childNode)
+TIntermTyped* TParseContext::handleUnaryMath(const TSourceLoc& loc, const char* str, TOperator op, TIntermTyped* childNode)
 {
     rValueErrorCheck(loc, str, childNode);
 
@@ -719,7 +752,7 @@ TIntermTyped* TParseContext::handleUnaryMath(TSourceLoc loc, const char* str, TO
 //
 // Handle seeing a base.field dereference in the grammar.
 //
-TIntermTyped* TParseContext::handleDotDereference(TSourceLoc loc, TIntermTyped* base, const TString& field)
+TIntermTyped* TParseContext::handleDotDereference(const TSourceLoc& loc, TIntermTyped* base, const TString& field)
 {
     variableCheck(base);
 
@@ -730,12 +763,12 @@ TIntermTyped* TParseContext::handleDotDereference(TSourceLoc loc, TIntermTyped* 
     //
     if (field == "length") {
         if (base->isArray()) {
-            profileRequires(loc, ENoProfile, 120, GL_3DL_array_objects, ".length");
+            profileRequires(loc, ENoProfile, 120, E_GL_3DL_array_objects, ".length");
             profileRequires(loc, EEsProfile, 300, nullptr, ".length");
         } else if (base->isVector() || base->isMatrix()) {
             const char* feature = ".length() on vectors and matrices";
             requireProfile(loc, ~EEsProfile, feature);
-            profileRequires(loc, ~EEsProfile, 420, GL_ARB_shading_language_420pack, feature);
+            profileRequires(loc, ~EEsProfile, 420, E_GL_ARB_shading_language_420pack, feature);
         } else {
             error(loc, "does not operate on this type:", field.c_str(), base->getType().getCompleteString().c_str());
 
@@ -761,7 +794,7 @@ TIntermTyped* TParseContext::handleDotDereference(TSourceLoc loc, TIntermTyped* 
         if (base->isScalar()) {
             const char* dotFeature = "scalar swizzle";
             requireProfile(loc, ~EEsProfile, dotFeature);
-            profileRequires(loc, ~EEsProfile, 420, GL_ARB_shading_language_420pack, dotFeature);
+            profileRequires(loc, ~EEsProfile, 420, E_GL_ARB_shading_language_420pack, dotFeature);
         }
 
         TVectorFields fields;
@@ -820,7 +853,7 @@ TIntermTyped* TParseContext::handleDotDereference(TSourceLoc loc, TIntermTyped* 
     return result;
 }
 
-void TParseContext::blockMemberExtensionCheck(TSourceLoc loc, const TIntermTyped* /*base*/, const TString& field)
+void TParseContext::blockMemberExtensionCheck(const TSourceLoc& loc, const TIntermTyped* /*base*/, const TString& field)
 {
     if (profile == EEsProfile && field == "gl_PointSize") {
         if (language == EShLangGeometry)
@@ -834,7 +867,7 @@ void TParseContext::blockMemberExtensionCheck(TSourceLoc loc, const TIntermTyped
 // Handle seeing a function declarator in the grammar.  This is the precursor
 // to recognizing a function prototype or function definition.
 //
-TFunction* TParseContext::handleFunctionDeclarator(TSourceLoc loc, TFunction& function, bool prototype)
+TFunction* TParseContext::handleFunctionDeclarator(const TSourceLoc& loc, TFunction& function, bool prototype)
 {
     // ES can't declare prototypes inside functions
     if (! symbolTable.atGlobalLevel())
@@ -902,7 +935,7 @@ TFunction* TParseContext::handleFunctionDeclarator(TSourceLoc loc, TFunction& fu
 // Handle seeing the function prototype in front of a function definition in the grammar.  
 // The body is handled after this function returns.
 //
-TIntermAggregate* TParseContext::handleFunctionDefinition(TSourceLoc loc, TFunction& function)
+TIntermAggregate* TParseContext::handleFunctionDefinition(const TSourceLoc& loc, TFunction& function)
 {
     currentCaller = function.getMangledName();
     TSymbol* symbol = symbolTable.find(function.getMangledName());
@@ -995,7 +1028,7 @@ TIntermAggregate* TParseContext::handleFunctionDefinition(TSourceLoc loc, TFunct
 //  - user function
 //  - subroutine call (not implemented yet)
 //
-TIntermTyped* TParseContext::handleFunctionCall(TSourceLoc loc, TFunction* function, TIntermNode* arguments)
+TIntermTyped* TParseContext::handleFunctionCall(const TSourceLoc& loc, TFunction* function, TIntermNode* arguments)
 {
     TIntermTyped* result = 0;
 
@@ -1121,7 +1154,7 @@ TIntermTyped* TParseContext::handleFunctionCall(TSourceLoc loc, TFunction* funct
 }
 
 // See if the operation is being done in an illegal location.
-void TParseContext::checkLocation(TSourceLoc loc, TOperator op)
+void TParseContext::checkLocation(const TSourceLoc& loc, TOperator op)
 {
     switch (op) {
     case EOpBarrier:
@@ -1144,7 +1177,7 @@ void TParseContext::checkLocation(TSourceLoc loc, TOperator op)
 // function syntax "()" is recognized.
 //
 // Return resulting tree node.
-TIntermTyped* TParseContext::handleLengthMethod(TSourceLoc loc, TFunction* function, TIntermNode* intermNode)
+TIntermTyped* TParseContext::handleLengthMethod(const TSourceLoc& loc, TFunction* function, TIntermNode* intermNode)
 {
     int length = 0;
 
@@ -1209,10 +1242,14 @@ void TParseContext::addInputArgumentConversions(const TFunction& function, TInte
                 // convert to the correct type.
                 arg = intermediate.addConversion(EOpFunctionCall, *function[i].type, arg);
                 if (arg) {
-                    if (aggregate)
-                        aggregate->getSequence()[i] = arg;
-                    else
+                    if (function.getParamCount() == 1)
                         arguments = arg;
+                    else {
+                        if (aggregate)
+                            aggregate->getSequence()[i] = arg;
+                        else
+                            arguments = arg;
+                    }
                 }
             }
         }
@@ -1296,7 +1333,7 @@ TIntermTyped* TParseContext::addOutputArgumentConversions(const TFunction& funct
 //
 // Assumes there has been a semantically correct match to a built-in function.
 //
-void TParseContext::nonOpBuiltInCheck(TSourceLoc loc, const TFunction& fnCandidate, TIntermAggregate& callNode)
+void TParseContext::nonOpBuiltInCheck(const TSourceLoc& loc, const TFunction& fnCandidate, TIntermAggregate& callNode)
 {
     // built-in texturing functions get their return value precision from the precision of the sampler
     if (fnCandidate.getType().getQualifier().precision == EpqNone &&
@@ -1313,13 +1350,16 @@ void TParseContext::nonOpBuiltInCheck(TSourceLoc loc, const TFunction& fnCandida
             if (fnCandidate.getName().compare("textureGatherOffset") == 0) {
                 // GL_ARB_texture_gather is good enough for 2D non-shadow textures with no component argument
                 if (fnCandidate[0].type->getSampler().dim == Esd2D && ! fnCandidate[0].type->getSampler().shadow && fnCandidate.getParamCount() == 3)
-                    profileRequires(loc, ~EEsProfile, 400, GL_ARB_texture_gather, feature);
+                    profileRequires(loc, ~EEsProfile, 400, E_GL_ARB_texture_gather, feature);
                 else
-                    profileRequires(loc, ~EEsProfile, 400, GL_ARB_gpu_shader5, feature);
+                    profileRequires(loc, ~EEsProfile, 400, E_GL_ARB_gpu_shader5, feature);
+                int offsetArg = fnCandidate[0].type->getSampler().shadow ? 3 : 2;
+                if (! callNode.getSequence()[offsetArg]->getAsConstantUnion())
+                    profileRequires(loc, EEsProfile, 0, Num_AEP_gpu_shader5, AEP_gpu_shader5, "non-constant offset argument");
                 if (! fnCandidate[0].type->getSampler().shadow)
                     compArg = 3;
             } else if (fnCandidate.getName().compare("textureGatherOffsets") == 0) {
-                profileRequires(loc, ~EEsProfile, 400, GL_ARB_gpu_shader5, feature);
+                profileRequires(loc, ~EEsProfile, 400, E_GL_ARB_gpu_shader5, feature);
                 if (! fnCandidate[0].type->getSampler().shadow)
                     compArg = 3;
                 // check for constant offsets
@@ -1330,11 +1370,11 @@ void TParseContext::nonOpBuiltInCheck(TSourceLoc loc, const TFunction& fnCandida
                 // More than two arguments needs gpu_shader5, and rectangular or shadow needs gpu_shader5,
                 // otherwise, need GL_ARB_texture_gather.
                 if (fnCandidate.getParamCount() > 2 || fnCandidate[0].type->getSampler().dim == EsdRect || fnCandidate[0].type->getSampler().shadow) {
-                    profileRequires(loc, ~EEsProfile, 400, GL_ARB_gpu_shader5, feature);
+                    profileRequires(loc, ~EEsProfile, 400, E_GL_ARB_gpu_shader5, feature);
                     if (! fnCandidate[0].type->getSampler().shadow)
                         compArg = 2;
                 } else
-                    profileRequires(loc, ~EEsProfile, 400, GL_ARB_texture_gather, feature);
+                    profileRequires(loc, ~EEsProfile, 400, E_GL_ARB_texture_gather, feature);
             }
 
             if (compArg > 0 && compArg < fnCandidate.getParamCount()) {
@@ -1384,7 +1424,7 @@ void TParseContext::nonOpBuiltInCheck(TSourceLoc loc, const TFunction& fnCandida
 
     // GL_ARB_shader_texture_image_samples
     if (fnCandidate.getName().compare(0, 14, "textureSamples") == 0 || fnCandidate.getName().compare(0, 12, "imageSamples") == 0)
-        profileRequires(loc, ~EEsProfile, 450, GL_ARB_shader_texture_image_samples, "textureSamples and imageSamples");
+        profileRequires(loc, ~EEsProfile, 450, E_GL_ARB_shader_texture_image_samples, "textureSamples and imageSamples");
 
     if (fnCandidate.getName().compare(0, 11, "imageAtomic") == 0) {
         const TType& imageType = callNode.getSequence()[0]->getAsTyped()->getType();
@@ -1399,13 +1439,13 @@ void TParseContext::nonOpBuiltInCheck(TSourceLoc loc, const TFunction& fnCandida
 //
 // Handle seeing a built-in constructor in a grammar production.
 //
-TFunction* TParseContext::handleConstructorCall(TSourceLoc loc, const TPublicType& publicType)
+TFunction* TParseContext::handleConstructorCall(const TSourceLoc& loc, const TPublicType& publicType)
 {
     TType type(publicType);
     type.getQualifier().precision = EpqNone;
 
     if (type.isArray()) {
-        profileRequires(loc, ENoProfile, 120, GL_3DL_array_objects, "arrayed constructor");
+        profileRequires(loc, ENoProfile, 120, E_GL_3DL_array_objects, "arrayed constructor");
         profileRequires(loc, EEsProfile, 300, nullptr, "arrayed constructor");
     }
 
@@ -1547,7 +1587,7 @@ TOperator TParseContext::mapTypeToConstructorOp(const TType& type) const
 //
 // Same error message for all places assignments don't work.
 //
-void TParseContext::assignError(TSourceLoc loc, const char* op, TString left, TString right)
+void TParseContext::assignError(const TSourceLoc& loc, const char* op, TString left, TString right)
 {
     error(loc, "", op, "cannot convert from '%s' to '%s'",
           right.c_str(), left.c_str());
@@ -1556,7 +1596,7 @@ void TParseContext::assignError(TSourceLoc loc, const char* op, TString left, TS
 //
 // Same error message for all places unary operations don't work.
 //
-void TParseContext::unaryOpError(TSourceLoc loc, const char* op, TString operand)
+void TParseContext::unaryOpError(const TSourceLoc& loc, const char* op, TString operand)
 {
    error(loc, " wrong operand type", op,
           "no operation '%s' exists that takes an operand of type %s (or there is no acceptable conversion)",
@@ -1566,7 +1606,7 @@ void TParseContext::unaryOpError(TSourceLoc loc, const char* op, TString operand
 //
 // Same error message for all binary operations don't work.
 //
-void TParseContext::binaryOpError(TSourceLoc loc, const char* op, TString left, TString right)
+void TParseContext::binaryOpError(const TSourceLoc& loc, const char* op, TString left, TString right)
 {
     error(loc, " wrong operand types:", op,
             "no operation '%s' exists that takes a left-hand operand of type '%s' and "
@@ -1589,12 +1629,13 @@ void TParseContext::variableCheck(TIntermTyped*& nodePtr)
         error(symbol->getLoc(), "undeclared identifier", symbol->getName().c_str(), "");
 
         // Add to symbol table to prevent future error messages on the same name
+        if (symbol->getName().size() > 0) {
+            TVariable* fakeVariable = new TVariable(&symbol->getName(), TType(EbtFloat));
+            symbolTable.insert(*fakeVariable);
 
-        TVariable* fakeVariable = new TVariable(&symbol->getName(), TType(EbtFloat));
-        symbolTable.insert(*fakeVariable);
-
-        // substitute a symbol node for this new variable
-        nodePtr = intermediate.addSymbol(*fakeVariable, symbol->getLoc());
+            // substitute a symbol node for this new variable
+            nodePtr = intermediate.addSymbol(*fakeVariable, symbol->getLoc());
+        }
     } else {
         switch (symbol->getQualifier().storage) {
         case EvqPointCoord:
@@ -1611,7 +1652,7 @@ void TParseContext::variableCheck(TIntermTyped*& nodePtr)
 //
 // Returns true if the was an error.
 //
-bool TParseContext::lValueErrorCheck(TSourceLoc loc, const char* op, TIntermTyped* node)
+bool TParseContext::lValueErrorCheck(const TSourceLoc& loc, const char* op, TIntermTyped* node)
 {
     TIntermBinary* binaryNode = node->getAsBinaryNode();
 
@@ -1723,7 +1764,7 @@ bool TParseContext::lValueErrorCheck(TSourceLoc loc, const char* op, TIntermType
 }
 
 // Test for and give an error if the node can't be read from.
-void TParseContext::rValueErrorCheck(TSourceLoc loc, const char* op, TIntermTyped* node)
+void TParseContext::rValueErrorCheck(const TSourceLoc& loc, const char* op, TIntermTyped* node)
 {
     if (! node)
         return;
@@ -1774,7 +1815,7 @@ void TParseContext::integerCheck(const TIntermTyped* node, const char* token)
 // Both test, and if necessary spit out an error, to see if we are currently
 // globally scoped.
 //
-void TParseContext::globalCheck(TSourceLoc loc, const char* token)
+void TParseContext::globalCheck(const TSourceLoc& loc, const char* token)
 {
     if (! symbolTable.atGlobalLevel())
         error(loc, "not allowed in nested scope", token, "");
@@ -1783,7 +1824,7 @@ void TParseContext::globalCheck(TSourceLoc loc, const char* token)
 //
 // Reserved errors for GLSL.
 //
-void TParseContext::reservedErrorCheck(TSourceLoc loc, const TString& identifier)
+void TParseContext::reservedErrorCheck(const TSourceLoc& loc, const TString& identifier)
 {
     // "Identifiers starting with "gl_" are reserved for use by OpenGL, and may not be
     // declared in a shader; this results in a compile-time error."
@@ -1791,34 +1832,46 @@ void TParseContext::reservedErrorCheck(TSourceLoc loc, const TString& identifier
         if (builtInName(identifier))
             error(loc, "identifiers starting with \"gl_\" are reserved", identifier.c_str(), "");
 
+        // "__" are not supposed to be an error.  ES 310 (and desktop) added the clarification:
         // "In addition, all identifiers containing two consecutive underscores (__) are
         // reserved; using such a name does not itself result in an error, but may result
         // in undefined behavior."
-        if (identifier.find("__") != TString::npos)
-            warn(loc, "identifiers containing consecutive underscores (\"__\") are reserved", identifier.c_str(), "");
+        // however, before that, ES tests required an error.
+        if (identifier.find("__") != TString::npos) {
+            if (profile == EEsProfile && version <= 300)
+                error(loc, "identifiers containing consecutive underscores (\"__\") are reserved, and an error if version <= 300", identifier.c_str(), "");
+            else
+                warn(loc, "identifiers containing consecutive underscores (\"__\") are reserved", identifier.c_str(), "");
+        }
     }
 }
 
 //
 // Reserved errors for the preprocessor.
 //
-void TParseContext::reservedPpErrorCheck(TSourceLoc loc, const char* identifier, const char* op)
+void TParseContext::reservedPpErrorCheck(const TSourceLoc& loc, const char* identifier, const char* op)
 {
+    // "__" are not supposed to be an error.  ES 310 (and desktop) added the clarification:
     // "All macro names containing two consecutive underscores ( __ ) are reserved;
     // defining such a name does not itself result in an error, but may result in
     // undefined behavior.  All macro names prefixed with "GL_" ("GL" followed by a
     // single underscore) are also reserved, and defining such a name results in a
     // compile-time error."
+    // however, before that, ES tests required an error.
     if (strncmp(identifier, "GL_", 3) == 0)
-        error(loc, "names beginning with \"GL_\" can't be (un)defined:", op,  identifier);
+        ppError(loc, "names beginning with \"GL_\" can't be (un)defined:", op,  identifier);
     else if (strstr(identifier, "__") != 0) {
         if (profile == EEsProfile && version >= 300 &&
             (strcmp(identifier, "__LINE__") == 0 ||
              strcmp(identifier, "__FILE__") == 0 ||
              strcmp(identifier, "__VERSION__") == 0))
-            error(loc, "predefined names can't be (un)defined:", op,  identifier);
-        else
-            warn(loc, "names containing consecutive underscores are reserved:", op, identifier);
+            ppError(loc, "predefined names can't be (un)defined:", op,  identifier);
+        else {
+            if (profile == EEsProfile && version <= 300)
+                ppError(loc, "names containing consecutive underscores are reserved, and an error if version <= 300:", op, identifier);
+            else
+                ppWarn(loc, "names containing consecutive underscores are reserved:", op, identifier);
+        }
     }
 }
 
@@ -1827,12 +1880,12 @@ void TParseContext::reservedPpErrorCheck(TSourceLoc loc, const char* identifier,
 //
 // Returns true if a line continuation should be done.
 //
-bool TParseContext::lineContinuationCheck(TSourceLoc loc, bool endOfComment)
+bool TParseContext::lineContinuationCheck(const TSourceLoc& loc, bool endOfComment)
 {
     const char* message = "line continuation";
 
     bool lineContinuationAllowed = (profile == EEsProfile && version >= 300) ||
-                                   (profile != EEsProfile && (version >= 420 || extensionsTurnedOn(1, &GL_ARB_shading_language_420pack)));
+                                   (profile != EEsProfile && (version >= 420 || extensionTurnedOn(E_GL_ARB_shading_language_420pack)));
 
     if (endOfComment) {
         if (lineContinuationAllowed)
@@ -1843,13 +1896,13 @@ bool TParseContext::lineContinuationCheck(TSourceLoc loc, bool endOfComment)
         return lineContinuationAllowed;
     }
 
-    if (messages & EShMsgRelaxedErrors) {
+    if (relaxedErrors()) {
         if (! lineContinuationAllowed)
             warn(loc, "not allowed in this version", message, "");
         return true;
     } else {
         profileRequires(loc, EEsProfile, 300, nullptr, message);
-        profileRequires(loc, ~EEsProfile, 420, GL_ARB_shading_language_420pack, message);
+        profileRequires(loc, ~EEsProfile, 420, E_GL_ARB_shading_language_420pack, message);
     }
 
     return lineContinuationAllowed;
@@ -1867,7 +1920,7 @@ bool TParseContext::builtInName(const TString& identifier)
 //
 // Returns true if there was an error in construction.
 //
-bool TParseContext::constructorError(TSourceLoc loc, TIntermNode* node, TFunction& function, TOperator op, TType& type)
+bool TParseContext::constructorError(const TSourceLoc& loc, TIntermNode* node, TFunction& function, TOperator op, TType& type)
 {
     type.shallowCopy(function.getType());
 
@@ -1898,9 +1951,7 @@ bool TParseContext::constructorError(TSourceLoc loc, TIntermNode* node, TFunctio
     }
 
     //
-    // Note: It's okay to have too many components available, but not okay to have unused
-    // arguments.  'full' will go to true when enough args have been seen.  If we loop
-    // again, there is an extra argument, so 'overfull' will become true.
+    // Walk the arguments for first-pass checks and collection of information.
     //
 
     int size = 0;
@@ -1909,25 +1960,42 @@ bool TParseContext::constructorError(TSourceLoc loc, TIntermNode* node, TFunctio
     bool overFull = false;
     bool matrixInMatrix = false;
     bool arrayArg = false;
-    for (int i = 0; i < function.getParamCount(); ++i) {
-        size += function[i].type->computeNumComponents();
-
-        if (constructingMatrix && function[i].type->isMatrix())
+    for (int arg = 0; arg < function.getParamCount(); ++arg) {
+        if (function[arg].type->isArray()) {
+            if (! function[arg].type->isExplicitlySizedArray()) {
+                // Can't construct from an unsized array.
+                error(loc, "array argument must be sized", "constructor", "");
+                return true;
+            }
+            arrayArg = true;
+        }
+        if (constructingMatrix && function[arg].type->isMatrix())
             matrixInMatrix = true;
-        if (full)
+
+        // 'full' will go to true when enough args have been seen.  If we loop
+        // again, there is an extra argument.
+        if (full) {
+            // For vectors and matrices, it's okay to have too many components
+            // available, but not okay to have unused arguments.
             overFull = true;
+        }
+
+        size += function[arg].type->computeNumComponents();
         if (op != EOpConstructStruct && ! type.isArray() && size >= type.computeNumComponents())
             full = true;
-        if (function[i].type->getQualifier().storage != EvqConst)
+
+        if (function[arg].type->getQualifier().storage != EvqConst)
             constType = false;
-        if (function[i].type->isArray())
-            arrayArg = true;
     }
 
     if (constType)
         type.getQualifier().storage = EvqConst;
 
     if (type.isArray()) {
+        if (function.getParamCount() == 0) {
+            error(loc, "array constructor must have at least one argument", "constructor", "");
+            return true;
+        }
         if (type.isImplicitlySizedArray()) {
             // auto adapt the constructor type to the number of arguments
             type.changeArraySize(function.getParamCount());
@@ -1947,7 +2015,7 @@ bool TParseContext::constructorError(TSourceLoc loc, TIntermNode* node, TFunctio
 
         // "If a matrix argument is given to a matrix constructor,
         // it is a compile-time error to have any other arguments."
-        if (function.getParamCount() > 1)
+        if (function.getParamCount() != 1)
             error(loc, "matrix constructed from matrix can only have one argument", "constructor", "");
         return false;
     }
@@ -1993,7 +2061,7 @@ bool TParseContext::constructorError(TSourceLoc loc, TIntermNode* node, TFunctio
 //
 // returns true in case of an error
 //
-bool TParseContext::voidErrorCheck(TSourceLoc loc, const TString& identifier, const TBasicType basicType)
+bool TParseContext::voidErrorCheck(const TSourceLoc& loc, const TString& identifier, const TBasicType basicType)
 {
     if (basicType == EbtVoid) {
         error(loc, "illegal use of type 'void'", identifier.c_str(), "");
@@ -2004,20 +2072,20 @@ bool TParseContext::voidErrorCheck(TSourceLoc loc, const TString& identifier, co
 }
 
 // Checks to see if the node (for the expression) contains a scalar boolean expression or not
-void TParseContext::boolCheck(TSourceLoc loc, const TIntermTyped* type)
+void TParseContext::boolCheck(const TSourceLoc& loc, const TIntermTyped* type)
 {
     if (type->getBasicType() != EbtBool || type->isArray() || type->isMatrix() || type->isVector())
         error(loc, "boolean expression expected", "", "");
 }
 
 // This function checks to see if the node (for the expression) contains a scalar boolean expression or not
-void TParseContext::boolCheck(TSourceLoc loc, const TPublicType& pType)
+void TParseContext::boolCheck(const TSourceLoc& loc, const TPublicType& pType)
 {
     if (pType.basicType != EbtBool || pType.arraySizes || pType.matrixCols > 1 || (pType.vectorSize > 1))
         error(loc, "boolean expression expected", "", "");
 }
 
-void TParseContext::samplerCheck(TSourceLoc loc, const TType& type, const TString& identifier)
+void TParseContext::samplerCheck(const TSourceLoc& loc, const TType& type, const TString& identifier)
 {
     if (type.getQualifier().storage == EvqUniform)
         return;
@@ -2028,7 +2096,7 @@ void TParseContext::samplerCheck(TSourceLoc loc, const TType& type, const TStrin
         error(loc, "sampler/image types can only be used in uniform variables or function parameters:", type.getBasicTypeString().c_str(), identifier.c_str());
 }
 
-void TParseContext::atomicUintCheck(TSourceLoc loc, const TType& type, const TString& identifier)
+void TParseContext::atomicUintCheck(const TSourceLoc& loc, const TType& type, const TString& identifier)
 {
     if (type.getQualifier().storage == EvqUniform)
         return;
@@ -2042,7 +2110,7 @@ void TParseContext::atomicUintCheck(TSourceLoc loc, const TType& type, const TSt
 //
 // Check/fix just a full qualifier (no variables or types yet, but qualifier is complete) at global level.
 //
-void TParseContext::globalQualifierFixCheck(TSourceLoc loc, TQualifier& qualifier)
+void TParseContext::globalQualifierFixCheck(const TSourceLoc& loc, TQualifier& qualifier)
 {
     // move from parameter/unknown qualifiers to pipeline in/out qualifiers
     switch (qualifier.storage) {
@@ -2070,7 +2138,7 @@ void TParseContext::globalQualifierFixCheck(TSourceLoc loc, TQualifier& qualifie
 //
 // Check a full qualifier and type (no variable yet) at global level.
 //
-void TParseContext::globalQualifierTypeCheck(TSourceLoc loc, const TQualifier& qualifier, const TPublicType& publicType)
+void TParseContext::globalQualifierTypeCheck(const TSourceLoc& loc, const TQualifier& qualifier, const TPublicType& publicType)
 {
     if (! symbolTable.atGlobalLevel())
         return;
@@ -2206,7 +2274,7 @@ void TParseContext::globalQualifierTypeCheck(TSourceLoc loc, const TQualifier& q
 // 'dst', for the purpose of error checking order for versions
 // that require specific orderings of qualifiers.
 //
-void TParseContext::mergeQualifiers(TSourceLoc loc, TQualifier& dst, const TQualifier& src, bool force)
+void TParseContext::mergeQualifiers(const TSourceLoc& loc, TQualifier& dst, const TQualifier& src, bool force)
 {
     // Multiple auxiliary qualifiers (mostly done later by 'individual qualifiers')
     if (src.isAuxiliary() && dst.isAuxiliary())
@@ -2219,7 +2287,7 @@ void TParseContext::mergeQualifiers(TSourceLoc loc, TQualifier& dst, const TQual
     // Ordering
     if (! force && ((profile != EEsProfile && version < 420) || 
                     (profile == EEsProfile && version < 310))
-                && ! extensionsTurnedOn(1, &GL_ARB_shading_language_420pack)) {
+                && ! extensionTurnedOn(E_GL_ARB_shading_language_420pack)) {
         // non-function parameters
         if (src.invariant && (dst.isInterpolation() || dst.isAuxiliary() || dst.storage != EvqTemporary || dst.precision != EpqNone))
             error(loc, "invariant qualifier must appear first", "", "");
@@ -2277,7 +2345,7 @@ void TParseContext::mergeQualifiers(TSourceLoc loc, TQualifier& dst, const TQual
         error(loc, "replicated qualifiers", "", "");
 }
 
-void TParseContext::setDefaultPrecision(TSourceLoc loc, TPublicType& publicType, TPrecisionQualifier qualifier)
+void TParseContext::setDefaultPrecision(const TSourceLoc& loc, TPublicType& publicType, TPrecisionQualifier qualifier)
 {
     TBasicType basicType = publicType.basicType;
 
@@ -2326,7 +2394,7 @@ TPrecisionQualifier TParseContext::getDefaultPrecision(TPublicType& publicType)
         return defaultPrecision[publicType.basicType];
 }
 
-void TParseContext::precisionQualifierCheck(TSourceLoc loc, TBasicType baseType, TQualifier& qualifier)
+void TParseContext::precisionQualifierCheck(const TSourceLoc& loc, TBasicType baseType, TQualifier& qualifier)
 {
     // Built-in symbols are allowed some ambiguous precisions, to be pinned down
     // later by context.
@@ -2338,7 +2406,7 @@ void TParseContext::precisionQualifierCheck(TSourceLoc loc, TBasicType baseType,
 
     if (baseType == EbtFloat || baseType == EbtUint || baseType == EbtInt || baseType == EbtSampler || baseType == EbtAtomicUint) {
         if (qualifier.precision == EpqNone) {
-            if (messages & EShMsgRelaxedErrors)
+            if (relaxedErrors())
                 warn(loc, "type requires declaration of default precision qualifier", TType::getBasicString(baseType), "substituting 'mediump'");
             else
                 error(loc, "type requires declaration of default precision qualifier", TType::getBasicString(baseType), "");
@@ -2349,7 +2417,7 @@ void TParseContext::precisionQualifierCheck(TSourceLoc loc, TBasicType baseType,
         error(loc, "type cannot have precision qualifier", TType::getBasicString(baseType), "");
 }
 
-void TParseContext::parameterTypeCheck(TSourceLoc loc, TStorageQualifier qualifier, const TType& type)
+void TParseContext::parameterTypeCheck(const TSourceLoc& loc, TStorageQualifier qualifier, const TType& type)
 {
     if ((qualifier == EvqOut || qualifier == EvqInOut) && (type.getBasicType() == EbtSampler || type.getBasicType() == EbtAtomicUint))
         error(loc, "samplers and atomic_uints cannot be output parameters", type.getBasicTypeString().c_str(), "");
@@ -2374,7 +2442,7 @@ bool TParseContext::containsFieldWithBasicType(const TType& type, TBasicType bas
 //
 // Do size checking for an array type's size.
 //
-void TParseContext::arraySizeCheck(TSourceLoc loc, TIntermTyped* expr, int& size)
+void TParseContext::arraySizeCheck(const TSourceLoc& loc, TIntermTyped* expr, int& size)
 {
     TIntermConstantUnion* constant = expr->getAsConstantUnion();
     if (constant == 0 || (constant->getBasicType() != EbtInt && constant->getBasicType() != EbtUint)) {
@@ -2399,10 +2467,10 @@ void TParseContext::arraySizeCheck(TSourceLoc loc, TIntermTyped* expr, int& size
 //
 // Returns true if there is an error.
 //
-bool TParseContext::arrayQualifierError(TSourceLoc loc, const TQualifier& qualifier)
+bool TParseContext::arrayQualifierError(const TSourceLoc& loc, const TQualifier& qualifier)
 {
     if (qualifier.storage == EvqConst) {
-        profileRequires(loc, ENoProfile, 120, GL_3DL_array_objects, "const array");
+        profileRequires(loc, ENoProfile, 120, E_GL_3DL_array_objects, "const array");
         profileRequires(loc, EEsProfile, 300, nullptr, "const array");
     }
 
@@ -2420,7 +2488,7 @@ bool TParseContext::arrayQualifierError(TSourceLoc loc, const TQualifier& qualif
 //
 // Returns true if there is an error.
 //
-bool TParseContext::arrayError(TSourceLoc loc, const TType& type)
+bool TParseContext::arrayError(const TSourceLoc& loc, const TType& type)
 {
     if (type.getQualifier().storage == EvqVaryingOut && language == EShLangVertex) {
         if (type.isArrayOfArrays())
@@ -2441,13 +2509,13 @@ bool TParseContext::arrayError(TSourceLoc loc, const TType& type)
 //
 // Require array to have size
 //
-void TParseContext::arraySizeRequiredCheck(TSourceLoc loc, int size)
+void TParseContext::arraySizeRequiredCheck(const TSourceLoc& loc, int size)
 {
     if (size == 0)
         error(loc, "array size required", "", "");
 }
 
-void TParseContext::structArrayCheck(TSourceLoc /*loc*/, const TType& type)
+void TParseContext::structArrayCheck(const TSourceLoc& /*loc*/, const TType& type)
 {
     const TTypeList& structure = *type.getStruct();
     for (int m = 0; m < (int)structure.size(); ++m) {
@@ -2457,7 +2525,7 @@ void TParseContext::structArrayCheck(TSourceLoc /*loc*/, const TType& type)
     }
 }
 
-void TParseContext::arrayUnsizedCheck(TSourceLoc loc, const TQualifier& qualifier, int size, bool initializer)
+void TParseContext::arrayUnsizedCheck(const TSourceLoc& loc, const TQualifier& qualifier, int size, bool initializer)
 {
     // desktop always allows unsized variable arrays,
     // ES always allows them if there is an initializer present to get the size from
@@ -2491,26 +2559,34 @@ void TParseContext::arrayUnsizedCheck(TSourceLoc loc, const TQualifier& qualifie
     arraySizeRequiredCheck(loc, size);
 }
 
-void TParseContext::arrayDimError(TSourceLoc loc)
+void TParseContext::arrayOfArrayVersionCheck(const TSourceLoc& loc)
 {
-    requireProfile(loc, EEsProfile | ECoreProfile | ECompatibilityProfile, "arrays of arrays");
-    profileRequires(loc, ECoreProfile | ECompatibilityProfile, 430, nullptr, "arrays of arrays");
-    profileRequires(loc, EEsProfile, 310, nullptr, "arrays of arrays");
+    const char* feature = "arrays of arrays";
+
+    requireProfile(loc, EEsProfile | ECoreProfile | ECompatibilityProfile, feature);
+    profileRequires(loc, EEsProfile, 310, nullptr, feature);
+    profileRequires(loc, ECoreProfile | ECompatibilityProfile, 430, nullptr, feature);
+
+    static int once = false;
+    if (! once) {
+        warn(loc, feature, "Not supported yet.", "");
+        once = true;
+    }
 }
 
-void TParseContext::arrayDimCheck(TSourceLoc loc, TArraySizes* sizes1, TArraySizes* sizes2)
+void TParseContext::arrayDimCheck(const TSourceLoc& loc, TArraySizes* sizes1, TArraySizes* sizes2)
 {
     if ((sizes1 && sizes2) ||
-        (sizes1 && sizes1->isArrayOfArrays()) ||
-        (sizes2 && sizes2->isArrayOfArrays()))
-        arrayDimError(loc);
+        (sizes1 && sizes1->getNumDims() > 1) ||
+        (sizes2 && sizes2->getNumDims() > 1))
+        arrayOfArrayVersionCheck(loc);
 }
 
-void TParseContext::arrayDimCheck(TSourceLoc loc, const TType* type, TArraySizes* sizes2)
+void TParseContext::arrayDimCheck(const TSourceLoc& loc, const TType* type, TArraySizes* sizes2)
 {
     if ((type && type->isArray() && sizes2) ||
-        (sizes2 && sizes2->isArrayOfArrays()))
-        arrayDimError(loc);
+        (sizes2 && sizes2->getNumDims() > 1))
+        arrayOfArrayVersionCheck(loc);
 }
 
 //
@@ -2519,7 +2595,7 @@ void TParseContext::arrayDimCheck(TSourceLoc loc, const TType* type, TArraySizes
 //
 // size == 0 means no specified size.
 //
-void TParseContext::declareArray(TSourceLoc loc, TString& identifier, const TType& type, TSymbol*& symbol, bool& newDeclaration)
+void TParseContext::declareArray(const TSourceLoc& loc, TString& identifier, const TType& type, TSymbol*& symbol, bool& newDeclaration)
 {
     if (! symbol) {
         bool currentScope;
@@ -2591,7 +2667,7 @@ void TParseContext::declareArray(TSourceLoc loc, TString& identifier, const TTyp
         checkIoArraysConsistency(loc);
 }
 
-void TParseContext::updateImplicitArraySize(TSourceLoc loc, TIntermNode *node, int index)
+void TParseContext::updateImplicitArraySize(const TSourceLoc& loc, TIntermNode *node, int index)
 {
     // maybe there is nothing to do...
     TIntermTyped* typedNode = node->getAsTyped();
@@ -2637,10 +2713,23 @@ void TParseContext::updateImplicitArraySize(TSourceLoc loc, TIntermNode *node, i
     symbol->getWritableType().setImplicitArraySize(index + 1);
 }
 
+// Returns true if the first argument to the #line directive is the line number for the next line.
+//
+// Desktop, pre-version 3.30:  "After processing this directive
+// (including its new-line), the implementation will behave as if it is compiling at line number line+1 and
+// source string number source-string-number."
+//
+// Desktop, version 3.30 and later, and ES:  "After processing this directive
+// (including its new-line), the implementation will behave as if it is compiling at line number line and
+// source string number source-string-number.
+bool TParseContext::lineDirectiveShouldSetNextLine() const {
+    return profile == EEsProfile || version >= 330;
+}
+
 //
 // Enforce non-initializer type/qualifier rules.
 //
-void TParseContext::nonInitConstCheck(TSourceLoc loc, TString& identifier, TType& type)
+void TParseContext::nonInitConstCheck(const TSourceLoc& loc, TString& identifier, TType& type)
 {
     //
     // Make the qualifier make sense, given that there is an initializer.
@@ -2662,7 +2751,7 @@ void TParseContext::nonInitConstCheck(TSourceLoc loc, TString& identifier, TType
 //
 // Returns a redeclared and type-modified variable if a redeclarated occurred.
 //
-TSymbol* TParseContext::redeclareBuiltinVariable(TSourceLoc loc, const TString& identifier, const TQualifier& qualifier, const TShaderQualifiers& publicType, bool& newDeclaration)
+TSymbol* TParseContext::redeclareBuiltinVariable(const TSourceLoc& loc, const TString& identifier, const TQualifier& qualifier, const TShaderQualifiers& publicType, bool& newDeclaration)
 {
     if (! builtInName(identifier) || symbolTable.atBuiltInLevel() || ! symbolTable.atGlobalLevel())
         return 0;
@@ -2674,7 +2763,7 @@ TSymbol* TParseContext::redeclareBuiltinVariable(TSourceLoc loc, const TString& 
 
     // Special case when using GL_ARB_separate_shader_objects
     bool ssoPre150 = false;  // means the only reason this variable is redeclared is due to this combination
-    if (profile != EEsProfile && version <= 140 && extensionsTurnedOn(1, &GL_ARB_separate_shader_objects)) {
+    if (profile != EEsProfile && version <= 140 && extensionTurnedOn(E_GL_ARB_separate_shader_objects)) {
         if (identifier == "gl_Position"     ||
             identifier == "gl_PointSize"    ||
             identifier == "gl_ClipVertex"   ||
@@ -2787,11 +2876,11 @@ TSymbol* TParseContext::redeclareBuiltinVariable(TSourceLoc loc, const TString& 
 // Either redeclare the requested block, or give an error message why it can't be done.
 //
 // TODO: functionality: explicitly sizing members of redeclared blocks is not giving them an explicit size
-void TParseContext::redeclareBuiltinBlock(TSourceLoc loc, TTypeList& newTypeList, const TString& blockName, const TString* instanceName, TArraySizes* arraySizes)
+void TParseContext::redeclareBuiltinBlock(const TSourceLoc& loc, TTypeList& newTypeList, const TString& blockName, const TString* instanceName, TArraySizes* arraySizes)
 {
     const char* feature = "built-in block redeclaration";
     profileRequires(loc, EEsProfile, 0, Num_AEP_shader_io_blocks, AEP_shader_io_blocks, feature);
-    profileRequires(loc, ~EEsProfile, 410, GL_ARB_separate_shader_objects, feature);
+    profileRequires(loc, ~EEsProfile, 410, E_GL_ARB_separate_shader_objects, feature);
 
     if (blockName != "gl_PerVertex" && blockName != "gl_PerFragment") {
         error(loc, "cannot redeclare block: ", "block declaration", blockName.c_str());
@@ -2904,12 +2993,12 @@ void TParseContext::redeclareBuiltinBlock(TSourceLoc loc, TTypeList& newTypeList
     if (type.isArray() != (arraySizes != 0))
         error(loc, "cannot change arrayness of redeclared block", blockName.c_str(), "");
     else if (type.isArray()) {
-        if (type.isExplicitlySizedArray() && arraySizes->getSize() == 0)
+        if (type.isExplicitlySizedArray() && arraySizes->getOuterSize() == 0)
             error(loc, "block already declared with size, can't redeclare as implicitly-sized", blockName.c_str(), "");
-        else if (type.isExplicitlySizedArray() && type.getArraySize() != arraySizes->getSize())
+        else if (type.isExplicitlySizedArray() && type.getArraySize() != arraySizes->getOuterSize())
             error(loc, "cannot change array size of redeclared block", blockName.c_str(), "");
-        else if (type.isImplicitlySizedArray() && arraySizes->getSize() > 0)
-            type.changeArraySize(arraySizes->getSize());
+        else if (type.isImplicitlySizedArray() && arraySizes->getOuterSize() > 0)
+            type.changeArraySize(arraySizes->getOuterSize());
     }
 
     symbolTable.insert(*block);
@@ -2928,7 +3017,7 @@ void TParseContext::redeclareBuiltinBlock(TSourceLoc loc, TTypeList& newTypeList
     intermediate.addSymbolLinkageNode(linkage, *block);
 }
 
-void TParseContext::paramCheckFix(TSourceLoc loc, const TStorageQualifier& qualifier, TType& type)
+void TParseContext::paramCheckFix(const TSourceLoc& loc, const TStorageQualifier& qualifier, TType& type)
 {
     switch (qualifier) {
     case EvqConst:
@@ -2951,7 +3040,7 @@ void TParseContext::paramCheckFix(TSourceLoc loc, const TStorageQualifier& quali
     }
 }
 
-void TParseContext::paramCheckFix(TSourceLoc loc, const TQualifier& qualifier, TType& type)
+void TParseContext::paramCheckFix(const TSourceLoc& loc, const TQualifier& qualifier, TType& type)
 {
     if (qualifier.isMemory()) {
         type.getQualifier().volatil   = qualifier.volatil;
@@ -2971,43 +3060,43 @@ void TParseContext::paramCheckFix(TSourceLoc loc, const TQualifier& qualifier, T
     paramCheckFix(loc, qualifier.storage, type);
 }
 
-void TParseContext::nestedBlockCheck(TSourceLoc loc)
+void TParseContext::nestedBlockCheck(const TSourceLoc& loc)
 {
     if (structNestingLevel > 0)
         error(loc, "cannot nest a block definition inside a structure or block", "", "");
     ++structNestingLevel;
 }
 
-void TParseContext::nestedStructCheck(TSourceLoc loc)
+void TParseContext::nestedStructCheck(const TSourceLoc& loc)
 {
     if (structNestingLevel > 0)
         error(loc, "cannot nest a structure definition inside a structure or block", "", "");
     ++structNestingLevel;
 }
 
-void TParseContext::arrayObjectCheck(TSourceLoc loc, const TType& type, const char* op)
+void TParseContext::arrayObjectCheck(const TSourceLoc& loc, const TType& type, const char* op)
 {
     // Some versions don't allow comparing arrays or structures containing arrays
     if (type.containsArray()) {
-        profileRequires(loc, ENoProfile, 120, GL_3DL_array_objects, op);
+        profileRequires(loc, ENoProfile, 120, E_GL_3DL_array_objects, op);
         profileRequires(loc, EEsProfile, 300, nullptr, op);
     }
 }
 
-void TParseContext::opaqueCheck(TSourceLoc loc, const TType& type, const char* op)
+void TParseContext::opaqueCheck(const TSourceLoc& loc, const TType& type, const char* op)
 {
     if (containsFieldWithBasicType(type, EbtSampler))
         error(loc, "can't use with samplers or structs containing samplers", op, "");
 }
 
-void TParseContext::structTypeCheck(TSourceLoc /*loc*/, TPublicType& publicType)
+void TParseContext::structTypeCheck(const TSourceLoc& /*loc*/, TPublicType& publicType)
 {
     const TTypeList& typeList = *publicType.userDef->getStruct();
 
     // fix and check for member storage qualifiers and types that don't belong within a structure
     for (unsigned int member = 0; member < typeList.size(); ++member) {
         TQualifier& memberQualifier = typeList[member].type->getQualifier();        
-        TSourceLoc memberLoc = typeList[member].loc;
+        const TSourceLoc& memberLoc = typeList[member].loc;
         if (memberQualifier.isAuxiliary() ||
             memberQualifier.isInterpolation() ||
             (memberQualifier.storage != EvqTemporary && memberQualifier.storage != EvqGlobal))
@@ -3041,7 +3130,7 @@ void TParseContext::structTypeCheck(TSourceLoc /*loc*/, TPublicType& publicType)
 //
 // The body is handled in an AST traversal.
 //
-void TParseContext::inductiveLoopCheck(TSourceLoc loc, TIntermNode* init, TIntermLoop* loop)
+void TParseContext::inductiveLoopCheck(const TSourceLoc& loc, TIntermNode* init, TIntermLoop* loop)
 {
     // loop index init must exist and be a declaration, which shows up in the AST as an aggregate of size 1 of the declaration
     bool badInit = false;
@@ -3141,7 +3230,7 @@ void TParseContext::inductiveLoopCheck(TSourceLoc loc, TIntermNode* init, TInter
 }
 
 // Do limit checks against for all built-in arrays.
-void TParseContext::arrayLimitCheck(TSourceLoc loc, const TString& identifier, int size)
+void TParseContext::arrayLimitCheck(const TSourceLoc& loc, const TString& identifier, int size)
 {
     if (identifier.compare("gl_TexCoord") == 0)
         limitCheck(loc, size, "gl_MaxTextureCoords", "gl_TexCoord array size");
@@ -3151,7 +3240,7 @@ void TParseContext::arrayLimitCheck(TSourceLoc loc, const TString& identifier, i
 
 // See if the provided value is less than the symbol indicated by limit,
 // which should be a constant in the symbol table.
-void TParseContext::limitCheck(TSourceLoc loc, int value, const char* limit, const char* feature)
+void TParseContext::limitCheck(const TSourceLoc& loc, int value, const char* limit, const char* feature)
 {
     TSymbol* symbol = symbolTable.find(limit);
     assert(symbol->getAsVariable());
@@ -3185,11 +3274,11 @@ void TParseContext::finalErrorCheck()
         if (profile == EEsProfile && version == 310)
             requireExtensions(getCurrentLoc(), Num_AEP_tessellation_shader, AEP_tessellation_shader, "tessellation shaders");
         else if (profile != EEsProfile && version < 400)
-            requireExtensions(getCurrentLoc(), 1, &GL_ARB_tessellation_shader, "tessellation shaders");
+            requireExtensions(getCurrentLoc(), 1, &E_GL_ARB_tessellation_shader, "tessellation shaders");
         break;
     case EShLangCompute:
         if (profile != EEsProfile && version < 430)
-            requireExtensions(getCurrentLoc(), 1, &GL_ARB_compute_shader, "tessellation shaders");
+            requireExtensions(getCurrentLoc(), 1, &E_GL_ARB_compute_shader, "tessellation shaders");
         break;
     default:
         break;
@@ -3202,7 +3291,7 @@ void TParseContext::finalErrorCheck()
 
 // Put the id's layout qualification into the public type, for qualifiers not having a number set.
 // This is before we know any type information for error checking.
-void TParseContext::setLayoutQualifier(TSourceLoc loc, TPublicType& publicType, TString& id)
+void TParseContext::setLayoutQualifier(const TSourceLoc& loc, TPublicType& publicType, TString& id)
 {
     std::transform(id.begin(), id.end(), id.begin(), ::tolower);
 
@@ -3239,8 +3328,8 @@ void TParseContext::setLayoutQualifier(TSourceLoc loc, TPublicType& publicType, 
                 (format > ElfEsIntGuard && format < ElfIntGuard) ||
                 (format > ElfEsUintGuard && format < ElfCount))
                 requireProfile(loc, ENoProfile | ECoreProfile | ECompatibilityProfile, "image load-store format");
-            profileRequires(loc, ENoProfile | ECoreProfile | ECompatibilityProfile, 420, GL_ARB_shader_image_load_store, "image load store");
-            profileRequires(loc, EEsProfile, 310, GL_ARB_shader_image_load_store, "image load store");
+            profileRequires(loc, ENoProfile | ECoreProfile | ECompatibilityProfile, 420, E_GL_ARB_shader_image_load_store, "image load store");
+            profileRequires(loc, EEsProfile, 310, E_GL_ARB_shader_image_load_store, "image load store");
             publicType.qualifier.layoutFormat = format;
             return;
         }
@@ -3335,7 +3424,7 @@ void TParseContext::setLayoutQualifier(TSourceLoc loc, TPublicType& publicType, 
             return;
         }
         if (id == "early_fragment_tests") {
-            profileRequires(loc, ENoProfile | ECoreProfile | ECompatibilityProfile, 420, GL_ARB_shader_image_load_store, "early_fragment_tests");
+            profileRequires(loc, ENoProfile | ECoreProfile | ECompatibilityProfile, 420, E_GL_ARB_shader_image_load_store, "early_fragment_tests");
             profileRequires(loc, EEsProfile, 310, nullptr, "early_fragment_tests");
             publicType.shaderQualifiers.earlyFragmentTests = true;
             return;
@@ -3354,7 +3443,7 @@ void TParseContext::setLayoutQualifier(TSourceLoc loc, TPublicType& publicType, 
 
 // Put the id's layout qualifier value into the public type, for qualifiers having a number set.
 // This is before we know any type information for error checking.
-void TParseContext::setLayoutQualifier(TSourceLoc loc, TPublicType& publicType, TString& id, const TIntermTyped* node)
+void TParseContext::setLayoutQualifier(const TSourceLoc& loc, TPublicType& publicType, TString& id, const TIntermTyped* node)
 {
     const char* feature = "layout-id value";
     const char* nonLiteralFeature = "non-literal layout-id value";
@@ -3366,7 +3455,7 @@ void TParseContext::setLayoutQualifier(TSourceLoc loc, TPublicType& publicType, 
         value = constUnion->getConstArray()[0].getIConst();
         if (! constUnion->isLiteral()) {
             requireProfile(loc, ECoreProfile | ECompatibilityProfile, nonLiteralFeature);
-            profileRequires(loc, ECoreProfile | ECompatibilityProfile, 440, GL_ARB_enhanced_layouts, nonLiteralFeature);
+            profileRequires(loc, ECoreProfile | ECompatibilityProfile, 440, E_GL_ARB_enhanced_layouts, nonLiteralFeature);
         }
     } else {
         // grammar should have give out the error message
@@ -3383,7 +3472,7 @@ void TParseContext::setLayoutQualifier(TSourceLoc loc, TPublicType& publicType, 
     if (id == "offset") {
         const char* feature = "uniform offset";
         requireProfile(loc, EEsProfile | ECoreProfile | ECompatibilityProfile, feature);
-        const char* exts[2] = { GL_ARB_enhanced_layouts, GL_ARB_shader_atomic_counters };
+        const char* exts[2] = { E_GL_ARB_enhanced_layouts, E_GL_ARB_shader_atomic_counters };
         profileRequires(loc, ECoreProfile | ECompatibilityProfile, 420, 2, exts, feature);
         profileRequires(loc, EEsProfile, 310, nullptr, feature);
         publicType.qualifier.layoutOffset = value;
@@ -3391,7 +3480,7 @@ void TParseContext::setLayoutQualifier(TSourceLoc loc, TPublicType& publicType, 
     } else if (id == "align") {
         const char* feature = "uniform buffer-member align";
         requireProfile(loc, ECoreProfile | ECompatibilityProfile, feature);
-        profileRequires(loc, ECoreProfile | ECompatibilityProfile, 440, GL_ARB_enhanced_layouts, feature);
+        profileRequires(loc, ECoreProfile | ECompatibilityProfile, 440, E_GL_ARB_enhanced_layouts, feature);
         // "The specified alignment must be a power of 2, or a compile-time error results."
         if (! IsPow2(value))
             error(loc, "must be a power of 2", "align", "");
@@ -3400,7 +3489,7 @@ void TParseContext::setLayoutQualifier(TSourceLoc loc, TPublicType& publicType, 
         return;
     } else if (id == "location") {
         profileRequires(loc, EEsProfile, 300, nullptr, "location");
-        const char* exts[2] = { GL_ARB_separate_shader_objects, GL_ARB_explicit_attrib_location };
+        const char* exts[2] = { E_GL_ARB_separate_shader_objects, E_GL_ARB_explicit_attrib_location };
         profileRequires(loc, ~EEsProfile, 330, 2, exts, "location");
         if ((unsigned int)value >= TQualifier::layoutLocationEnd)
             error(loc, "location is too large", id.c_str(), "");
@@ -3414,7 +3503,7 @@ void TParseContext::setLayoutQualifier(TSourceLoc loc, TPublicType& publicType, 
             publicType.qualifier.layoutSet = value;
         return;
     } else if (id == "binding") {
-        profileRequires(loc, ~EEsProfile, 420, GL_ARB_shading_language_420pack, "binding");
+        profileRequires(loc, ~EEsProfile, 420, E_GL_ARB_shading_language_420pack, "binding");
         profileRequires(loc, EEsProfile, 310, nullptr, "binding");
         if ((unsigned int)value >= TQualifier::layoutBindingEnd)
             error(loc, "binding is too large", id.c_str(), "");
@@ -3423,7 +3512,7 @@ void TParseContext::setLayoutQualifier(TSourceLoc loc, TPublicType& publicType, 
         return;
     } else if (id == "component") {
         requireProfile(loc, ECoreProfile | ECompatibilityProfile, "component");
-        profileRequires(loc, ECoreProfile | ECompatibilityProfile, 440, GL_ARB_enhanced_layouts, "component");
+        profileRequires(loc, ECoreProfile | ECompatibilityProfile, 440, E_GL_ARB_enhanced_layouts, "component");
         if ((unsigned)value >= TQualifier::layoutComponentEnd)
             error(loc, "component is too large", id.c_str(), "");
         else
@@ -3438,19 +3527,19 @@ void TParseContext::setLayoutQualifier(TSourceLoc loc, TPublicType& publicType, 
         const char* feature = "transform feedback qualifier";
         requireStage(loc, (EShLanguageMask)(EShLangVertexMask | EShLangGeometryMask | EShLangTessControlMask | EShLangTessEvaluationMask), feature);
         requireProfile(loc, ECoreProfile | ECompatibilityProfile, feature);
-        profileRequires(loc, ECoreProfile | ECompatibilityProfile, 440, GL_ARB_enhanced_layouts, feature);
+        profileRequires(loc, ECoreProfile | ECompatibilityProfile, 440, E_GL_ARB_enhanced_layouts, feature);
         if (id == "xfb_buffer") {
             // "It is a compile-time error to specify an *xfb_buffer* that is greater than
             // the implementation-dependent constant gl_MaxTransformFeedbackBuffers."
             if (value >= resources.maxTransformFeedbackBuffers)
                 error(loc, "buffer is too large:", id.c_str(), "gl_MaxTransformFeedbackBuffers is %d", resources.maxTransformFeedbackBuffers);                
-            if (value >= TQualifier::layoutXfbBufferEnd)
+            if (value >= (int)TQualifier::layoutXfbBufferEnd)
                 error(loc, "buffer is too large:", id.c_str(), "internal max is %d", TQualifier::layoutXfbBufferEnd-1);
             else
                 publicType.qualifier.layoutXfbBuffer = value;
             return;
         } else if (id == "xfb_offset") {
-            if (value >= TQualifier::layoutXfbOffsetEnd)
+            if (value >= (int)TQualifier::layoutXfbOffsetEnd)
                 error(loc, "offset is too large:", id.c_str(), "internal max is %d", TQualifier::layoutXfbOffsetEnd-1);
             else
                 publicType.qualifier.layoutXfbOffset = value;
@@ -3460,9 +3549,9 @@ void TParseContext::setLayoutQualifier(TSourceLoc loc, TPublicType& publicType, 
             // implementation-dependent constant gl_MaxTransformFeedbackInterleavedComponents."
             if (value > 4 * resources.maxTransformFeedbackInterleavedComponents)
                 error(loc, "1/4 stride is too large:", id.c_str(), "gl_MaxTransformFeedbackInterleavedComponents is %d", resources.maxTransformFeedbackInterleavedComponents);
-            else if (value >= TQualifier::layoutXfbStrideEnd)
+            else if (value >= (int)TQualifier::layoutXfbStrideEnd)
                 error(loc, "stride is too large:", id.c_str(), "internal max is %d", TQualifier::layoutXfbStrideEnd-1);
-            if (value < TQualifier::layoutXfbStrideEnd)
+            if (value < (int)TQualifier::layoutXfbStrideEnd)
                 publicType.qualifier.layoutXfbStride = value;
             return;
         }
@@ -3504,7 +3593,7 @@ void TParseContext::setLayoutQualifier(TSourceLoc loc, TPublicType& publicType, 
     case EShLangFragment:
         if (id == "index") {
             requireProfile(loc, ECompatibilityProfile | ECoreProfile, "index layout qualifier on fragment output");
-            const char* exts[2] = { GL_ARB_separate_shader_objects, GL_ARB_explicit_attrib_location };
+            const char* exts[2] = { E_GL_ARB_separate_shader_objects, E_GL_ARB_explicit_attrib_location };
             profileRequires(loc, ECompatibilityProfile | ECoreProfile, 330, 2, exts, "index layout qualifier on fragment output");
             publicType.qualifier.layoutIndex = value;
             return;
@@ -3591,7 +3680,7 @@ void TParseContext::mergeObjectLayoutQualifiers(TQualifier& dst, const TQualifie
 }
 
 // Do error layout error checking given a full variable/block declaration.
-void TParseContext::layoutObjectCheck(TSourceLoc loc, const TSymbol& symbol)
+void TParseContext::layoutObjectCheck(const TSourceLoc& loc, const TSymbol& symbol)
 {
     const TType& type = symbol.getType();
     const TQualifier& qualifier = type.getQualifier();
@@ -3639,7 +3728,7 @@ void TParseContext::layoutObjectCheck(TSourceLoc loc, const TSymbol& symbol)
 }
 
 // Do layout error checking with respect to a type.
-void TParseContext::layoutTypeCheck(TSourceLoc loc, const TType& type)
+void TParseContext::layoutTypeCheck(const TSourceLoc& loc, const TType& type)
 {
     const TQualifier& qualifier = type.getQualifier();
 
@@ -3669,7 +3758,7 @@ void TParseContext::layoutTypeCheck(TSourceLoc loc, const TType& type)
         case EvqVaryingIn:
         case EvqVaryingOut:
             if (type.getBasicType() == EbtBlock)
-                profileRequires(loc, ECoreProfile | ECompatibilityProfile, 440, GL_ARB_enhanced_layouts, "location qualifier on in/out block");
+                profileRequires(loc, ECoreProfile | ECompatibilityProfile, 440, E_GL_ARB_enhanced_layouts, "location qualifier on in/out block");
             break;
         case EvqUniform:
         case EvqBuffer:
@@ -3773,7 +3862,7 @@ void TParseContext::layoutTypeCheck(TSourceLoc loc, const TType& type)
 
 // Do layout error checking that can be done within a layout qualifier proper, not needing to know
 // if there are blocks, atomic counters, variables, etc.
-void TParseContext::layoutQualifierCheck(TSourceLoc loc, const TQualifier& qualifier)
+void TParseContext::layoutQualifierCheck(const TSourceLoc& loc, const TQualifier& qualifier)
 {
     if (qualifier.storage == EvqShared && qualifier.hasLayout())
         error(loc, "cannot apply layout qualifiers to a shared variable", "shared", "");
@@ -3797,11 +3886,11 @@ void TParseContext::layoutQualifierCheck(TSourceLoc loc, const TQualifier& quali
             else
                 requireStage(loc, (EShLanguageMask)~EShLangComputeMask, feature);
             if (language == EShLangVertex) {
-                const char* exts[2] = { GL_ARB_separate_shader_objects, GL_ARB_explicit_attrib_location };
+                const char* exts[2] = { E_GL_ARB_separate_shader_objects, E_GL_ARB_explicit_attrib_location };
                 profileRequires(loc, ~EEsProfile, 330, 2, exts, feature);
                 profileRequires(loc, EEsProfile, 300, nullptr, feature);
             } else {
-                profileRequires(loc, ~EEsProfile, 410, GL_ARB_separate_shader_objects, feature);
+                profileRequires(loc, ~EEsProfile, 410, E_GL_ARB_separate_shader_objects, feature);
                 profileRequires(loc, EEsProfile, 310, nullptr, feature);
             }
             break;
@@ -3814,11 +3903,11 @@ void TParseContext::layoutQualifierCheck(TSourceLoc loc, const TQualifier& quali
             else
                 requireStage(loc, (EShLanguageMask)~EShLangComputeMask, feature);
             if (language == EShLangFragment) {
-                const char* exts[2] = { GL_ARB_separate_shader_objects, GL_ARB_explicit_attrib_location };
+                const char* exts[2] = { E_GL_ARB_separate_shader_objects, E_GL_ARB_explicit_attrib_location };
                 profileRequires(loc, ~EEsProfile, 330, 2, exts, feature);
                 profileRequires(loc, EEsProfile, 300, nullptr, feature);
             } else {
-                profileRequires(loc, ~EEsProfile, 410, GL_ARB_separate_shader_objects, feature);
+                profileRequires(loc, ~EEsProfile, 410, E_GL_ARB_separate_shader_objects, feature);
                 profileRequires(loc, EEsProfile, 310, nullptr, feature);
             }
             break;
@@ -3866,7 +3955,7 @@ void TParseContext::layoutQualifierCheck(TSourceLoc loc, const TQualifier& quali
 }
 
 // For places that can't have shader-level layout qualifiers
-void TParseContext::checkNoShaderLayouts(TSourceLoc loc, const TShaderQualifiers& shaderQualifiers)
+void TParseContext::checkNoShaderLayouts(const TSourceLoc& loc, const TShaderQualifiers& shaderQualifiers)
 {
     const char* message = "can only apply to a standalone qualifier";
 
@@ -3889,7 +3978,7 @@ void TParseContext::checkNoShaderLayouts(TSourceLoc loc, const TShaderQualifiers
 }
 
 // Correct and/or advance an object's offset layout qualifier.
-void TParseContext::fixOffset(TSourceLoc loc, TSymbol& symbol)
+void TParseContext::fixOffset(const TSourceLoc& loc, TSymbol& symbol)
 {
     const TQualifier& qualifier = symbol.getType().getQualifier();
     if (symbol.getType().getBasicType() == EbtAtomicUint) {
@@ -3922,7 +4011,7 @@ void TParseContext::fixOffset(TSourceLoc loc, TSymbol& symbol)
 //
 // Return the function symbol if found, otherwise 0.
 //
-const TFunction* TParseContext::findFunction(TSourceLoc loc, const TFunction& call, bool& builtIn)
+const TFunction* TParseContext::findFunction(const TSourceLoc& loc, const TFunction& call, bool& builtIn)
 {
     const TFunction* function = 0;
 
@@ -3942,7 +4031,7 @@ const TFunction* TParseContext::findFunction(TSourceLoc loc, const TFunction& ca
 }
 
 // Function finding algorithm for ES and desktop 110.
-const TFunction* TParseContext::findFunctionExact(TSourceLoc loc, const TFunction& call, bool& builtIn)
+const TFunction* TParseContext::findFunctionExact(const TSourceLoc& loc, const TFunction& call, bool& builtIn)
 {
     TSymbol* symbol = symbolTable.find(call.getMangledName(), &builtIn);
     if (symbol == 0) {
@@ -3955,7 +4044,7 @@ const TFunction* TParseContext::findFunctionExact(TSourceLoc loc, const TFunctio
 }
 
 // Function finding algorithm for desktop versions 120 through 330.
-const TFunction* TParseContext::findFunction120(TSourceLoc loc, const TFunction& call, bool& builtIn)
+const TFunction* TParseContext::findFunction120(const TSourceLoc& loc, const TFunction& call, bool& builtIn)
 {
     // first, look for an exact match
     TSymbol* symbol = symbolTable.find(call.getMangledName(), &builtIn);
@@ -4023,7 +4112,7 @@ const TFunction* TParseContext::findFunction120(TSourceLoc loc, const TFunction&
 }
 
 // Function finding algorithm for desktop version 400 and above.
-const TFunction* TParseContext::findFunction400(TSourceLoc loc, const TFunction& call, bool& builtIn)
+const TFunction* TParseContext::findFunction400(const TSourceLoc& loc, const TFunction& call, bool& builtIn)
 {
     // TODO: 4.00 functionality: findFunction400()
     return findFunction120(loc, call, builtIn);
@@ -4031,7 +4120,7 @@ const TFunction* TParseContext::findFunction400(TSourceLoc loc, const TFunction&
 
 // When a declaration includes a type, but not a variable name, it can be 
 // to establish defaults.
-void TParseContext::declareTypeDefaults(TSourceLoc loc, const TPublicType& publicType)
+void TParseContext::declareTypeDefaults(const TSourceLoc& loc, const TPublicType& publicType)
 {
     if (publicType.basicType == EbtAtomicUint && publicType.qualifier.hasBinding() && publicType.qualifier.hasOffset()) {
         if (publicType.qualifier.layoutBinding >= (unsigned int)resources.maxAtomicCounterBindings) {
@@ -4054,7 +4143,7 @@ void TParseContext::declareTypeDefaults(TSourceLoc loc, const TPublicType& publi
 // Returns a subtree node that computes an initializer, if needed.
 // Returns 0 if there is no code to execute for initialization.
 //
-TIntermNode* TParseContext::declareVariable(TSourceLoc loc, TString& identifier, const TPublicType& publicType, TArraySizes* arraySizes, TIntermTyped* initializer)
+TIntermNode* TParseContext::declareVariable(const TSourceLoc& loc, TString& identifier, const TPublicType& publicType, TArraySizes* arraySizes, TIntermTyped* initializer)
 {
     TType type(publicType);
 
@@ -4098,7 +4187,7 @@ TIntermNode* TParseContext::declareVariable(TSourceLoc loc, TString& identifier,
             declareArray(loc, identifier, type, symbol, newDeclaration);
 
         if (initializer) {
-            profileRequires(loc, ENoProfile, 120, GL_3DL_array_objects, "initializer");
+            profileRequires(loc, ENoProfile, 120, E_GL_3DL_array_objects, "initializer");
             profileRequires(loc, EEsProfile, 300, nullptr, "initializer");
         }
     } else {
@@ -4166,7 +4255,7 @@ TVariable* TParseContext::makeInternalVariable(const char* name, const TType& ty
 //
 // Return the successfully declared variable.
 //
-TVariable* TParseContext::declareNonArray(TSourceLoc loc, TString& identifier, TType& type, bool& newDeclaration)
+TVariable* TParseContext::declareNonArray(const TSourceLoc& loc, TString& identifier, TType& type, bool& newDeclaration)
 {
     // make a new variable
     TVariable* variable = new TVariable(&identifier, type);
@@ -4188,7 +4277,7 @@ TVariable* TParseContext::declareNonArray(TSourceLoc loc, TString& identifier, T
 // Returning 0 just means there is no code to execute to handle the
 // initializer, which will, for example, be the case for constant initializers.
 //
-TIntermNode* TParseContext::executeInitializer(TSourceLoc loc, TIntermTyped* initializer, TVariable* variable)
+TIntermNode* TParseContext::executeInitializer(const TSourceLoc& loc, TIntermTyped* initializer, TVariable* variable)
 {
     //
     // Identifier must be of type constant, a global, or a temporary, and
@@ -4237,7 +4326,7 @@ TIntermNode* TParseContext::executeInitializer(TSourceLoc loc, TIntermTyped* ini
         if (initializer->getType().getQualifier().storage != EvqConst) {
             const char* initFeature = "non-constant initializer";
             requireProfile(loc, ~EEsProfile, initFeature);
-            profileRequires(loc, ~EEsProfile, 420, GL_ARB_shading_language_420pack, initFeature);
+            profileRequires(loc, ~EEsProfile, 420, E_GL_ARB_shading_language_420pack, initFeature);
             variable->getWritableType().getQualifier().storage = EvqConstReadOnly;
             qualifier = EvqConstReadOnly;
         }
@@ -4248,7 +4337,7 @@ TIntermNode* TParseContext::executeInitializer(TSourceLoc loc, TIntermTyped* ini
         // qualifier any initializer must be a constant expression."
         if (symbolTable.atGlobalLevel() && initializer->getType().getQualifier().storage != EvqConst) {
             const char* initFeature = "non-constant global initializer";
-            if (messages & EShMsgRelaxedErrors)
+            if (relaxedErrors())
                 warn(loc, "not allowed in this version", initFeature, "");
             else
                 requireProfile(loc, ~EEsProfile, initFeature);
@@ -4287,7 +4376,7 @@ TIntermNode* TParseContext::executeInitializer(TSourceLoc loc, TIntermTyped* ini
 // creating a constructor-style initializer, ensuring we get the
 // same form.
 //
-TIntermTyped* TParseContext::convertInitializerList(TSourceLoc loc, const TType& type, TIntermTyped* initializer)
+TIntermTyped* TParseContext::convertInitializerList(const TSourceLoc& loc, const TType& type, TIntermTyped* initializer)
 {
     // Will operate recursively.  Once a subtree is found that is constructor style,
     // everything below it is already good: Only the "top part" of the initializer
@@ -4358,7 +4447,7 @@ TIntermTyped* TParseContext::convertInitializerList(TSourceLoc loc, const TType&
 //
 // Returns 0 for an error or the constructed node (aggregate or typed) for no error.
 //
-TIntermTyped* TParseContext::addConstructor(TSourceLoc loc, TIntermNode* node, const TType& type, TOperator op)
+TIntermTyped* TParseContext::addConstructor(const TSourceLoc& loc, TIntermNode* node, const TType& type, TOperator op)
 {
     if (node == 0 || node->getAsTyped() == 0)
         return 0;
@@ -4441,7 +4530,7 @@ TIntermTyped* TParseContext::addConstructor(TSourceLoc loc, TIntermNode* node, c
 //
 // Returns 0 for an error or the constructed node.
 //
-TIntermTyped* TParseContext::constructBuiltIn(const TType& type, TOperator op, TIntermTyped* node, TSourceLoc loc, bool subset)
+TIntermTyped* TParseContext::constructBuiltIn(const TType& type, TOperator op, TIntermTyped* node, const TSourceLoc& loc, bool subset)
 {
     TIntermTyped* newNode;
     TOperator basicOp;
@@ -4531,7 +4620,7 @@ TIntermTyped* TParseContext::constructBuiltIn(const TType& type, TOperator op, T
 //
 // Returns 0 for an error or the input node itself if the expected and the given parameter types match.
 //
-TIntermTyped* TParseContext::constructStruct(TIntermNode* node, const TType& type, int paramCount, TSourceLoc loc)
+TIntermTyped* TParseContext::constructStruct(TIntermNode* node, const TType& type, int paramCount, const TSourceLoc& loc)
 {
     TIntermTyped* converted = intermediate.addConversion(EOpConstructStruct, type, node->getAsTyped());
     if (! converted || converted->getType() != type) {
@@ -4547,18 +4636,19 @@ TIntermTyped* TParseContext::constructStruct(TIntermNode* node, const TType& typ
 //
 // Do everything needed to add an interface block.
 //
-void TParseContext::declareBlock(TSourceLoc loc, TTypeList& typeList, const TString* instanceName, TArraySizes* arraySizes)
+void TParseContext::declareBlock(const TSourceLoc& loc, TTypeList& typeList, const TString* instanceName, TArraySizes* arraySizes)
 {
     blockStageIoCheck(loc, currentBlockQualifier);
+    blockQualifierCheck(loc, currentBlockQualifier);
     if (arraySizes)
-        arrayUnsizedCheck(loc, currentBlockQualifier, arraySizes->getSize(), false);
+        arrayUnsizedCheck(loc, currentBlockQualifier, arraySizes->getOuterSize(), false);
     arrayDimCheck(loc, arraySizes, 0);
 
     // fix and check for member storage qualifiers and types that don't belong within a block
     for (unsigned int member = 0; member < typeList.size(); ++member) {
         TType& memberType = *typeList[member].type;
         TQualifier& memberQualifier = memberType.getQualifier();
-        TSourceLoc memberLoc = typeList[member].loc;
+        const TSourceLoc& memberLoc = typeList[member].loc;
         globalQualifierFixCheck(memberLoc, memberQualifier);
         if (memberQualifier.storage != EvqTemporary && memberQualifier.storage != EvqGlobal && memberQualifier.storage != currentBlockQualifier.storage)
             error(memberLoc, "member storage qualifier cannot contradict block storage qualifier", memberType.getFieldName().c_str(), "");
@@ -4571,7 +4661,7 @@ void TParseContext::declareBlock(TSourceLoc loc, TTypeList& typeList, const TStr
             requireProfile(memberLoc, ~EEsProfile, "implicitly-sized array in a block");
         if (memberQualifier.hasOffset()) {
             requireProfile(memberLoc, ~EEsProfile, "offset on block member");
-            profileRequires(memberLoc, ~EEsProfile, 440, GL_ARB_enhanced_layouts, "offset on block member");
+            profileRequires(memberLoc, ~EEsProfile, 440, E_GL_ARB_enhanced_layouts, "offset on block member");
         }
 
         TBasicType basicType = memberType.getBasicType();
@@ -4621,7 +4711,7 @@ void TParseContext::declareBlock(TSourceLoc loc, TTypeList& typeList, const TStr
     bool memberWithoutLocation = false;
     for (unsigned int member = 0; member < typeList.size(); ++member) {
         TQualifier& memberQualifier = typeList[member].type->getQualifier();
-        TSourceLoc memberLoc = typeList[member].loc;
+        const TSourceLoc& memberLoc = typeList[member].loc;
         if (memberQualifier.hasStream()) {
             if (defaultQualification.layoutStream != memberQualifier.layoutStream)
                 error(memberLoc, "member cannot contradict block", "stream", "");
@@ -4644,7 +4734,7 @@ void TParseContext::declareBlock(TSourceLoc loc, TTypeList& typeList, const TStr
             case EvqVaryingIn:
             case EvqVaryingOut:
                 requireProfile(memberLoc, ECoreProfile | ECompatibilityProfile | EEsProfile, feature);
-                profileRequires(memberLoc, ECoreProfile | ECompatibilityProfile, 440, GL_ARB_enhanced_layouts, feature);
+                profileRequires(memberLoc, ECoreProfile | ECompatibilityProfile, 440, E_GL_ARB_enhanced_layouts, feature);
                 profileRequires(memberLoc, EEsProfile, 0, Num_AEP_shader_io_blocks, AEP_shader_io_blocks, feature);
                 memberWithLocation = true;
                 break;
@@ -4743,7 +4833,7 @@ void TParseContext::declareBlock(TSourceLoc loc, TTypeList& typeList, const TStr
 
 // Do all block-declaration checking regarding the combination of in/out/uniform/buffer
 // with a particular stage.
-void TParseContext::blockStageIoCheck(TSourceLoc loc, const TQualifier& qualifier)
+void TParseContext::blockStageIoCheck(const TSourceLoc& loc, const TQualifier& qualifier)
 {
     switch (qualifier.storage) {
     case EvqUniform:
@@ -4758,7 +4848,7 @@ void TParseContext::blockStageIoCheck(TSourceLoc loc, const TQualifier& qualifie
         profileRequires(loc, EEsProfile, 310, nullptr, "buffer block");
         break;
     case EvqVaryingIn:
-        profileRequires(loc, ~EEsProfile, 150, GL_ARB_separate_shader_objects, "input block");
+        profileRequires(loc, ~EEsProfile, 150, E_GL_ARB_separate_shader_objects, "input block");
         // It is a compile-time error to have an input block in a vertex shader or an output block in a fragment shader
         // "Compute shaders do not permit user-defined input variables..."
         requireStage(loc, (EShLanguageMask)(EShLangTessControlMask|EShLangTessEvaluationMask|EShLangGeometryMask|EShLangFragmentMask), "input block");
@@ -4766,7 +4856,7 @@ void TParseContext::blockStageIoCheck(TSourceLoc loc, const TQualifier& qualifie
             profileRequires(loc, EEsProfile, 0, Num_AEP_shader_io_blocks, AEP_shader_io_blocks, "fragment input block");
         break;
     case EvqVaryingOut:
-        profileRequires(loc, ~EEsProfile, 150, GL_ARB_separate_shader_objects, "output block");
+        profileRequires(loc, ~EEsProfile, 150, E_GL_ARB_separate_shader_objects, "output block");
         requireStage(loc, (EShLanguageMask)(EShLangVertexMask|EShLangTessControlMask|EShLangTessEvaluationMask|EShLangGeometryMask), "output block");
         // ES 310 can have a block before shader_io is turned on, so skip this test for built-ins
         if (language == EShLangVertex && ! parsingBuiltins)
@@ -4774,8 +4864,38 @@ void TParseContext::blockStageIoCheck(TSourceLoc loc, const TQualifier& qualifie
         break;
     default:
         error(loc, "only uniform, buffer, in, or out blocks are supported", blockName->c_str(), "");
-        return;
+        break;
     }
+}
+
+// Do all block-declaration checking regarding its qualifers.
+void TParseContext::blockQualifierCheck(const TSourceLoc& loc, const TQualifier& qualifier)
+{
+    // The 4.5 specification says:
+    //
+    // interface-block :
+    //    layout-qualifieropt interface-qualifier  block-name { member-list } instance-nameopt ;
+    //
+    // interface-qualifier :
+    //    in
+    //    out
+    //    patch in
+    //    patch out
+    //    uniform
+    //    buffer
+    //
+    // Note however memory qualifiers aren't included, yet the specification also says
+    //
+    // "...memory qualifiers may also be used in the declaration of shader storage blocks..."
+
+    if (qualifier.isInterpolation())
+        error(loc, "cannot use interpolation qualifiers on an interface block", "flat/smooth/noperspective", "");
+    if (qualifier.centroid)
+        error(loc, "cannot use centroid qualifier on an interface block", "centroid", "");
+    if (qualifier.sample)
+        error(loc, "cannot use sample qualifier on an interface block", "sample", "");
+    if (qualifier.invariant)
+        error(loc, "cannot use invariant qualifier on an interface block", "invariant", "");
 }
 
 //
@@ -4785,7 +4905,7 @@ void TParseContext::blockStageIoCheck(TSourceLoc loc, const TQualifier& qualifie
 // declaration. Subsequent members are again assigned consecutive locations, based on the newest location, 
 // until the next member declared with a location qualifier. The values used for locations do not have to be 
 // declared in increasing order."
-void TParseContext::fixBlockLocations(TSourceLoc loc, TQualifier& qualifier, TTypeList& typeList, bool memberWithLocation, bool memberWithoutLocation)
+void TParseContext::fixBlockLocations(const TSourceLoc& loc, TQualifier& qualifier, TTypeList& typeList, bool memberWithLocation, bool memberWithoutLocation)
 {
     // "If a block has no block-level location layout qualifier, it is required that either all or none of its members 
     // have a location layout qualifier, or a compile-time error results."
@@ -4808,9 +4928,9 @@ void TParseContext::fixBlockLocations(TSourceLoc loc, TQualifier& qualifier, TTy
             }
             for (unsigned int member = 0; member < typeList.size(); ++member) {
                 TQualifier& memberQualifier = typeList[member].type->getQualifier();
-                TSourceLoc memberLoc = typeList[member].loc;
+                const TSourceLoc& memberLoc = typeList[member].loc;
                 if (! memberQualifier.hasLocation()) {
-                    if (nextLocation >= TQualifier::layoutLocationEnd)
+                    if (nextLocation >= (int)TQualifier::layoutLocationEnd)
                         error(memberLoc, "location is too large", "location", "");
                     memberQualifier.layoutLocation = nextLocation;
                     memberQualifier.layoutComponent = 0;
@@ -4869,7 +4989,7 @@ void TParseContext::fixBlockUniformOffsets(TQualifier& qualifier, TTypeList& typ
     int memberSize;
     for (unsigned int member = 0; member < typeList.size(); ++member) {
         TQualifier& memberQualifier = typeList[member].type->getQualifier();
-        TSourceLoc memberLoc = typeList[member].loc;
+        const TSourceLoc& memberLoc = typeList[member].loc;
 
         // "When align is applied to an array, it effects only the start of the array, not the array's internal stride."
         
@@ -4907,7 +5027,7 @@ void TParseContext::fixBlockUniformOffsets(TQualifier& qualifier, TTypeList& typ
 }
 
 // For an identifier that is already declared, add more qualification to it.
-void TParseContext::addQualifierToExisting(TSourceLoc loc, TQualifier qualifier, const TString& identifier)
+void TParseContext::addQualifierToExisting(const TSourceLoc& loc, TQualifier qualifier, const TString& identifier)
 {
     TSymbol* symbol = symbolTable.find(identifier);
     if (! symbol) {
@@ -4943,13 +5063,13 @@ void TParseContext::addQualifierToExisting(TSourceLoc loc, TQualifier qualifier,
         warn(loc, "unknown requalification", "", "");
 }
 
-void TParseContext::addQualifierToExisting(TSourceLoc loc, TQualifier qualifier, TIdentifierList& identifiers)
+void TParseContext::addQualifierToExisting(const TSourceLoc& loc, TQualifier qualifier, TIdentifierList& identifiers)
 {
     for (unsigned int i = 0; i < identifiers.size(); ++i)
         addQualifierToExisting(loc, qualifier, *identifiers[i]);
 }
 
-void TParseContext::invariantCheck(TSourceLoc loc, const TQualifier& qualifier)
+void TParseContext::invariantCheck(const TSourceLoc& loc, const TQualifier& qualifier)
 {
     if (! qualifier.invariant)
         return;
@@ -4969,7 +5089,7 @@ void TParseContext::invariantCheck(TSourceLoc loc, const TQualifier& qualifier)
 // Updating default qualifier for the case of a declaration with just a qualifier,
 // no type, block, or identifier.
 //
-void TParseContext::updateStandaloneQualifierDefaults(TSourceLoc loc, const TPublicType& publicType)
+void TParseContext::updateStandaloneQualifierDefaults(const TSourceLoc& loc, const TPublicType& publicType)
 {
     if (publicType.shaderQualifiers.vertices) {
         assert(language == EShLangTessControl || language == EShLangGeometry);
@@ -5172,7 +5292,7 @@ void TParseContext::wrapupSwitchSubsequence(TIntermAggregate* statements, TInter
 // Turn the top-level node sequence built up of wrapupSwitchSubsequence9)
 // into a switch node.
 //
-TIntermNode* TParseContext::addSwitch(TSourceLoc loc, TIntermTyped* expression, TIntermAggregate* lastStatements)
+TIntermNode* TParseContext::addSwitch(const TSourceLoc& loc, TIntermTyped* expression, TIntermAggregate* lastStatements)
 {
     profileRequires(loc, EEsProfile, 300, nullptr, "switch statements");
     profileRequires(loc, ENoProfile, 130, nullptr, "switch statements");
@@ -5194,10 +5314,15 @@ TIntermNode* TParseContext::addSwitch(TSourceLoc loc, TIntermTyped* expression, 
         // "it is an error to have no statement between a label and the end of the switch statement."
         // The specifications were updated to remove this (being ill-defined what a "statement" was),
         // so, this became a warning.  However, 3.0 tests still check for the error.
-        if (profile == EEsProfile && version <= 300 && (messages & EShMsgRelaxedErrors) == 0)
+        if (profile == EEsProfile && version <= 300 && ! relaxedErrors())
             error(loc, "last case/default label not followed by statements", "switch", "");
         else
             warn(loc, "last case/default label not followed by statements", "switch", "");
+
+        // emulate a break for error recovery
+        lastStatements = intermediate.makeAggregate(intermediate.addBranch(EOpBreak, loc));
+        lastStatements->setOperator(EOpSequence);
+        switchSequence->push_back(lastStatements);
     }
 
     TIntermAggregate* body = new TIntermAggregate(EOpSequence);
@@ -5224,10 +5349,17 @@ void TParseContext::notifyErrorDirective(int line, const char* error_message)
     }
 }
 
-void TParseContext::notifyLineDirective(int line, bool has_source, int source)
+void TParseContext::notifyLineDirective(int curLineNo, int newLineNo, bool hasSource, int sourceNum, const char* sourceName)
 {
     if (lineCallback) {
-        lineCallback(line, has_source, source);
+        lineCallback(curLineNo, newLineNo, hasSource, sourceNum, sourceName);
+    }
+}
+
+void TParseContext::notifyExtensionDirective(int line, const char* extension, const char* behavior)
+{
+    if (extensionCallback) {
+        extensionCallback(line, extension, behavior);
     }
 }
 

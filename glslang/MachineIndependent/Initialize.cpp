@@ -493,19 +493,24 @@ void TBuiltIns::initialize(int version, EProfile profile)
             "\n");
     }
 
-    if (profile != EEsProfile && version >= 400) {
+    if ((profile != EEsProfile && version >= 400) ||
+        (profile == EEsProfile && version >= 310)) {    // GL_OES_gpu_shader5
+
         commonBuiltins.append(
             "float  fma(float,  float,  float );"
             "vec2   fma(vec2,   vec2,   vec2  );"
             "vec3   fma(vec3,   vec3,   vec3  );"
             "vec4   fma(vec4,   vec4,   vec4  );"
-
-            "double fma(double, double, double);"
-            "dvec2  fma(dvec2,  dvec2,  dvec2 );"
-            "dvec3  fma(dvec3,  dvec3,  dvec3 );"
-            "dvec4  fma(dvec4,  dvec4,  dvec4 );"
-            
             "\n");
+
+        if (profile != EEsProfile) {
+            commonBuiltins.append(
+                "double fma(double, double, double);"
+                "dvec2  fma(dvec2,  dvec2,  dvec2 );"
+                "dvec3  fma(dvec3,  dvec3,  dvec3 );"
+                "dvec4  fma(dvec4,  dvec4,  dvec4 );"
+                "\n");
+        }
     }
 
     if ((profile == EEsProfile && version >= 310) ||
@@ -1054,7 +1059,7 @@ void TBuiltIns::initialize(int version, EProfile profile)
     //
     //============================================================================
     bool esBarrier = (profile == EEsProfile && version >= 310);
-    if (profile != EEsProfile && version >= 150 || esBarrier)
+    if ((profile != EEsProfile && version >= 150) || esBarrier)
         stageBuiltins[EShLangTessControl].append(
             "void barrier();"
             );
@@ -2202,7 +2207,7 @@ void TBuiltIns::addSamplingFunctions(TSampler sampler, TString& typeName, int /*
 //
 // Add all the texture gather functions for the given type.
 //
-void TBuiltIns::addGatherFunctions(TSampler sampler, TString& typeName, int version, EProfile profile)
+void TBuiltIns::addGatherFunctions(TSampler sampler, TString& typeName, int version, EProfile /* profile */)
 {
     switch (sampler.dim) {
     case Esd2D:
@@ -2220,9 +2225,6 @@ void TBuiltIns::addGatherFunctions(TSampler sampler, TString& typeName, int vers
         return;
 
     for (int offset = 0; offset < 3; ++offset) { // loop over three forms of offset in the call name:  none, Offset, and Offsets
-
-        if (profile == EEsProfile && offset == 2)
-            continue;
 
         for (int comp = 0; comp < 2; ++comp) { // loop over presence of comp argument
 
@@ -2802,8 +2804,11 @@ void IdentifyBuiltIns(int version, EProfile profile, EShLanguage language, TSymb
     //
 
     // N.B.: a symbol should only be tagged once, and this function is called multiple times, once
-    // per stage that's used for this profile.  So, stick common ones in the fragment stage to
-    // ensure they are tagged exactly once.
+    // per stage that's used for this profile.  So
+    //  - generally, stick common ones in the fragment stage to ensure they are tagged exactly once
+    //  - for ES, which has different precisions for different stages, the coarsest-grained tagging 
+    //    for a built-in used in many stages needs to be once for the fragment stage and once for
+    //    the vertex stage
 
     switch(language) {
     case EShLangVertex:
@@ -2821,6 +2826,15 @@ void IdentifyBuiltIns(int version, EProfile profile, EShLanguage language, TSymb
         BuiltInVariable("gl_MultiTexCoord6", EbvMultiTexCoord6, symbolTable);
         BuiltInVariable("gl_MultiTexCoord7", EbvMultiTexCoord7, symbolTable);
         BuiltInVariable("gl_FogCoord",       EbvFogFragCoord,   symbolTable);
+
+        if (profile == EEsProfile) {
+            symbolTable.setFunctionExtensions("texture2DGradEXT",     1, &E_GL_EXT_shader_texture_lod);
+            symbolTable.setFunctionExtensions("texture2DProjGradEXT", 1, &E_GL_EXT_shader_texture_lod);
+            symbolTable.setFunctionExtensions("textureCubeGradEXT",   1, &E_GL_EXT_shader_texture_lod);
+            symbolTable.setFunctionExtensions("textureGatherOffsets", Num_AEP_gpu_shader5, AEP_gpu_shader5);
+            if (version >= 310)
+                symbolTable.setFunctionExtensions("fma", Num_AEP_gpu_shader5, AEP_gpu_shader5);
+        }
 
         // Fall through
 
@@ -2856,7 +2870,7 @@ void IdentifyBuiltIns(int version, EProfile profile, EShLanguage language, TSymb
         BuiltInVariable("gl_TessCoord",       EbvTessCoord,      symbolTable);
 
         if (version < 410)
-            symbolTable.setVariableExtensions("gl_ViewportIndex", 1, &GL_ARB_viewport_array);
+            symbolTable.setVariableExtensions("gl_ViewportIndex", 1, &E_GL_ARB_viewport_array);
 
         // Compatibility variables
 
@@ -2931,77 +2945,77 @@ void IdentifyBuiltIns(int version, EProfile profile, EShLanguage language, TSymb
 
         // built-in functions
 
-        if (version == 100) {
-            symbolTable.setFunctionExtensions("dFdx",   1, &GL_OES_standard_derivatives);
-            symbolTable.setFunctionExtensions("dFdy",   1, &GL_OES_standard_derivatives);
-            symbolTable.setFunctionExtensions("fwidth", 1, &GL_OES_standard_derivatives);
-        }
         if (profile == EEsProfile) {
-            symbolTable.setFunctionExtensions("texture2DLodEXT",     1, &GL_EXT_shader_texture_lod);
-            symbolTable.setFunctionExtensions("texture2DProjLodEXT", 1, &GL_EXT_shader_texture_lod);
-            symbolTable.setFunctionExtensions("textureCubeLodEXT",   1, &GL_EXT_shader_texture_lod);
+            symbolTable.setFunctionExtensions("texture2DLodEXT",      1, &E_GL_EXT_shader_texture_lod);
+            symbolTable.setFunctionExtensions("texture2DProjLodEXT",  1, &E_GL_EXT_shader_texture_lod);
+            symbolTable.setFunctionExtensions("textureCubeLodEXT",    1, &E_GL_EXT_shader_texture_lod);
+            symbolTable.setFunctionExtensions("texture2DGradEXT",     1, &E_GL_EXT_shader_texture_lod);
+            symbolTable.setFunctionExtensions("texture2DProjGradEXT", 1, &E_GL_EXT_shader_texture_lod);
+            symbolTable.setFunctionExtensions("textureCubeGradEXT",   1, &E_GL_EXT_shader_texture_lod);
+            symbolTable.setFunctionExtensions("textureGatherOffsets", Num_AEP_gpu_shader5, AEP_gpu_shader5);
+            if (version == 100) {
+                symbolTable.setFunctionExtensions("dFdx",   1, &E_GL_OES_standard_derivatives);
+                symbolTable.setFunctionExtensions("dFdy",   1, &E_GL_OES_standard_derivatives);
+                symbolTable.setFunctionExtensions("fwidth", 1, &E_GL_OES_standard_derivatives);
+            }
+            if (version >= 310)
+                symbolTable.setFunctionExtensions("fma", Num_AEP_gpu_shader5, AEP_gpu_shader5);
         } else if (version < 130) {
-            symbolTable.setFunctionExtensions("texture1DLod",        1, &GL_ARB_shader_texture_lod);
-            symbolTable.setFunctionExtensions("texture2DLod",        1, &GL_ARB_shader_texture_lod);
-            symbolTable.setFunctionExtensions("texture3DLod",        1, &GL_ARB_shader_texture_lod);
-            symbolTable.setFunctionExtensions("textureCubeLod",      1, &GL_ARB_shader_texture_lod);
-            symbolTable.setFunctionExtensions("texture1DProjLod",    1, &GL_ARB_shader_texture_lod);
-            symbolTable.setFunctionExtensions("texture2DProjLod",    1, &GL_ARB_shader_texture_lod);
-            symbolTable.setFunctionExtensions("texture3DProjLod",    1, &GL_ARB_shader_texture_lod);
-            symbolTable.setFunctionExtensions("shadow1DLod",         1, &GL_ARB_shader_texture_lod);
-            symbolTable.setFunctionExtensions("shadow2DLod",         1, &GL_ARB_shader_texture_lod);
-            symbolTable.setFunctionExtensions("shadow1DProjLod",     1, &GL_ARB_shader_texture_lod);
-            symbolTable.setFunctionExtensions("shadow2DProjLod",     1, &GL_ARB_shader_texture_lod);
+            symbolTable.setFunctionExtensions("texture1DLod",        1, &E_GL_ARB_shader_texture_lod);
+            symbolTable.setFunctionExtensions("texture2DLod",        1, &E_GL_ARB_shader_texture_lod);
+            symbolTable.setFunctionExtensions("texture3DLod",        1, &E_GL_ARB_shader_texture_lod);
+            symbolTable.setFunctionExtensions("textureCubeLod",      1, &E_GL_ARB_shader_texture_lod);
+            symbolTable.setFunctionExtensions("texture1DProjLod",    1, &E_GL_ARB_shader_texture_lod);
+            symbolTable.setFunctionExtensions("texture2DProjLod",    1, &E_GL_ARB_shader_texture_lod);
+            symbolTable.setFunctionExtensions("texture3DProjLod",    1, &E_GL_ARB_shader_texture_lod);
+            symbolTable.setFunctionExtensions("shadow1DLod",         1, &E_GL_ARB_shader_texture_lod);
+            symbolTable.setFunctionExtensions("shadow2DLod",         1, &E_GL_ARB_shader_texture_lod);
+            symbolTable.setFunctionExtensions("shadow1DProjLod",     1, &E_GL_ARB_shader_texture_lod);
+            symbolTable.setFunctionExtensions("shadow2DProjLod",     1, &E_GL_ARB_shader_texture_lod);
         }
 
-        // GL_ARB_shader_texture_lod functions usable only with the extension enabled
+        // E_GL_ARB_shader_texture_lod functions usable only with the extension enabled
         if (profile != EEsProfile) {
-            symbolTable.setFunctionExtensions("texture1DGradARB",         1, &GL_ARB_shader_texture_lod);
-            symbolTable.setFunctionExtensions("texture1DProjGradARB",     1, &GL_ARB_shader_texture_lod);
-            symbolTable.setFunctionExtensions("texture2DGradARB",         1, &GL_ARB_shader_texture_lod);
-            symbolTable.setFunctionExtensions("texture2DProjGradARB",     1, &GL_ARB_shader_texture_lod);
-            symbolTable.setFunctionExtensions("texture3DGradARB",         1, &GL_ARB_shader_texture_lod);
-            symbolTable.setFunctionExtensions("texture3DProjGradARB",     1, &GL_ARB_shader_texture_lod);
-            symbolTable.setFunctionExtensions("textureCubeGradARB",       1, &GL_ARB_shader_texture_lod);
-            symbolTable.setFunctionExtensions("shadow1DGradARB",          1, &GL_ARB_shader_texture_lod);
-            symbolTable.setFunctionExtensions("shadow1DProjGradARB",      1, &GL_ARB_shader_texture_lod);
-            symbolTable.setFunctionExtensions("shadow2DGradARB",          1, &GL_ARB_shader_texture_lod);
-            symbolTable.setFunctionExtensions("shadow2DProjGradARB",      1, &GL_ARB_shader_texture_lod);
-            symbolTable.setFunctionExtensions("texture2DRectGradARB",     1, &GL_ARB_shader_texture_lod);
-            symbolTable.setFunctionExtensions("texture2DRectProjGradARB", 1, &GL_ARB_shader_texture_lod);
-            symbolTable.setFunctionExtensions("shadow2DRectGradARB",      1, &GL_ARB_shader_texture_lod);
-            symbolTable.setFunctionExtensions("shadow2DRectProjGradARB",  1, &GL_ARB_shader_texture_lod);
+            symbolTable.setFunctionExtensions("texture1DGradARB",         1, &E_GL_ARB_shader_texture_lod);
+            symbolTable.setFunctionExtensions("texture1DProjGradARB",     1, &E_GL_ARB_shader_texture_lod);
+            symbolTable.setFunctionExtensions("texture2DGradARB",         1, &E_GL_ARB_shader_texture_lod);
+            symbolTable.setFunctionExtensions("texture2DProjGradARB",     1, &E_GL_ARB_shader_texture_lod);
+            symbolTable.setFunctionExtensions("texture3DGradARB",         1, &E_GL_ARB_shader_texture_lod);
+            symbolTable.setFunctionExtensions("texture3DProjGradARB",     1, &E_GL_ARB_shader_texture_lod);
+            symbolTable.setFunctionExtensions("textureCubeGradARB",       1, &E_GL_ARB_shader_texture_lod);
+            symbolTable.setFunctionExtensions("shadow1DGradARB",          1, &E_GL_ARB_shader_texture_lod);
+            symbolTable.setFunctionExtensions("shadow1DProjGradARB",      1, &E_GL_ARB_shader_texture_lod);
+            symbolTable.setFunctionExtensions("shadow2DGradARB",          1, &E_GL_ARB_shader_texture_lod);
+            symbolTable.setFunctionExtensions("shadow2DProjGradARB",      1, &E_GL_ARB_shader_texture_lod);
+            symbolTable.setFunctionExtensions("texture2DRectGradARB",     1, &E_GL_ARB_shader_texture_lod);
+            symbolTable.setFunctionExtensions("texture2DRectProjGradARB", 1, &E_GL_ARB_shader_texture_lod);
+            symbolTable.setFunctionExtensions("shadow2DRectGradARB",      1, &E_GL_ARB_shader_texture_lod);
+            symbolTable.setFunctionExtensions("shadow2DRectProjGradARB",  1, &E_GL_ARB_shader_texture_lod);
         }
 
-        if (profile == EEsProfile) {
-            symbolTable.setFunctionExtensions("texture2DGradEXT",     1, &GL_EXT_shader_texture_lod);
-            symbolTable.setFunctionExtensions("texture2DProjGradEXT", 1, &GL_EXT_shader_texture_lod);
-            symbolTable.setFunctionExtensions("textureCubeGradEXT",   1, &GL_EXT_shader_texture_lod);
-        }
-
-        // GL_ARB_shader_image_load_store
+        // E_GL_ARB_shader_image_load_store
         if (profile != EEsProfile && version < 420)
-            symbolTable.setFunctionExtensions("memoryBarrier", 1, &GL_ARB_shader_image_load_store);
+            symbolTable.setFunctionExtensions("memoryBarrier", 1, &E_GL_ARB_shader_image_load_store);
         // All the image access functions are protected by checks on the type of the first argument.
 
-        // GL_ARB_shader_atomic_counters
+        // E_GL_ARB_shader_atomic_counters
         if (profile != EEsProfile && version < 420) {
-            symbolTable.setFunctionExtensions("atomicCounterIncrement", 1, &GL_ARB_shader_atomic_counters);
-            symbolTable.setFunctionExtensions("atomicCounterDecrement", 1, &GL_ARB_shader_atomic_counters);
-            symbolTable.setFunctionExtensions("atomicCounter"         , 1, &GL_ARB_shader_atomic_counters);
+            symbolTable.setFunctionExtensions("atomicCounterIncrement", 1, &E_GL_ARB_shader_atomic_counters);
+            symbolTable.setFunctionExtensions("atomicCounterDecrement", 1, &E_GL_ARB_shader_atomic_counters);
+            symbolTable.setFunctionExtensions("atomicCounter"         , 1, &E_GL_ARB_shader_atomic_counters);
         }
 
-        // GL_ARB_derivative_control
+        // E_GL_ARB_derivative_control
         if (profile != EEsProfile && version < 450) {
-            symbolTable.setFunctionExtensions("dFdxFine",     1, &GL_ARB_derivative_control);
-            symbolTable.setFunctionExtensions("dFdyFine",     1, &GL_ARB_derivative_control);
-            symbolTable.setFunctionExtensions("fwidthFine",   1, &GL_ARB_derivative_control);
-            symbolTable.setFunctionExtensions("dFdxCoarse",   1, &GL_ARB_derivative_control);
-            symbolTable.setFunctionExtensions("dFdyCoarse",   1, &GL_ARB_derivative_control);
-            symbolTable.setFunctionExtensions("fwidthCoarse", 1, &GL_ARB_derivative_control);
+            symbolTable.setFunctionExtensions("dFdxFine",     1, &E_GL_ARB_derivative_control);
+            symbolTable.setFunctionExtensions("dFdyFine",     1, &E_GL_ARB_derivative_control);
+            symbolTable.setFunctionExtensions("fwidthFine",   1, &E_GL_ARB_derivative_control);
+            symbolTable.setFunctionExtensions("dFdxCoarse",   1, &E_GL_ARB_derivative_control);
+            symbolTable.setFunctionExtensions("dFdyCoarse",   1, &E_GL_ARB_derivative_control);
+            symbolTable.setFunctionExtensions("fwidthCoarse", 1, &E_GL_ARB_derivative_control);
         }
 
-        symbolTable.setVariableExtensions("gl_FragDepthEXT", 1, &GL_EXT_frag_depth);
+        symbolTable.setVariableExtensions("gl_FragDepthEXT", 1, &E_GL_EXT_frag_depth);
         symbolTable.setVariableExtensions("gl_PrimitiveID",  Num_AEP_geometry_shader, AEP_geometry_shader);
         symbolTable.setVariableExtensions("gl_Layer",        Num_AEP_geometry_shader, AEP_geometry_shader);
         break;
@@ -3119,6 +3133,19 @@ void IdentifyBuiltIns(int version, EProfile profile, EShLanguage language, TSymb
     symbolTable.relateToOperator("memoryBarrierBuffer",        EOpMemoryBarrierBuffer);
     symbolTable.relateToOperator("memoryBarrierImage",         EOpMemoryBarrierImage);
 
+    symbolTable.relateToOperator("atomicAdd",      EOpAtomicAdd);
+    symbolTable.relateToOperator("atomicMin",      EOpAtomicMin);
+    symbolTable.relateToOperator("atomicMax",      EOpAtomicMax);
+    symbolTable.relateToOperator("atomicAnd",      EOpAtomicAnd);
+    symbolTable.relateToOperator("atomicOr",       EOpAtomicOr);
+    symbolTable.relateToOperator("atomicXor",      EOpAtomicXor);
+    symbolTable.relateToOperator("atomicExchange", EOpAtomicExchange);
+    symbolTable.relateToOperator("atomicCompSwap", EOpAtomicCompSwap);
+
+    symbolTable.relateToOperator("atomicCounterIncrement", EOpAtomicCounterIncrement);
+    symbolTable.relateToOperator("atomicCounterDecrement", EOpAtomicCounterDecrement);
+    symbolTable.relateToOperator("atomicCounter",          EOpAtomicCounter);
+
     if (PureOperatorBuiltins) {
         symbolTable.relateToOperator("imageQuerySize",          EImageQuerySize);
         symbolTable.relateToOperator("imageQuerySamples",       EImageQuerySamples);
@@ -3233,15 +3260,15 @@ void IdentifyBuiltIns(int version, EProfile profile, EShLanguage language, TSymb
 void IdentifyBuiltIns(int version, EProfile profile, EShLanguage language, TSymbolTable& symbolTable, const TBuiltInResource &resources)
 {
     if (profile != EEsProfile && version >= 430 && version < 440) {
-        symbolTable.setVariableExtensions("gl_MaxTransformFeedbackBuffers", 1, &GL_ARB_enhanced_layouts);
-        symbolTable.setVariableExtensions("gl_MaxTransformFeedbackInterleavedComponents", 1, &GL_ARB_enhanced_layouts);
+        symbolTable.setVariableExtensions("gl_MaxTransformFeedbackBuffers", 1, &E_GL_ARB_enhanced_layouts);
+        symbolTable.setVariableExtensions("gl_MaxTransformFeedbackInterleavedComponents", 1, &E_GL_ARB_enhanced_layouts);
     }
     if (profile != EEsProfile && version >= 130 && version < 420) {
-        symbolTable.setVariableExtensions("gl_MinProgramTexelOffset", 1, &GL_ARB_shading_language_420pack);
-        symbolTable.setVariableExtensions("gl_MaxProgramTexelOffset", 1, &GL_ARB_shading_language_420pack);
+        symbolTable.setVariableExtensions("gl_MinProgramTexelOffset", 1, &E_GL_ARB_shading_language_420pack);
+        symbolTable.setVariableExtensions("gl_MaxProgramTexelOffset", 1, &E_GL_ARB_shading_language_420pack);
     }
     if (profile != EEsProfile && version >= 150 && version < 410)
-        symbolTable.setVariableExtensions("gl_MaxViewports", 1, &GL_ARB_viewport_array);
+        symbolTable.setVariableExtensions("gl_MaxViewports", 1, &E_GL_ARB_viewport_array);
 
     switch(language) {
     case EShLangFragment:
@@ -3250,7 +3277,7 @@ void IdentifyBuiltIns(int version, EProfile profile, EShLanguage language, TSymb
             TPrecisionQualifier pq = profile == EEsProfile ? EpqMedium : EpqNone;
             TType fragData(EbtFloat, EvqFragColor, pq, 4);
             TArraySizes* arraySizes = new TArraySizes;
-            arraySizes->setSize(resources.maxDrawBuffers);
+            arraySizes->setOuterSize(resources.maxDrawBuffers);
             fragData.setArraySizes(arraySizes);
             symbolTable.insert(*new TVariable(NewPoolTString("gl_FragData"), fragData));
             SpecialQualifier("gl_FragData", EvqFragColor, EbvFragData, symbolTable);

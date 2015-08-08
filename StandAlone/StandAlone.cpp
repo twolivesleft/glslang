@@ -39,9 +39,10 @@
 
 #include "Worklist.h"
 #include "./../glslang/Include/ShHandle.h"
+#include "./../glslang/Include/revision.h"
 #include "./../glslang/Public/ShaderLang.h"
 #include "../SPIRV/GlslangToSpv.h"
-#include "../SPIRV/GLSL450Lib.h"
+#include "../SPIRV/GLSL.std.450.h"
 #include "../SPIRV/doc.h"
 #include "../SPIRV/disassemble.h"
 #include <string.h>
@@ -70,12 +71,13 @@ enum TOptions {
     EOptionDumpVersions       = 0x0400,
     EOptionSpv                = 0x0800,
     EOptionHumanReadableSpv   = 0x1000,
-    EOptionDefaultDesktop     = 0x2000,
-    EOptionOutputPreprocessed = 0x4000,
+    EOptionVulkanRules        = 0x2000,
+    EOptionDefaultDesktop     = 0x4000,
+    EOptionOutputPreprocessed = 0x8000,
 };
 
 //
-// Return codes from main.
+// Return codes from main/exit().
 //
 enum TFailCode {
     ESuccess = 0,
@@ -88,18 +90,8 @@ enum TFailCode {
 };
 
 //
-// Just placeholders for testing purposes.  The stand-alone environment
-// can't actually do a full link without something specifying real
-// attribute bindings.
+// Forward declarations.
 //
-ShBinding FixedAttributeBindings[] = { 
-    { "gl_Vertex", 15 },
-    { "gl_Color", 10 },
-    { "gl_Normal", 7 },
-};
-
-ShBindingTable FixedAttributeTable = { 3, FixedAttributeBindings };
-
 EShLanguage FindLanguage(const std::string& name);
 void CompileFile(const char* fileName, ShHandle);
 void usage();
@@ -112,6 +104,7 @@ bool CompileFailed = false;
 bool LinkFailed = false;
 
 // Use to test breaking up a single shader file into multiple strings.
+// Set in ReadFileData().
 int NumShaderStrings;
 
 TBuiltInResource Resources;
@@ -452,7 +445,30 @@ glslang::TWorkItem** Work = 0;
 int NumWorkItems = 0;
 
 int Options = 0;
-const char* ExecutableName;
+const char* ExecutableName = nullptr;
+const char* binaryFileName = nullptr;
+
+//
+// Create the default name for saving a binary if -o is not provided.
+//
+const char* GetBinaryName(EShLanguage stage)
+{
+    const char* name;
+    if (binaryFileName == nullptr) {
+        switch (stage) {
+        case EShLangVertex:          name = "vert.spv";    break;
+        case EShLangTessControl:     name = "tesc.spv";    break;
+        case EShLangTessEvaluation:  name = "tese.spv";    break;
+        case EShLangGeometry:        name = "geom.spv";    break;
+        case EShLangFragment:        name = "frag.spv";    break;
+        case EShLangCompute:         name = "comp.spv";    break;
+        default:                     name = "unknown";     break;
+        }
+    } else
+        name = binaryFileName;
+
+    return name;
+}
 
 //
 // *.conf => this is a config file that can set limits/resources
@@ -470,23 +486,43 @@ bool SetConfigFile(const std::string& name)
     return false;
 }
 
-bool ProcessArguments(int argc, char* argv[])
+//
+// Give error and exit with failure code.
+//
+void Error(const char* message)
+{
+    printf("%s: Error %s (use -h for usage)\n", ExecutableName, message);
+    exit(EFailUsage);
+}
+
+//
+// Do all command-line argument parsing.  This includes building up the work-items
+// to be processed later, and saving all the command-line options.
+//
+// Does not return (it exits) if command-line is fatally flawed.
+//
+void ProcessArguments(int argc, char* argv[])
 {
     ExecutableName = argv[0];
     NumWorkItems = argc;  // will include some empties where the '-' options were, but it doesn't matter, they'll be 0
     Work = new glslang::TWorkItem*[NumWorkItems];
-    Work[0] = 0;
+    for (int w = 0; w < NumWorkItems; ++w)
+        Work[w] = 0;
 
     argc--;
     argv++;    
     for (; argc >= 1; argc--, argv++) {
-        Work[argc] = 0;
         if (argv[0][0] == '-') {
             switch (argv[0][1]) {
             case 'H':
                 Options |= EOptionHumanReadableSpv;
                 // fall through to -V
             case 'V':
+                Options |= EOptionSpv;
+                Options |= EOptionVulkanRules;
+                Options |= EOptionLinkProgram;
+                break;
+            case 'G':
                 Options |= EOptionSpv;
                 Options |= EOptionLinkProgram;
                 break;
@@ -499,6 +535,9 @@ bool ProcessArguments(int argc, char* argv[])
             case 'd':
                 Options |= EOptionDefaultDesktop;
                 break;
+            case 'h':
+                usage();
+                break;
             case 'i':
                 Options |= EOptionIntermediate;
                 break;
@@ -507,6 +546,14 @@ bool ProcessArguments(int argc, char* argv[])
                 break;
             case 'm':
                 Options |= EOptionMemoryLeakMode;
+                break;
+            case 'o':
+                binaryFileName = argv[1];
+                if (argc > 0) {
+                    argc--;
+                    argv++;
+                } else
+                    Error("no <file> provided for -o");
                 break;
             case 'q':
                 Options |= EOptionDumpReflection;
@@ -529,7 +576,8 @@ bool ProcessArguments(int argc, char* argv[])
                 Options |= EOptionSuppressWarnings;
                 break;
             default:
-                return false;
+                usage();
+                break;
             }
         } else {
             std::string name(argv[0]);
@@ -540,16 +588,18 @@ bool ProcessArguments(int argc, char* argv[])
         }
     }
 
-    // Make sure that -E is not specified alongside -V -H or -l.
-    if (Options & EOptionOutputPreprocessed &&
-        ((Options &
-          (EOptionSpv | EOptionHumanReadableSpv | EOptionLinkProgram)))) {
-      return false;
-    }
+    // Make sure that -E is not specified alongside linking (which includes SPV generation)
+    if ((Options & EOptionOutputPreprocessed) && (Options & EOptionLinkProgram))
+        Error("can't use -E when linking is selected");
 
-    return true;
+    // -o makes no sense if there is no target binary
+    if (binaryFileName && (Options & EOptionSpv) == 0)
+        Error("no binary generation requested (e.g., -V)");
 }
 
+//
+// Translate the meaningful subset of command-line options to parser-behavior options.
+//
 void SetMessageOptions(EShMessages& messages)
 {
     if (Options & EOptionRelaxedErrors)
@@ -558,8 +608,15 @@ void SetMessageOptions(EShMessages& messages)
         messages = (EShMessages)(messages | EShMsgAST);
     if (Options & EOptionSuppressWarnings)
         messages = (EShMessages)(messages | EShMsgSuppressWarnings);
+    if (Options & EOptionSpv)
+        messages = (EShMessages)(messages | EShMsgSpvRules);
+    if (Options & EOptionVulkanRules)
+        messages = (EShMessages)(messages | EShMsgVulkanRules);
+    if (Options & EOptionOutputPreprocessed)
+        messages = (EShMessages)(messages | EShMsgOnlyPreprocessor);
 }
 
+//
 // Thread entry point, for non-linking asynchronous mode.
 //
 // Return 0 for failure, 1 for success.
@@ -587,14 +644,21 @@ CompileShaders(void*)
     return 0;
 }
 
-const char* GlslStd450DebugNames[GLSL_STD_450::Count];
-
 // Outputs the given string, but only if it is non-null and non-empty.
 // This prevents erroneous newlines from appearing.
-void puts_if_non_empty(const char* str)
+void PutsIfNonEmpty(const char* str)
 {
     if (str && str[0]) {
         puts(str);
+    }
+}
+
+// Outputs the given string to stderr, but only if it is non-null and non-empty.
+// This prevents erroneous newlines from appearing.
+void StderrIfNonEmpty(const char* str)
+{
+    if (str && str[0]) {
+      fprintf(stderr, "%s\n", str);
     }
 }
 
@@ -626,6 +690,8 @@ void CompileAndLinkShaders()
         char** shaderStrings = ReadFileData(workItem->name.c_str());
         if (! shaderStrings) {
             usage();
+            delete &program;
+
             return;
         }
         const int defaultVersion = Options & EOptionDefaultDesktop? 110: 100;
@@ -633,8 +699,14 @@ void CompileAndLinkShaders()
         shader->setStrings(shaderStrings, 1);
         if (Options & EOptionOutputPreprocessed) {
             std::string str;
-            shader->preprocess(&Resources, defaultVersion, ENoProfile, false, false, messages, &str);
-            puts(str.c_str());
+            if (shader->preprocess(&Resources, defaultVersion, ENoProfile, false, false,
+                                   messages, &str, glslang::TShader::ForbidInclude())) {
+                PutsIfNonEmpty(str.c_str());
+            } else {
+                CompileFailed = true;
+            }
+            StderrIfNonEmpty(shader->getInfoLog());
+            StderrIfNonEmpty(shader->getInfoDebugLog());
             FreeFileData(shaderStrings);
             continue;
         }
@@ -644,9 +716,9 @@ void CompileAndLinkShaders()
         program.addShader(shader);
 
         if (! (Options & EOptionSuppressInfolog)) {
-            puts_if_non_empty(workItem->name.c_str());
-            puts_if_non_empty(shader->getInfoLog());
-            puts_if_non_empty(shader->getInfoDebugLog());
+            PutsIfNonEmpty(workItem->name.c_str());
+            PutsIfNonEmpty(shader->getInfoLog());
+            PutsIfNonEmpty(shader->getInfoDebugLog());
         }
 
         FreeFileData(shaderStrings);
@@ -656,12 +728,12 @@ void CompileAndLinkShaders()
     // Program-level processing...
     //
 
-    if (!(Options & EOptionOutputPreprocessed) && ! program.link(messages))
+    if (! (Options & EOptionOutputPreprocessed) && ! program.link(messages))
         LinkFailed = true;
 
     if (! (Options & EOptionSuppressInfolog)) {
-        puts_if_non_empty(program.getInfoLog());
-        puts_if_non_empty(program.getInfoDebugLog());
+        PutsIfNonEmpty(program.getInfoLog());
+        PutsIfNonEmpty(program.getInfoDebugLog());
     }
 
     if (Options & EOptionDumpReflection) {
@@ -671,26 +743,15 @@ void CompileAndLinkShaders()
 
     if (Options & EOptionSpv) {
         if (CompileFailed || LinkFailed)
-            printf("SPIRV is not generated for failed compile or link\n");
+            printf("SPIR-V is not generated for failed compile or link\n");
         else {
             for (int stage = 0; stage < EShLangCount; ++stage) {
                 if (program.getIntermediate((EShLanguage)stage)) {
                     std::vector<unsigned int> spirv;
                     glslang::GlslangToSpv(*program.getIntermediate((EShLanguage)stage), spirv);
-                    const char* name;
-                    switch (stage) {
-                    case EShLangVertex:          name = "vert";    break;
-                    case EShLangTessControl:     name = "tesc";    break;
-                    case EShLangTessEvaluation:  name = "tese";    break;
-                    case EShLangGeometry:        name = "geom";    break;
-                    case EShLangFragment:        name = "frag";    break;
-                    case EShLangCompute:         name = "comp";    break;
-                    default:                     name = "unknown"; break;
-                    }
-                    glslang::OutputSpv(spirv, name);
+                    glslang::OutputSpv(spirv, GetBinaryName((EShLanguage)stage));
                     if (Options & EOptionHumanReadableSpv) {
                         spv::Parameterize();
-                        GLSL_STD_450::GetDebugNames(GlslStd450DebugNames);
                         spv::Disassemble(std::cout, spirv);
                     }
                 }
@@ -711,10 +772,7 @@ void CompileAndLinkShaders()
 
 int C_DECL main(int argc, char* argv[])
 {
-    if (! ProcessArguments(argc, argv)) {
-        usage();
-        return EFailUsage;
-    }
+    ProcessArguments(argc, argv);
 
     if (Options & EOptionDumpConfig) {
         printf("%s", DefaultConfig);
@@ -722,16 +780,20 @@ int C_DECL main(int argc, char* argv[])
             return ESuccess;
     }
 
-    if (Options & EOptionDumpVersions) {        
+    if (Options & EOptionDumpVersions) {
+        printf("Glslang Version: %s %s\n", GLSLANG_REVISION, GLSLANG_DATE);
         printf("ESSL Version: %s\n", glslang::GetEsslVersionString());
         printf("GLSL Version: %s\n", glslang::GetGlslVersionString());
+        std::string spirvVersion;
+        glslang::GetSpirvVersion(spirvVersion);
+        printf("SPIR-V Version %s\n", spirvVersion.c_str());
+        printf("GLSL.std.450 Version %d, Revision %d\n", GLSLstd450Version, GLSLstd450Revision);
         if (Worklist.empty())
             return ESuccess;
     }
 
     if (Worklist.empty()) {
         usage();
-        return EFailUsage;
     }
 
     ProcessConfigFile();
@@ -769,8 +831,8 @@ int C_DECL main(int argc, char* argv[])
         for (int w = 0; w < NumWorkItems; ++w) {
             if (Work[w]) {
                 if (printShaderNames)
-                    puts_if_non_empty(Work[w]->name.c_str());
-                puts_if_non_empty(Work[w]->results.c_str());
+                    PutsIfNonEmpty(Work[w]->name.c_str());
+                PutsIfNonEmpty(Work[w]->results.c_str());
                 delete Work[w];
             }
         }
@@ -833,8 +895,6 @@ void CompileFile(const char* fileName, ShHandle compiler)
     char** shaderStrings = ReadFileData(fileName);
     if (! shaderStrings) {
         usage();
-        CompileFailed = true;
-        return;
     }
 
     int* lengths = new int[NumShaderStrings];
@@ -881,34 +941,45 @@ void usage()
     printf("Usage: glslangValidator [option]... [file]...\n"
            "\n"
            "Where: each 'file' ends in .<stage>, where <stage> is one of\n"
-           "    .conf to provide an optional config file that replaces the default configuration\n"
-           "          (see -c option below for generating a template)\n"
-           "    .vert for a vertex shader\n"
-           "    .tesc for a tessellation control shader\n"
-           "    .tese for a tessellation evaluation shader\n"
-           "    .geom for a geometry shader\n"
-           "    .frag for a fragment shader\n"
-           "    .comp for a compute shader\n"
+           "    .conf   to provide an optional config file that replaces the default configuration\n"
+           "            (see -c option below for generating a template)\n"
+           "    .vert   for a vertex shader\n"
+           "    .tesc   for a tessellation control shader\n"
+           "    .tese   for a tessellation evaluation shader\n"
+           "    .geom   for a geometry shader\n"
+           "    .frag   for a fragment shader\n"
+           "    .comp   for a compute shader\n"
            "\n"
            "Compilation warnings and errors will be printed to stdout.\n"
            "\n"
            "To get other information, use one of the following options:\n"
-           "(Each option must be specified separately, but can go anywhere in the command line.)\n"
-           "  -V  create SPIR-V in file <stage>.spv\n"
-           "  -H  print human readable form of SPIR-V; turns on -V\n"
-           "  -E  print pre-processed GLSL; cannot be used with -V, -H, or -l.\n"
-           "  -c  configuration dump; use to create default configuration file (redirect to a .conf file)\n"
-           "  -d  default to desktop (#version 110) when there is no version in the shader (default is ES version 100)\n"
-           "  -i  intermediate tree (glslang AST) is printed out\n"
-           "  -l  link validation of all input files\n"
-           "  -m  memory leak mode\n"
-           "  -q  dump reflection query database\n"
-           "  -r  relaxed semantic error-checking mode\n"
-           "  -s  silent mode\n"
-           "  -t  multi-threaded mode\n"
-           "  -v  print version strings\n"
-           "  -w  suppress warnings (except as required by #extension : warn)\n"
+           "Each option must be specified separately.\n"
+           "  -V          create SPIR-V binary, under Vulkan semantics; turns on -l;\n"
+           "              default file name is <stage>.spv (-o overrides this)\n"
+           "              (unless -o is specified, which overrides the default file name)\n"
+           "  -G          create SPIR-V binary, under OpenGL semantics; turns on -l;\n"
+           "              default file name is <stage>.spv (-o overrides this)\n"
+           "  -H          print human readable form of SPIR-V; turns on -V\n"
+           "  -E          print pre-processed GLSL; cannot be used with -l;\n"
+           "              errors will appear on stderr.\n"
+           "  -c          configuration dump;\n"
+           "              creates the default configuration file (redirect to a .conf file)\n"
+           "  -d          default to desktop (#version 110) when there is no shader #version\n"
+           "              (default is ES version 100)\n"
+           "  -h          print this usage message\n"
+           "  -i          intermediate tree (glslang AST) is printed out\n"
+           "  -l          link all input files together to form a single module\n"
+           "  -m          memory leak mode\n"
+           "  -o  <file>  save binary into <file>, requires a binary option (e.g., -V)\n"
+           "  -q          dump reflection query database\n"
+           "  -r          relaxed semantic error-checking mode\n"
+           "  -s          silent mode\n"
+           "  -t          multi-threaded mode\n"
+           "  -v          print version strings\n"
+           "  -w          suppress warnings (except as required by #extension : warn)\n"
            );
+
+    exit(EFailUsage);
 }
 
 #if !defined _MSC_VER && !defined MINGW_HAS_SECURE_API
@@ -945,66 +1016,75 @@ int fopen_s(
 //
 char** ReadFileData(const char* fileName) 
 {
-    FILE *in;
+    FILE *in = nullptr;
     int errorCode = fopen_s(&in, fileName, "r");
 
     int count = 0;
-    const int maxSourceStrings = 5;
-    char** return_data = (char**)malloc(sizeof(char *) * (maxSourceStrings+1));
+    const int maxSourceStrings = 5;  // for testing splitting shader/tokens across multiple strings
+    char** return_data = (char**)malloc(sizeof(char *) * (maxSourceStrings+1)); // freed in FreeFileData()
 
-    if (errorCode) {
-        printf("Error: unable to open input file: %s\n", fileName);
-        return nullptr;
-    }
+    if (errorCode || in == nullptr)
+        Error("unable to open input file");
     
     while (fgetc(in) != EOF)
         count++;
 
     fseek(in, 0, SEEK_SET);
 
-    char *fdata = (char*)malloc(count+2);
-    if (! fdata) {
-        printf("Error allocating memory\n");
-        return nullptr;
+    char *fdata = (char*)malloc(count+2); // freed before return of this function
+    if (! fdata)
+        Error("can't allocate memory");
+
+    if ((int)fread(fdata, 1, count, in) != count) {
+        free(fdata);
+        Error("can't read input file");
     }
-    if ((int)fread(fdata,1,count, in) != count) {
-            printf("Error reading input file: %s\n", fileName);
-            return nullptr;
-    }
+
     fdata[count] = '\0';
     fclose(in);
+
     if (count == 0) {
-        return_data[0]=(char*)malloc(count+2);
+        // recover from empty file
+        return_data[0] = (char*)malloc(count+2);  // freed in FreeFileData()
         return_data[0][0]='\0';
         NumShaderStrings = 0;
-        return return_data;       
-    } else
-        NumShaderStrings = 1;
+        free(fdata);
 
+        return return_data;
+    } else
+        NumShaderStrings = 1;  // Set to larger than 1 for testing multiple strings
+
+    // compute how to split up the file into multiple strings, for testing multiple strings
     int len = (int)(ceil)((float)count/(float)NumShaderStrings);
-    int ptr_len=0,i=0;
-    while(count>0){
-        return_data[i]=(char*)malloc(len+2);
-        memcpy(return_data[i],fdata+ptr_len,len);
-        return_data[i][len]='\0';
-        count-=(len);
-        ptr_len+=(len);
-        if(count<len){
-            if(count==0){
-               NumShaderStrings=(i+1);
+    int ptr_len = 0;
+    int i = 0;
+    while (count > 0) {
+        return_data[i] = (char*)malloc(len + 2);  // freed in FreeFileData()
+        memcpy(return_data[i], fdata + ptr_len, len);
+        return_data[i][len] = '\0';
+        count -= len;
+        ptr_len += len;
+        if (count < len) {
+            if (count == 0) {
+               NumShaderStrings = i + 1;
                break;
             }
-           len = count;
+            len = count;
         }  
         ++i;
     }
+
+    free(fdata);
+
     return return_data;
 }
 
 void FreeFileData(char** data)
 {
-    for(int i=0;i<NumShaderStrings;i++)
+    for(int i = 0; i < NumShaderStrings; i++)
         free(data[i]);
+
+    free(data);
 }
 
 void InfoLogMsg(const char* msg, const char* name, const int num)
