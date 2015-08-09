@@ -39,7 +39,6 @@
 
 #if defined _MSC_VER || defined MINGW_HAS_SECURE_API
     #include <basetsd.h>
-    #define snprintf sprintf_s
     #define safe_vsprintf(buf,max,format,args) vsnprintf_s((buf), (max), (max), (format), (args))
 #elif defined (solaris)
     #define safe_vsprintf(buf,max,format,args) vsnprintf((buf), (max), (format), (args))
