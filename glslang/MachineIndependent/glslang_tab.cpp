@@ -3899,7 +3899,7 @@ yyreduce:
 
         // lazy setting of the previous scope's defaults, has effect only the first time it is called in a particular scope
         parseContext.symbolTable.setPreviousDefaultPrecisions(&parseContext.defaultPrecision[0]);
-		parseContext.setDefaultPrecision((yyvsp[(1) - (4)].lex).loc, (yyvsp[(3) - (4)].interm.type), (yyvsp[(2) - (4)].interm.type).qualifier.precision);
+        parseContext.setDefaultPrecision((yyvsp[(1) - (4)].lex).loc, (yyvsp[(3) - (4)].interm.type), (yyvsp[(2) - (4)].interm.type).qualifier.precision);
         (yyval.interm.intermNode) = 0;
     }
     break;
@@ -4760,7 +4760,7 @@ yyreduce:
     {
         (yyval.interm).loc = (yyvsp[(1) - (2)].lex).loc;
         (yyval.interm).arraySizes = new TArraySizes;
-        (yyval.interm).arraySizes->setOuterSize(0);
+        (yyval.interm).arraySizes->addInnerSize();
     }
     break;
 
@@ -4773,7 +4773,7 @@ yyreduce:
 
         int size;
         parseContext.arraySizeCheck((yyvsp[(2) - (3)].interm.intermTypedNode)->getLoc(), (yyvsp[(2) - (3)].interm.intermTypedNode), size);
-        (yyval.interm).arraySizes->setOuterSize(size);
+        (yyval.interm).arraySizes->addInnerSize(size);
     }
     break;
 
@@ -4782,7 +4782,7 @@ yyreduce:
 #line 1253 "glslang.y"
     {
         (yyval.interm) = (yyvsp[(1) - (3)].interm);
-        (yyval.interm).arraySizes->setOuterSize(0);
+        (yyval.interm).arraySizes->addInnerSize();
     }
     break;
 
@@ -4794,7 +4794,7 @@ yyreduce:
 
         int size;
         parseContext.arraySizeCheck((yyvsp[(3) - (4)].interm.intermTypedNode)->getLoc(), (yyvsp[(3) - (4)].interm.intermTypedNode), size);
-        (yyval.interm).arraySizes->setOuterSize(size);
+        (yyval.interm).arraySizes->addInnerSize(size);
     }
     break;
 
@@ -6047,7 +6047,7 @@ yyreduce:
         parseContext.profileRequires((yyvsp[(1) - (1)].lex).loc, ENoProfile, 130, 0, "highp precision qualifier");
         (yyval.interm.type).init((yyvsp[(1) - (1)].lex).loc, parseContext.symbolTable.atGlobalLevel());
         if (parseContext.profile == EEsProfile)
-		    (yyval.interm.type).qualifier.precision = EpqHigh;
+            (yyval.interm.type).qualifier.precision = EpqHigh;
     }
     break;
 
@@ -6058,7 +6058,7 @@ yyreduce:
         parseContext.profileRequires((yyvsp[(1) - (1)].lex).loc, ENoProfile, 130, 0, "mediump precision qualifier");
         (yyval.interm.type).init((yyvsp[(1) - (1)].lex).loc, parseContext.symbolTable.atGlobalLevel());
         if (parseContext.profile == EEsProfile)
-	    	(yyval.interm.type).qualifier.precision = EpqMedium;
+            (yyval.interm.type).qualifier.precision = EpqMedium;
     }
     break;
 
@@ -6069,7 +6069,7 @@ yyreduce:
         parseContext.profileRequires((yyvsp[(1) - (1)].lex).loc, ENoProfile, 130, 0, "lowp precision qualifier");
         (yyval.interm.type).init((yyvsp[(1) - (1)].lex).loc, parseContext.symbolTable.atGlobalLevel());
         if (parseContext.profile == EEsProfile)
-    		(yyval.interm.type).qualifier.precision = EpqLow;
+            (yyval.interm.type).qualifier.precision = EpqLow;
     }
     break;
 
@@ -6221,7 +6221,7 @@ yyreduce:
         (yyval.interm.typeLine).type = new TType(EbtVoid);
         (yyval.interm.typeLine).loc = (yyvsp[(1) - (2)].lex).loc;
         (yyval.interm.typeLine).type->setFieldName(*(yyvsp[(1) - (2)].lex).string);
-        (yyval.interm.typeLine).type->setArraySizes((yyvsp[(2) - (2)].interm).arraySizes);
+        (yyval.interm.typeLine).type->newArraySizes(*(yyvsp[(2) - (2)].interm).arraySizes);
     }
     break;
 
@@ -6776,7 +6776,7 @@ yyreduce:
                 (yyval.interm.intermNode) = parseContext.intermediate.addBranch(EOpReturn, (yyvsp[(2) - (3)].interm.intermTypedNode), (yyvsp[(1) - (3)].lex).loc);
             }
         } else
-		    (yyval.interm.intermNode) = parseContext.intermediate.addBranch(EOpReturn, (yyvsp[(2) - (3)].interm.intermTypedNode), (yyvsp[(1) - (3)].lex).loc);
+            (yyval.interm.intermNode) = parseContext.intermediate.addBranch(EOpReturn, (yyvsp[(2) - (3)].interm.intermTypedNode), (yyvsp[(1) - (3)].lex).loc);
     }
     break;
 
