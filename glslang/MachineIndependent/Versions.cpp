@@ -176,7 +176,7 @@ void TParseContext::initializeExtensionBehavior()
 
     // #line and #include
     extensionBehavior[E_GL_GOOGLE_cpp_style_line_directive]          = EBhDisable;
-    extensionBehavior[E_GL_GOOGLE_include_directive]                 = EBhDisable;
+    extensionBehavior[E_GL_GOOGLE_include_directive]                 = EBhEnable;
 
     // AEP
     extensionBehavior[E_GL_ANDROID_extension_pack_es31a]             = EBhDisablePartial;
