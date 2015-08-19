@@ -175,7 +175,7 @@ void TParseContext::initializeExtensionBehavior()
 //    extensionBehavior[E_GL_ARB_cull_distance]                = EBhDisable;    // present for 4.5, but need extension control over block members
 
     // #line and #include
-    extensionBehavior[E_GL_GOOGLE_cpp_style_line_directive]          = EBhDisable;
+    extensionBehavior[E_GL_GOOGLE_cpp_style_line_directive]          = EBhEnable;
     extensionBehavior[E_GL_GOOGLE_include_directive]                 = EBhEnable;
 
     // AEP

@@ -1455,7 +1455,7 @@ bool TProgram::linkStage(EShLanguage stage, EShMessages messages)
         newedIntermediate[stage] = true;
     }
 
-    infoSink->info << "\nLinked " << StageName(stage) << " stage:\n\n";
+    //infoSink->info << "\nLinked " << StageName(stage) << " stage:\n\n";
 
     if (stages[stage].size() > 1) {
         std::list<TShader*>::const_iterator it;
