@@ -99,3 +99,89 @@ void foodc2()
     d = packDouble2x32(u2);
     u2 = unpackDouble2x32(d);
 }
+
+sample in vec4 colorSampIn;
+sample out vec4 colorSampleBad;     // ERROR
+noperspective in vec4 colorfsi;
+sample in vec3 sampInArray[4];
+smooth in float scalarIn;
+flat centroid in vec2 colorfc;
+
+struct S {
+    float x;
+};
+
+in S s1;
+sample S s2;
+
+void interp()
+{
+    interpolateAtCentroid(colorfc);
+    interpolateAtCentroid(colorSampIn);
+    interpolateAtCentroid(colorfsi);
+    interpolateAtCentroid(scalarIn);
+    interpolateAtCentroid(sampInArray);         // ERROR
+    interpolateAtCentroid(sampInArray[2]);
+    interpolateAtCentroid(sampInArray[2].xy);   // ERROR
+
+    interpolateAtSample(sampInArray, 1);        // ERROR
+    interpolateAtSample(sampInArray[i], 0);
+    interpolateAtSample(s1.x, 2);
+    interpolateAtSample(scalarIn, 1);
+
+    interpolateAtOffset(sampInArray, vec2(0.2));         // ERROR
+    interpolateAtOffset(sampInArray[2], vec2(0.2));
+    interpolateAtOffset(sampInArray[2].xy, vec2(0.2));   // ERROR, no swizzle
+    interpolateAtOffset(scalarIn + scalarIn, vec2(0.2)); // ERROR, no binary ops other than dereference
+    interpolateAtOffset(s2.x, vec2(0.2));      // ERROR
+
+    float f;
+    interpolateAtCentroid(f);           // ERROR, not interpolant
+    interpolateAtSample(outp, 0);       // ERROR, not interpolant
+}
+
+uniform sampler1D samp1D;
+uniform isampler2D isamp2D;
+uniform usampler3D usamp3D;
+uniform samplerCube sampCube; 
+uniform isampler1DArray isamp1DA;
+uniform usampler2DArray usamp2DA;
+uniform isamplerCubeArray isampCubeA;
+
+uniform sampler1DShadow samp1Ds;
+uniform sampler2DShadow samp2Ds;
+uniform samplerCubeShadow sampCubes;
+uniform sampler1DArrayShadow samp1DAs;
+uniform sampler2DArrayShadow samp2DAs;
+uniform samplerCubeArrayShadow sampCubeAs;
+
+uniform samplerBuffer sampBuf;
+uniform sampler2DRect sampRect;
+
+void qlod()
+{
+    vec2 lod;
+    float pf;
+    vec2 pf2;
+    vec3 pf3;
+
+    lod = textureQueryLod(samp1D, pf);
+    lod = textureQueryLod(isamp2D, pf2);
+    lod = textureQueryLod(usamp3D, pf3);
+    lod = textureQueryLod(sampCube, pf3);
+    lod = textureQueryLod(isamp1DA, pf);
+    lod = textureQueryLod(usamp2DA, pf2);
+    lod = textureQueryLod(isampCubeA, pf3);
+
+    lod = textureQueryLod(samp1Ds, pf);
+    lod = textureQueryLod(samp2Ds, pf2);
+    lod = textureQueryLod(sampCubes, pf3);
+    lod = textureQueryLod(samp1DAs, pf);
+    lod = textureQueryLod(samp2DAs, pf2);
+    lod = textureQueryLod(sampCubeAs, pf3);
+
+    lod = textureQueryLod(sampBuf, pf);     // ERROR
+    lod = textureQueryLod(sampRect, pf2);   // ERROR
+}
+
+struct SKeyMem { int precise; } KeyMem;     // ERROR, keyword can't be a member

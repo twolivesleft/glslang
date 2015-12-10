@@ -293,10 +293,33 @@ int yylex(YYSTYPE* glslangTokenDesc, glslang::TParseContext& parseContext)
 
 namespace {
 
+struct str_eq
+{
+    bool operator()(const char* lhs, const char* rhs) const
+    {
+        return strcmp(lhs, rhs) == 0;
+    }
+};
+
+struct str_hash
+{
+    size_t operator()(const char* str) const
+    {
+        // djb2
+        unsigned long hash = 5381;
+        int c;
+
+        while (c = *str++)
+            hash = ((hash << 5) + hash) + c;
+
+        return hash;
+    }
+};
+
 // A single global usable by all threads, by all versions, by all languages.
 // After a single process-level initialization, this is read only and thread safe
-std::unordered_map<std::string, int>* KeywordMap = nullptr;
-std::unordered_set<std::string>* ReservedSet = nullptr;
+std::unordered_map<const char*, int, str_hash, str_eq>* KeywordMap = nullptr;
+std::unordered_set<const char*, str_hash, str_eq>* ReservedSet = nullptr;
 
 };
 
@@ -309,7 +332,7 @@ void TScanContext::fillInKeywordMap()
         // but, the only risk is if two threads called simultaneously
         return;
     }
-    KeywordMap = new std::unordered_map<std::string, int>;
+    KeywordMap = new std::unordered_map<const char*, int, str_hash, str_eq>;
 
     (*KeywordMap)["const"] =                   CONST;
     (*KeywordMap)["uniform"] =                 UNIFORM;
@@ -345,8 +368,6 @@ void TScanContext::fillInKeywordMap()
     (*KeywordMap)["mat2"] =                    MAT2;
     (*KeywordMap)["mat3"] =                    MAT3;
     (*KeywordMap)["mat4"] =                    MAT4;
-    (*KeywordMap)["sampler2D"] =               SAMPLER2D;
-    (*KeywordMap)["samplerCube"] =             SAMPLERCUBE;
     (*KeywordMap)["true"] =                    BOOLCONSTANT;
     (*KeywordMap)["false"] =                   BOOLCONSTANT;
     (*KeywordMap)["attribute"] =               ATTRIBUTE;
@@ -425,6 +446,13 @@ void TScanContext::fillInKeywordMap()
     (*KeywordMap)["dvec2"] =                   DVEC2;
     (*KeywordMap)["dvec3"] =                   DVEC3;
     (*KeywordMap)["dvec4"] =                   DVEC4;
+    (*KeywordMap)["uint"] =                    UINT;
+    (*KeywordMap)["uvec2"] =                   UVEC2;
+    (*KeywordMap)["uvec3"] =                   UVEC3;
+    (*KeywordMap)["uvec4"] =                   UVEC4;
+
+    (*KeywordMap)["sampler2D"] =               SAMPLER2D;
+    (*KeywordMap)["samplerCube"] =             SAMPLERCUBE;
     (*KeywordMap)["samplerCubeArray"] =        SAMPLERCUBEARRAY;
     (*KeywordMap)["samplerCubeArrayShadow"] =  SAMPLERCUBEARRAYSHADOW;
     (*KeywordMap)["isamplerCubeArray"] =       ISAMPLERCUBEARRAY;
@@ -435,10 +463,6 @@ void TScanContext::fillInKeywordMap()
     (*KeywordMap)["isampler1D"] =              ISAMPLER1D;
     (*KeywordMap)["usampler1DArray"] =         USAMPLER1DARRAY;
     (*KeywordMap)["samplerBuffer"] =           SAMPLERBUFFER;
-    (*KeywordMap)["uint"] =                    UINT;
-    (*KeywordMap)["uvec2"] =                   UVEC2;
-    (*KeywordMap)["uvec3"] =                   UVEC3;
-    (*KeywordMap)["uvec4"] =                   UVEC4;
     (*KeywordMap)["samplerCubeShadow"] =       SAMPLERCUBESHADOW;
     (*KeywordMap)["sampler2DArray"] =          SAMPLER2DARRAY;
     (*KeywordMap)["sampler2DArrayShadow"] =    SAMPLER2DARRAYSHADOW;
@@ -467,7 +491,9 @@ void TScanContext::fillInKeywordMap()
     (*KeywordMap)["sampler2DRect"] =           SAMPLER2DRECT;
     (*KeywordMap)["sampler2DRectShadow"] =     SAMPLER2DRECTSHADOW;
     (*KeywordMap)["sampler1DArray"] =          SAMPLER1DARRAY;
-    (*KeywordMap)["samplerVideo"] =            SAMPLEREXTERNALOES; // GL_OES_EGL_image_external
+
+    (*KeywordMap)["samplerVideo"] =      SAMPLEREXTERNALOES; // GL_OES_EGL_image_external
+
     (*KeywordMap)["noperspective"] =           NOPERSPECTIVE;
     (*KeywordMap)["smooth"] =                  SMOOTH;
     (*KeywordMap)["flat"] =                    FLAT;
@@ -478,7 +504,7 @@ void TScanContext::fillInKeywordMap()
     (*KeywordMap)["resource"] =                RESOURCE;
     (*KeywordMap)["superp"] =                  SUPERP;
 
-    ReservedSet = new std::unordered_set<std::string>;
+    ReservedSet = new std::unordered_set<const char*, str_hash, str_eq>;
     
     ReservedSet->insert("common");
     ReservedSet->insert("partition");
@@ -598,7 +624,12 @@ int TScanContext::tokenize(TPpContext* pp, TParserToken& token)
         case PpAtomConstUint:          parserToken->sType.lex.i = ppToken.ival;       return UINTCONSTANT;
         case PpAtomConstFloat:         parserToken->sType.lex.d = ppToken.dval;       return FLOATCONSTANT;
         case PpAtomConstDouble:        parserToken->sType.lex.d = ppToken.dval;       return DOUBLECONSTANT;
-        case PpAtomIdentifier:         return tokenizeIdentifier();
+        case PpAtomIdentifier:
+        {
+            int token = tokenizeIdentifier();
+            field = false;
+            return token;
+        }
 
         case EndOfInput:               return 0;
 
@@ -623,7 +654,6 @@ int TScanContext::tokenizeIdentifier()
         return identifierOrType();
     }
     keyword = it->second;
-    field = false;
 
     switch (keyword) {
     case CONST:
@@ -738,6 +768,10 @@ int TScanContext::tokenizeIdentifier()
         return es30ReservedFromGLSL(400);
 
     case SAMPLE:
+        if (parseContext.extensionsTurnedOn(1, &E_GL_OES_shader_multisample_interpolation))
+            return keyword;
+        return es30ReservedFromGLSL(400);
+
     case SUBROUTINE:
         return es30ReservedFromGLSL(400);
 
@@ -781,9 +815,15 @@ int TScanContext::tokenizeIdentifier()
     case IMAGE2DRECT:
     case IIMAGE2DRECT:
     case UIMAGE2DRECT:
+        afterType = true;
+        return firstGenerationImage(false);
+
     case IMAGEBUFFER:
     case IIMAGEBUFFER:
     case UIMAGEBUFFER:
+        afterType = true;
+        if (parseContext.extensionsTurnedOn(Num_AEP_texture_buffer, AEP_texture_buffer))
+            return keyword;
         return firstGenerationImage(false);
 
     case IMAGE2D:
@@ -798,17 +838,24 @@ int TScanContext::tokenizeIdentifier()
     case IMAGE2DARRAY:
     case IIMAGE2DARRAY:
     case UIMAGE2DARRAY:
+        afterType = true;
         return firstGenerationImage(true);
 
     case IMAGECUBEARRAY:
     case IIMAGECUBEARRAY:
-    case UIMAGECUBEARRAY:        
+    case UIMAGECUBEARRAY:
+        afterType = true;
+        if (parseContext.extensionsTurnedOn(Num_AEP_texture_cube_map_array, AEP_texture_cube_map_array))
+            return keyword;
+        return secondGenerationImage();
+
     case IMAGE2DMS:
     case IIMAGE2DMS:
     case UIMAGE2DMS:
     case IMAGE2DMSARRAY:
     case IIMAGE2DMSARRAY:
     case UIMAGE2DMSARRAY:
+        afterType = true;
         return secondGenerationImage();
 
     case DOUBLE:
@@ -825,6 +872,8 @@ int TScanContext::tokenizeIdentifier()
     case ISAMPLERCUBEARRAY:
     case USAMPLERCUBEARRAY:
         afterType = true;
+        if (parseContext.extensionsTurnedOn(Num_AEP_texture_cube_map_array, AEP_texture_cube_map_array))
+            return keyword;
         if (parseContext.profile == EEsProfile || (parseContext.version < 400 && ! parseContext.extensionTurnedOn(E_GL_ARB_texture_cube_map_array)))
             reservedWord();
         return keyword;
@@ -834,7 +883,6 @@ int TScanContext::tokenizeIdentifier()
     case SAMPLER1DARRAYSHADOW:
     case USAMPLER1D:
     case USAMPLER1DARRAY:
-    case SAMPLERBUFFER:
         afterType = true;
         return es30ReservedFromGLSL(130);
 
@@ -858,9 +906,20 @@ int TScanContext::tokenizeIdentifier()
         
     case ISAMPLER2DRECT:
     case USAMPLER2DRECT:
+        afterType = true;
+        return es30ReservedFromGLSL(140);
+
+    case SAMPLERBUFFER:
+        afterType = true;
+        if (parseContext.extensionsTurnedOn(Num_AEP_texture_buffer, AEP_texture_buffer))
+            return keyword;
+        return es30ReservedFromGLSL(130);
+
     case ISAMPLERBUFFER:
     case USAMPLERBUFFER:
         afterType = true;
+        if (parseContext.extensionsTurnedOn(Num_AEP_texture_buffer, AEP_texture_buffer))
+            return keyword;
         return es30ReservedFromGLSL(140);
         
     case SAMPLER2DMS:
@@ -875,6 +934,8 @@ int TScanContext::tokenizeIdentifier()
     case ISAMPLER2DMSARRAY:
     case USAMPLER2DMSARRAY:
         afterType = true;
+        if (parseContext.extensionsTurnedOn(1, &E_GL_OES_texture_storage_multisample_2d_array))
+            return keyword;
         return es30ReservedFromGLSL(150);
 
     case SAMPLER1D:
@@ -989,11 +1050,8 @@ int TScanContext::tokenizeIdentifier()
 int TScanContext::identifierOrType()
 {
     parserToken->sType.lex.string = NewPoolTString(tokenText);
-    if (field) {
-        field = false;
- 
-        return FIELD_SELECTION;
-    }
+    if (field)
+        return IDENTIFIER;
 
     parserToken->sType.lex.symbol = parseContext.symbolTable.find(*parserToken->sType.lex.string);
     if (afterType == false && parserToken->sType.lex.symbol) {
@@ -1113,8 +1171,6 @@ int TScanContext::dMat()
 
 int TScanContext::firstGenerationImage(bool inEs310)
 {
-    afterType = true;
-
     if (parseContext.symbolTable.atBuiltInLevel() || 
         (parseContext.profile != EEsProfile && (parseContext.version >= 420 || parseContext.extensionTurnedOn(E_GL_ARB_shader_image_load_store))) ||
         (inEs310 && parseContext.profile == EEsProfile && parseContext.version >= 310))
@@ -1135,8 +1191,6 @@ int TScanContext::firstGenerationImage(bool inEs310)
 
 int TScanContext::secondGenerationImage()
 {
-    afterType = true;
-
     if (parseContext.profile == EEsProfile && parseContext.version >= 310) {
         reservedWord();
         return keyword;

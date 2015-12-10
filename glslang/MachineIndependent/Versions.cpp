@@ -169,6 +169,7 @@ void TParseContext::initializeExtensionBehavior()
     extensionBehavior[E_GL_ARB_explicit_attrib_location]     = EBhDisable;
     extensionBehavior[E_GL_ARB_shader_image_load_store]      = EBhDisable;
     extensionBehavior[E_GL_ARB_shader_atomic_counters]       = EBhDisable;
+    extensionBehavior[E_GL_ARB_shader_draw_parameters]       = EBhDisable;
     extensionBehavior[E_GL_ARB_derivative_control]           = EBhDisable;
     extensionBehavior[E_GL_ARB_shader_texture_image_samples] = EBhDisable;
     extensionBehavior[E_GL_ARB_viewport_array]               = EBhDisable;
@@ -179,32 +180,32 @@ void TParseContext::initializeExtensionBehavior()
     extensionBehavior[E_GL_GOOGLE_include_directive]                 = EBhEnable;
 
     // AEP
-    extensionBehavior[E_GL_ANDROID_extension_pack_es31a]             = EBhDisablePartial;
-    extensionBehavior[E_GL_KHR_blend_equation_advanced]              = EBhDisablePartial;
-    extensionBehavior[E_GL_OES_sample_variables]                     = EBhDisablePartial;
-    extensionBehavior[E_GL_OES_shader_image_atomic]                  = EBhDisablePartial;
-    extensionBehavior[E_GL_OES_shader_multisample_interpolation]     = EBhDisablePartial;
-    extensionBehavior[E_GL_OES_texture_storage_multisample_2d_array] = EBhDisablePartial;
+    extensionBehavior[E_GL_ANDROID_extension_pack_es31a]             = EBhDisable;
+    extensionBehavior[E_GL_KHR_blend_equation_advanced]              = EBhDisable;
+    extensionBehavior[E_GL_OES_sample_variables]                     = EBhDisable;
+    extensionBehavior[E_GL_OES_shader_image_atomic]                  = EBhDisable;
+    extensionBehavior[E_GL_OES_shader_multisample_interpolation]     = EBhDisable;
+    extensionBehavior[E_GL_OES_texture_storage_multisample_2d_array] = EBhDisable;
     extensionBehavior[E_GL_EXT_geometry_shader]                      = EBhDisable;
     extensionBehavior[E_GL_EXT_geometry_point_size]                  = EBhDisable;
     extensionBehavior[E_GL_EXT_gpu_shader5]                          = EBhDisable;
-    extensionBehavior[E_GL_EXT_primitive_bounding_box]               = EBhDisablePartial;
+    extensionBehavior[E_GL_EXT_primitive_bounding_box]               = EBhDisable;
     extensionBehavior[E_GL_EXT_shader_io_blocks]                     = EBhDisable;
     extensionBehavior[E_GL_EXT_tessellation_shader]                  = EBhDisable;
     extensionBehavior[E_GL_EXT_tessellation_point_size]              = EBhDisable;
-    extensionBehavior[E_GL_EXT_texture_buffer]                       = EBhDisablePartial;
-    extensionBehavior[E_GL_EXT_texture_cube_map_array]               = EBhDisablePartial;
+    extensionBehavior[E_GL_EXT_texture_buffer]                       = EBhDisable;
+    extensionBehavior[E_GL_EXT_texture_cube_map_array]               = EBhDisable;
 
     // OES matching AEP
     extensionBehavior[E_GL_OES_geometry_shader]          = EBhDisable;
     extensionBehavior[E_GL_OES_geometry_point_size]      = EBhDisable;
     extensionBehavior[E_GL_OES_gpu_shader5]              = EBhDisable;
-    extensionBehavior[E_GL_OES_primitive_bounding_box]   = EBhDisablePartial;
+    extensionBehavior[E_GL_OES_primitive_bounding_box]   = EBhDisable;
     extensionBehavior[E_GL_OES_shader_io_blocks]         = EBhDisable;
     extensionBehavior[E_GL_OES_tessellation_shader]      = EBhDisable;
     extensionBehavior[E_GL_OES_tessellation_point_size]  = EBhDisable;
-    extensionBehavior[E_GL_OES_texture_buffer]           = EBhDisablePartial;
-    extensionBehavior[E_GL_OES_texture_cube_map_array]   = EBhDisablePartial;
+    extensionBehavior[E_GL_OES_texture_buffer]           = EBhDisable;
+    extensionBehavior[E_GL_OES_texture_cube_map_array]   = EBhDisable;
 }
 
 // Get code that is not part of a shared symbol table, is specific to this shader,
@@ -269,6 +270,7 @@ const char* TParseContext::getPreamble()
             "#define GL_ARB_explicit_attrib_location 1\n"
             "#define GL_ARB_shader_image_load_store 1\n"
             "#define GL_ARB_shader_atomic_counters 1\n"
+            "#define GL_ARB_shader_draw_parameters 1\n"
             "#define GL_ARB_derivative_control 1\n"
             "#define GL_ARB_shader_texture_image_samples 1\n"
             "#define GL_ARB_viewport_array 1\n"

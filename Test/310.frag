@@ -166,7 +166,7 @@ void fooIO()
 {
     vec4 v = inbinst.v + vAnon;
     v *= arrayedInst[2].f;
-    v *= arrayedInst[i].f;       // ERROR, not constant
+    v *= arrayedInst[i].f;
 }
 
 in vec4 gl_FragCoord;
@@ -222,3 +222,210 @@ void pfoo()
     textureGatherOffsets(sArray[0], vec2(0.1), constOffsets);
     textureGatherOffsets(sArray[0], vec2(0.1), offsets);       // ERROR, offset not constant
 }
+
+#extension GL_EXT_texture_cube_map_array : enable
+
+precision highp imageCubeArray        ;
+precision highp iimageCubeArray       ;
+precision highp uimageCubeArray       ;
+
+precision highp samplerCubeArray      ;
+precision highp samplerCubeArrayShadow;
+precision highp isamplerCubeArray     ;
+precision highp usamplerCubeArray     ;
+
+uniform writeonly imageCubeArray  CA1;
+uniform writeonly iimageCubeArray CA2;
+uniform writeonly uimageCubeArray CA3;
+
+#ifdef GL_EXT_texture_cube_map_array
+uniform samplerCubeArray          CA4;
+uniform samplerCubeArrayShadow    CA5;
+uniform isamplerCubeArray         CA6;
+uniform usamplerCubeArray         CA7;
+#endif
+
+void CAT()
+{
+    highp vec4 b4 = texture(CA4, vec4(0.5), 0.24);
+    highp ivec4 b6 = texture(CA6, vec4(0.5), 0.26);
+    highp uvec4 b7 = texture(CA7, vec4(0.5), 0.27);
+}
+
+void badSample()
+{
+    lowp     int  a1 = gl_SampleID;         // ERROR, need extension
+    mediump  vec2 a2 = gl_SamplePosition;   // ERROR, need extension
+    highp    int  a3 = gl_SampleMaskIn[0];  // ERROR, need extension
+    gl_SampleMask[0] = a3;                  // ERROR, need extension
+    mediump int n = gl_NumSamples;          // ERROR, need extension
+}
+
+#ifdef GL_OES_sample_variables
+#extension GL_OES_sample_variables : enable
+#endif
+
+void goodSample()
+{
+    lowp     int  a1 = gl_SampleID;       
+    mediump  vec2 a2 = gl_SamplePosition; 
+    highp    int  a3 = gl_SampleMaskIn[0];
+    gl_SampleMask[0] = a3;
+    mediump int n1 = gl_MaxSamples;
+    mediump int n2 = gl_NumSamples;
+}
+
+uniform layout(r32f)  highp  image2D im2Df;
+uniform layout(r32ui) highp uimage2D im2Du;
+uniform layout(r32i)  highp iimage2D im2Di;
+uniform ivec2 P;
+
+void badImageAtom()
+{
+    float datf;
+    int dati;
+    uint datu;
+
+    imageAtomicAdd(     im2Di, P, dati);        // ERROR, need extension
+    imageAtomicAdd(     im2Du, P, datu);        // ERROR, need extension
+    imageAtomicMin(     im2Di, P, dati);        // ERROR, need extension
+    imageAtomicMin(     im2Du, P, datu);        // ERROR, need extension
+    imageAtomicMax(     im2Di, P, dati);        // ERROR, need extension
+    imageAtomicMax(     im2Du, P, datu);        // ERROR, need extension
+    imageAtomicAnd(     im2Di, P, dati);        // ERROR, need extension
+    imageAtomicAnd(     im2Du, P, datu);        // ERROR, need extension
+    imageAtomicOr(      im2Di, P, dati);        // ERROR, need extension
+    imageAtomicOr(      im2Du, P, datu);        // ERROR, need extension
+    imageAtomicXor(     im2Di, P, dati);        // ERROR, need extension
+    imageAtomicXor(     im2Du, P, datu);        // ERROR, need extension
+    imageAtomicExchange(im2Di, P, dati);        // ERROR, need extension
+    imageAtomicExchange(im2Du, P, datu);        // ERROR, need extension
+    imageAtomicExchange(im2Df, P, datf);        // ERROR, need extension
+    imageAtomicCompSwap(im2Di, P,  3, dati);    // ERROR, need extension
+    imageAtomicCompSwap(im2Du, P, 5u, datu);    // ERROR, need extension
+}
+
+#ifdef GL_OES_shader_image_atomic 
+#extension GL_OES_shader_image_atomic : enable
+#endif
+
+uniform layout(rgba32f)  highp  image2D badIm2Df;  // ERROR, needs readonly or writeonly
+uniform layout(rgba8ui) highp uimage2D badIm2Du;   // ERROR, needs readonly or writeonly
+uniform layout(rgba16i)  highp iimage2D badIm2Di;  // ERROR, needs readonly or writeonly
+
+void goodImageAtom()
+{
+    float datf;
+    int dati;
+    uint datu;
+
+    imageAtomicAdd(     im2Di, P, dati);
+    imageAtomicAdd(     im2Du, P, datu);
+    imageAtomicMin(     im2Di, P, dati);
+    imageAtomicMin(     im2Du, P, datu);
+    imageAtomicMax(     im2Di, P, dati);
+    imageAtomicMax(     im2Du, P, datu);
+    imageAtomicAnd(     im2Di, P, dati);
+    imageAtomicAnd(     im2Du, P, datu);
+    imageAtomicOr(      im2Di, P, dati);
+    imageAtomicOr(      im2Du, P, datu);
+    imageAtomicXor(     im2Di, P, dati);
+    imageAtomicXor(     im2Du, P, datu);
+    imageAtomicExchange(im2Di, P, dati);
+    imageAtomicExchange(im2Du, P, datu);
+    imageAtomicExchange(im2Df, P, datf);
+    imageAtomicCompSwap(im2Di, P,  3, dati);
+    imageAtomicCompSwap(im2Du, P, 5u, datu);
+
+    imageAtomicMax(badIm2Di, P, dati);      // ERROR, not an allowed layout() on the image
+    imageAtomicMax(badIm2Du, P, datu);      // ERROR, not an allowed layout() on the image
+    imageAtomicExchange(badIm2Df, P, datf); // ERROR, not an allowed layout() on the image
+}
+
+sample in vec4 colorSampInBad;       // ERROR, reserved
+centroid out vec4 colorCentroidBad;  // ERROR
+flat out vec4 colorBadFlat;          // ERROR
+smooth out vec4 colorBadSmooth;      // ERROR
+noperspective out vec4 colorBadNo;   // ERROR
+flat centroid in vec2 colorfc;
+in float scalarIn;
+
+void badInterp()
+{
+    interpolateAtCentroid(colorfc);             // ERROR, need extension
+    interpolateAtSample(colorfc, 1);            // ERROR, need extension
+    interpolateAtOffset(colorfc, vec2(0.2));    // ERROR, need extension
+}
+
+#if defined GL_OES_shader_multisample_interpolation
+#extension GL_OES_shader_multisample_interpolation : enable
+#endif
+
+sample in vec4 colorSampIn;
+sample out vec4 colorSampleBad;     // ERROR
+flat sample in vec4 colorfsi;
+sample in vec3 sampInArray[4];
+
+void interp()
+{
+    float res;
+    vec2 res2;
+    vec3 res3;
+    vec4 res4;
+
+    res2 = interpolateAtCentroid(colorfc);
+    res4 = interpolateAtCentroid(colorSampIn);
+    res4 = interpolateAtCentroid(colorfsi);
+    res  = interpolateAtCentroid(scalarIn);
+    res3 = interpolateAtCentroid(sampInArray);         // ERROR
+    res3 = interpolateAtCentroid(sampInArray[2]);
+    res2 = interpolateAtCentroid(sampInArray[2].xy);   // ERROR
+
+    res3 = interpolateAtSample(sampInArray, 1);        // ERROR
+    res3 = interpolateAtSample(sampInArray[i], 0);
+    res2 = interpolateAtSample(sampInArray[2].xy, 2);  // ERROR
+    res  = interpolateAtSample(scalarIn, 1);
+
+    res3 = interpolateAtOffset(sampInArray, vec2(0.2));         // ERROR
+    res3 = interpolateAtOffset(sampInArray[2], vec2(0.2));
+    res2 = interpolateAtOffset(sampInArray[2].xy, vec2(0.2));   // ERROR, no swizzle
+    res  = interpolateAtOffset(scalarIn + scalarIn, vec2(0.2)); // ERROR, no binary ops other than dereference
+    res  = interpolateAtOffset(scalarIn, vec2(0.2));
+
+    float f;
+    res  = interpolateAtCentroid(f);           // ERROR, not interpolant
+    res4 = interpolateAtSample(outp, 0);       // ERROR, not interpolant
+}
+
+layout(blend_support_softlight) out;           // ERROR, need extension
+
+#ifdef GL_KHR_blend_equation_advanced
+#extension GL_KHR_blend_equation_advanced : enable
+#endif
+
+layout(blend_support_multiply) out;
+layout(blend_support_screen) out;
+layout(blend_support_overlay) out;
+layout(blend_support_darken, blend_support_lighten) out;
+layout(blend_support_colordodge) layout(blend_support_colorburn) out;
+layout(blend_support_hardlight) out;
+layout(blend_support_softlight) out;
+layout(blend_support_difference) out;
+layout(blend_support_exclusion) out;
+layout(blend_support_hsl_hue) out;
+layout(blend_support_hsl_saturation) out;
+layout(blend_support_hsl_color) out;
+layout(blend_support_hsl_luminosity) out;
+layout(blend_support_all_equations) out;
+
+layout(blend_support_hsl_luminosity) out;              // okay to repeat
+
+layout(blend_support_hsl_luminosity) in;                       // ERROR, only on "out"
+layout(blend_support_hsl_luminosity) out vec4;                 // ERROR, only on standalone
+layout(blend_support_hsl_luminosity) out vec4 badout;          // ERROR, only on standalone
+layout(blend_support_hsl_luminosity) struct badS {int i;};     // ERROR, only on standalone
+layout(blend_support_hsl_luminosity) void blendFoo() { }       // ERROR, only on standalone
+void blendFoo(layout(blend_support_hsl_luminosity) vec3 v) { } // ERROR, only on standalone
+layout(blend_support_flizbit) out;                             // ERROR, no flizbit
+
+out vec4 outAA[2][2];  // ERROR

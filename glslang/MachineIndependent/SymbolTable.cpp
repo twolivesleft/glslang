@@ -89,6 +89,8 @@ void TType::buildMangledName(TString& mangledName)
         case EsdBuffer:   mangledName += "B";  break;
         default: break; // some compilers want this
         }
+        if (sampler.ms)
+            mangledName += "M";
         break;
     case EbtStruct:
         mangledName += "struct-";
@@ -240,7 +242,7 @@ TVariable::TVariable(const TVariable& copyOf) : TSymbol(copyOf)
     userType = copyOf.userType;
     numExtensions = 0;
     extensions = 0;
-    if (copyOf.numExtensions > 0)
+    if (copyOf.numExtensions != 0)
         setExtensions(copyOf.numExtensions, copyOf.extensions);
 
     if (! copyOf.unionArray.empty()) {
@@ -267,7 +269,7 @@ TFunction::TFunction(const TFunction& copyOf) : TSymbol(copyOf)
 
     numExtensions = 0;
     extensions = 0;
-    if (copyOf.extensions > 0)
+    if (copyOf.extensions != 0)
         setExtensions(copyOf.numExtensions, copyOf.extensions);
     returnType.deepCopy(copyOf.returnType);
     mangledName = copyOf.mangledName;

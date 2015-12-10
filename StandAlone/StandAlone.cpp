@@ -49,7 +49,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include "osinclude.h"
+#include "../glslang/OSDependent/osinclude.h"
 
 extern "C" {
     SH_IMPORT_EXPORT void ShOutputHtml();
@@ -621,11 +621,7 @@ void SetMessageOptions(EShMessages& messages)
 //
 // Return 0 for failure, 1 for success.
 //
-unsigned int
-#ifdef _WIN32
-    __stdcall
-#endif
-CompileShaders(void*)
+unsigned int CompileShaders(void*)
 {
     glslang::TWorkItem* workItem;
     while (Worklist.remove(workItem)) {
@@ -788,6 +784,7 @@ int C_DECL main(int argc, char* argv[])
         glslang::GetSpirvVersion(spirvVersion);
         printf("SPIR-V Version %s\n", spirvVersion.c_str());
         printf("GLSL.std.450 Version %d, Revision %d\n", GLSLstd450Version, GLSLstd450Revision);
+        printf("Khronos Tool ID %d\n", glslang::GetKhronosToolId());
         if (Worklist.empty())
             return ESuccess;
     }

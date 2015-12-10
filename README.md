@@ -25,8 +25,6 @@ Things left to do:  See `Todo.txt`
 Execution of Standalone Wrapper
 -------------------------------
 
-There are binaries in the `Install/Windows` and `Install/Linux` directories.
-
 To use the standalone binary form, execute `glslangValidator`, and it will print
 a usage statement.  Basic operation is to give it a file containing a shader,
 and it will print out warnings/errors and optionally an AST.
@@ -48,10 +46,6 @@ Building
 CMake: The currently maintained and preferred way of building is through CMake.
 In MSVC, after running CMake, you may need to use the Configuration Manager to
 check the INSTALL project.
-
-Note there are some legacy build methods still intermingled within the directory
-structure (make, MSVC), but these are no longer maintained, having been
-replaced with CMake.
 
 Programmatic Interfaces
 -----------------------
@@ -109,16 +103,24 @@ warning/error and other options for controling compilation.
 Testing
 -------
 
+Test results should always be included with a pull request that modifies
+functionality. There is a simple process for doing this, described here:
+
 `Test` is an active test directory that contains test input and a
 subdirectory `baseResults` that contains the expected results of the
 tests.  Both the tests and `baseResults` are under source-code control.
 Executing the script `./runtests` will generate current results in
 the `localResults` directory and `diff` them against the `baseResults`.
-When you want to update the tracked test results, they need to be
-copied from `localResults` to `baseResults`.
 
-There are some tests borrowed from LunarGLASS.  If LunarGLASS is
-missing, those tests just won't run.
+When you want to update the tracked test results, they need to be
+copied from `localResults` to `baseResults`.  This can be done by
+the `bump` shell script.
+
+The list of files tested comes from `testlist`, and lists input shaders
+in this directory, which must all be public for this to work.  However,
+you can add your own private list of tests, not tracked here, by using
+`localtestlist` to list non-tracked tests.  This is automatically read
+by `runtests` and included in the `diff` and `bump` process.
 
 Basic Internal Operation
 ------------------------

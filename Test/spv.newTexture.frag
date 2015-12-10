@@ -1,9 +1,11 @@
 #version 430
 
 uniform sampler2D s2D;
+uniform sampler2DRect sr;
 uniform sampler3D s3D;
 uniform samplerCube sCube;
 uniform samplerCubeShadow sCubeShadow;
+uniform samplerCubeArrayShadow sCubeArrayShadow;
 uniform sampler2DShadow s2DShadow;
 uniform sampler2DArray s2DArray;
 uniform sampler2DArrayShadow s2DArrayShadow;
@@ -34,11 +36,13 @@ out vec4 FragData;
 void main()
 {
     vec4 v = texture(s2D, c2D);
+    v.y += texture(sCubeArrayShadow, c4D, c1D);
     v += textureProj(s3D, c4D);
     v += textureLod(s2DArray, c3D, 1.2);
     v.y += textureOffset(s2DShadow, c3D, ivec2(3), c1D);
     v += texelFetch(s3D, ic3D, ic1D);
-    v += texelFetchOffset(s2D, ic2D, 4, ic2D);
+    v += texelFetchOffset(s2D, ic2D, 4, ivec2(3));
+    v += texelFetchOffset(sr, ic2D, ivec2(4));
     v.y += textureLodOffset(s2DShadow, c3D, c1D, ivec2(3));
     v += textureProjLodOffset(s2D, c3D, c1D, ivec2(3));
     v += textureGrad(sCube, c3D, c3D, c3D);

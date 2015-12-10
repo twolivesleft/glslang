@@ -134,6 +134,7 @@ extern int yylex(YYSTYPE*, TParseContext&);
 %token <lex> DMAT4X2 DMAT4X3 DMAT4X4
 %token <lex> ATOMIC_UINT
 
+// combined image/sampler
 %token <lex> SAMPLER1D SAMPLER2D SAMPLER3D SAMPLERCUBE SAMPLER1DSHADOW SAMPLER2DSHADOW
 %token <lex> SAMPLERCUBESHADOW SAMPLER1DARRAY SAMPLER2DARRAY SAMPLER1DARRAYSHADOW
 %token <lex> SAMPLER2DARRAYSHADOW ISAMPLER1D ISAMPLER2D ISAMPLER3D ISAMPLERCUBE
@@ -162,7 +163,6 @@ extern int yylex(YYSTYPE*, TParseContext&);
 
 %token <lex> IDENTIFIER TYPE_NAME
 %token <lex> FLOATCONSTANT DOUBLECONSTANT INTCONSTANT UINTCONSTANT BOOLCONSTANT
-%token <lex> FIELD_SELECTION
 %token <lex> LEFT_OP RIGHT_OP
 %token <lex> INC_OP DEC_OP LE_OP GE_OP EQ_OP NE_OP
 %token <lex> AND_OP OR_OP XOR_OP MUL_ASSIGN DIV_ASSIGN ADD_ASSIGN
@@ -266,7 +266,7 @@ postfix_expression
     | function_call {
         $$ = $1;
     }
-    | postfix_expression DOT FIELD_SELECTION {
+    | postfix_expression DOT IDENTIFIER {
         $$ = parseContext.handleDotDereference($3.loc, $1, *$3.string);
     }
     | postfix_expression INC_OP {
@@ -798,7 +798,7 @@ function_header
                                GetStorageQualifierString($1.qualifier.storage), "");
         }
         if ($1.arraySizes)
-            parseContext.arraySizeRequiredCheck($1.loc, $1.arraySizes->getOuterSize());
+            parseContext.arraySizeRequiredCheck($1.loc, *$1.arraySizes);
 
         // Add the function as a prototype after parsing it (we do not support recursion)
         TFunction *function;
@@ -814,7 +814,7 @@ parameter_declarator
         if ($1.arraySizes) {
             parseContext.profileRequires($1.loc, ENoProfile, 120, E_GL_3DL_array_objects, "arrayed type");
             parseContext.profileRequires($1.loc, EEsProfile, 300, 0, "arrayed type");
-            parseContext.arraySizeRequiredCheck($1.loc, $1.arraySizes->getOuterSize());
+            parseContext.arraySizeRequiredCheck($1.loc, *$1.arraySizes);
         }
         if ($1.basicType == EbtVoid) {
             parseContext.error($2.loc, "illegal use of type 'void'", $2.string->c_str(), "");
@@ -829,11 +829,11 @@ parameter_declarator
         if ($1.arraySizes) {
             parseContext.profileRequires($1.loc, ENoProfile, 120, E_GL_3DL_array_objects, "arrayed type");
             parseContext.profileRequires($1.loc, EEsProfile, 300, 0, "arrayed type");
-            parseContext.arraySizeRequiredCheck($1.loc, $1.arraySizes->getOuterSize());
+            parseContext.arraySizeRequiredCheck($1.loc, *$1.arraySizes);
         }
         parseContext.arrayDimCheck($2.loc, $1.arraySizes, $3.arraySizes);
 
-        parseContext.arraySizeRequiredCheck($3.loc, $3.arraySizes->getOuterSize());
+        parseContext.arraySizeRequiredCheck($3.loc, *$3.arraySizes);
         parseContext.reservedErrorCheck($2.loc, *$2.string);
 
         $1.arraySizes = $3.arraySizes;
@@ -893,7 +893,7 @@ parameter_type_specifier
         TParameter param = { 0, new TType($1) };
         $$.param = param;
         if ($1.arraySizes)
-            parseContext.arraySizeRequiredCheck($1.loc, $1.arraySizes->getOuterSize());
+            parseContext.arraySizeRequiredCheck($1.loc, *$1.arraySizes);
     }
     ;
 
@@ -1962,7 +1962,7 @@ struct_declaration
             parseContext.profileRequires($1.loc, ENoProfile, 120, E_GL_3DL_array_objects, "arrayed type");
             parseContext.profileRequires($1.loc, EEsProfile, 300, 0, "arrayed type");
             if (parseContext.profile == EEsProfile)
-                parseContext.arraySizeRequiredCheck($1.loc, $1.arraySizes->getOuterSize());
+                parseContext.arraySizeRequiredCheck($1.loc, *$1.arraySizes);
         }
 
         $$ = $2;
@@ -1981,7 +1981,7 @@ struct_declaration
             parseContext.profileRequires($2.loc, ENoProfile, 120, E_GL_3DL_array_objects, "arrayed type");
             parseContext.profileRequires($2.loc, EEsProfile, 300, 0, "arrayed type");
             if (parseContext.profile == EEsProfile)
-                parseContext.arraySizeRequiredCheck($2.loc, $2.arraySizes->getOuterSize());
+                parseContext.arraySizeRequiredCheck($2.loc, *$2.arraySizes);
         }
 
         $$ = $3;
