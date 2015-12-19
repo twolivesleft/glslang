@@ -327,6 +327,8 @@ enum TBlendEquationShift {
 
 class TQualifier {
 public:
+    static const int layoutNotSet = -1;
+
     void clear()
     {
         precision = EpqNone;
@@ -489,8 +491,8 @@ public:
     {
         layoutMatrix = ElmNone;
         layoutPacking = ElpNone;
-        layoutOffset = -1;
-        layoutAlign = -1;
+        layoutOffset = layoutNotSet;
+        layoutAlign = layoutNotSet;
 
         layoutLocation = layoutLocationEnd;
         layoutComponent = layoutComponentEnd;
@@ -567,11 +569,11 @@ public:
     }
     bool hasOffset() const
     {
-        return layoutOffset != -1;
+        return layoutOffset != layoutNotSet;
     }
     bool hasAlign() const
     {
-        return layoutAlign != -1;
+        return layoutAlign != layoutNotSet;
     }
     bool hasAnyLocation() const
     {
@@ -773,7 +775,7 @@ struct TShaderQualifiers {
     TLayoutGeometry geometry; // geometry/tessellation shader in/out primitives
     bool pixelCenterInteger;  // fragment shader
     bool originUpperLeft;     // fragment shader
-    int invocations;          // 0 means no declaration
+    int invocations;
     int vertices;             // both for tessellation "vertices" and geometry "max_vertices"
     TVertexSpacing spacing;
     TVertexOrder order;
@@ -788,8 +790,8 @@ struct TShaderQualifiers {
         geometry = ElgNone;
         originUpperLeft = false;
         pixelCenterInteger = false;
-        invocations = 0;        // 0 means no declaration
-        vertices = 0;
+        invocations = TQualifier::layoutNotSet;
+        vertices = TQualifier::layoutNotSet;
         spacing = EvsNone;
         order = EvoNone;
         pointMode = false;
@@ -811,9 +813,9 @@ struct TShaderQualifiers {
             pixelCenterInteger = src.pixelCenterInteger;
         if (src.originUpperLeft)
             originUpperLeft = src.originUpperLeft;
-        if (src.invocations != 0)
+        if (src.invocations != TQualifier::layoutNotSet)
             invocations = src.invocations;
-        if (src.vertices != 0)
+        if (src.vertices != TQualifier::layoutNotSet)
             vertices = src.vertices;
         if (src.spacing != EvsNone)
             spacing = src.spacing;

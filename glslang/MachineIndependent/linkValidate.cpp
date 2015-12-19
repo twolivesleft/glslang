@@ -100,7 +100,7 @@ void TIntermediate::merge(TInfoSink& infoSink, TIntermediate& unit)
     else if (outputPrimitive != unit.outputPrimitive)
         error(infoSink, "Contradictory output layout primitives");
     
-    if (vertices == 0)
+    if (vertices == TQualifier::layoutNotSet)
         vertices = unit.vertices;
     else if (vertices != unit.vertices) {
         if (language == EShLangGeometry)
@@ -359,6 +359,10 @@ void TIntermediate::finalCheck(TInfoSink& infoSink)
     // overlap/alias/missing I/O, etc.
     inOutLocationCheck(infoSink);
 
+    // invocations
+    if (invocations == TQualifier::layoutNotSet)
+        invocations = 1;
+
     if (inIoAccessed("gl_ClipDistance") && inIoAccessed("gl_ClipVertex"))
         error(infoSink, "Can only use one of gl_ClipDistance or gl_ClipVertex (gl_ClipDistance is preferred)");
 
@@ -409,7 +413,7 @@ void TIntermediate::finalCheck(TInfoSink& infoSink)
     case EShLangVertex:
         break;
     case EShLangTessControl:
-        if (vertices == 0)
+        if (vertices == TQualifier::layoutNotSet)
             error(infoSink, "At least one shader must specify an output layout(vertices=...)");
         break;
     case EShLangTessEvaluation:
@@ -425,7 +429,7 @@ void TIntermediate::finalCheck(TInfoSink& infoSink)
             error(infoSink, "At least one shader must specify an input layout primitive");
         if (outputPrimitive == ElgNone)
             error(infoSink, "At least one shader must specify an output layout primitive");
-        if (vertices == 0)
+        if (vertices == TQualifier::layoutNotSet)
             error(infoSink, "At least one shader must specify a layout(max_vertices = value)");
         break;
     case EShLangFragment:
@@ -561,7 +565,7 @@ void TIntermediate::inOutLocationCheck(TInfoSink& infoSink)
     if (profile == EEsProfile) {
         if (numFragOut > 1 && fragOutWithNoLocation)
             error(infoSink, "when more than one fragment shader output, all must have location qualifiers");
-    }        
+    }
 }
 
 TIntermSequence& TIntermediate::findLinkerObjects() const
