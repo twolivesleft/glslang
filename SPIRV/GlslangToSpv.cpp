@@ -610,6 +610,7 @@ void TGlslangToSpvTraverser::visitSymbol(glslang::TIntermSymbol* symbol)
 
 bool TGlslangToSpvTraverser::visitBinary(glslang::TVisit /* visit */, glslang::TIntermBinary* node)
 {
+	builder.addLine(0, 0, node->getLoc().line, node->getLoc().column);
     // First, handle special cases
     switch (node->getOp()) {
     case glslang::EOpAssign:
