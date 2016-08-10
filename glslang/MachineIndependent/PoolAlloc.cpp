@@ -32,8 +32,8 @@
 //POSSIBILITY OF SUCH DAMAGE.
 //
 
-#include "../Include/PoolAlloc.h"
 #include "../Include/Common.h"
+#include "../Include/PoolAlloc.h"
 
 #include "../Include/InitializeGlobals.h"
 #include "../OSDependent/osinclude.h"
@@ -53,7 +53,7 @@ void InitializeMemoryPools()
     TThreadMemoryPools* threadData = new TThreadMemoryPools();
     
     threadData->threadPoolAllocator = threadPoolAllocator;
-    	
+
     OS_SetTLSValue(PoolIndex, threadData);
 }
 
@@ -63,7 +63,7 @@ void FreeGlobalPools()
     TThreadMemoryPools* globalPools = static_cast<TThreadMemoryPools*>(OS_GetTLSValue(PoolIndex));    
     if (! globalPools)
         return;
-	
+
     GetThreadPoolAllocator().popAll();
     delete &GetThreadPoolAllocator();       
     delete globalPools;
@@ -149,12 +149,12 @@ TPoolAllocator::TPoolAllocator(int growthIncrement, int allocationAlignment) :
 
 TPoolAllocator::~TPoolAllocator()
 {
-	while (inUseList) {
-	    tHeader* next = inUseList->nextPage;
+    while (inUseList) {
+        tHeader* next = inUseList->nextPage;
         inUseList->~tHeader();
         delete [] reinterpret_cast<char*>(inUseList);
-	    inUseList = next;
-	}
+        inUseList = next;
+    }
 
     //
     // Always delete the free list memory - it can't be being
@@ -190,7 +190,7 @@ void TAllocation::checkGuardBlock(unsigned char*, unsigned char, const char*) co
 #endif
 {
 #ifdef GUARD_BLOCKS
-    for (int x = 0; x < guardBlockSize; x++) {
+    for (size_t x = 0; x < guardBlockSize; x++) {
         if (blockMem[x] != val) {
             const int maxSize = 80;
             char assertMsg[maxSize];

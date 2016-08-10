@@ -48,6 +48,8 @@ enum TBasicType {
     EbtDouble,
     EbtInt,
     EbtUint,
+    EbtInt64,
+    EbtUint64,
     EbtBool,
     EbtAtomicUint,
     EbtSampler,
@@ -71,7 +73,7 @@ enum TStorageQualifier {
     EvqGlobal,        // For globals read/write
     EvqConst,         // User-defined constant values, will be semantically constant and constant folded
     EvqVaryingIn,     // pipeline input, read only, also supercategory for all built-ins not included in this enum (see TBuiltInVariable)
-    EvqVaryingOut,    // pipeline ouput, read/write, also supercategory for all built-ins not included in this enum (see TBuiltInVariable)
+    EvqVaryingOut,    // pipeline output, read/write, also supercategory for all built-ins not included in this enum (see TBuiltInVariable)
     EvqUniform,       // read only, shared with app
     EvqBuffer,        // read/write, shared with app
     EvqShared,        // compute shader's read/write 'shared' qualifier
@@ -128,8 +130,17 @@ enum TBuiltInVariable {
     EbvLocalInvocationId,
     EbvGlobalInvocationId,
     EbvLocalInvocationIndex,
+    EbvSubGroupSize,
+    EbvSubGroupInvocation,
+    EbvSubGroupEqMask,
+    EbvSubGroupGeMask,
+    EbvSubGroupGtMask,
+    EbvSubGroupLeMask,
+    EbvSubGroupLtMask,
     EbvVertexId,
     EbvInstanceId,
+    EbvVertexIndex,
+    EbvInstanceIndex,
     EbvBaseVertex,
     EbvBaseInstance,
     EbvDrawId,
@@ -175,6 +186,15 @@ enum TBuiltInVariable {
     EbvSamplePosition,
     EbvSampleMask,
     EbvHelperInvocation,
+#ifdef AMD_EXTENSIONS
+    EbvBaryCoordNoPersp,
+    EbvBaryCoordNoPerspCentroid,
+    EbvBaryCoordNoPerspSample,
+    EbvBaryCoordSmooth,
+    EbvBaryCoordSmoothCentroid,
+    EbvBaryCoordSmoothSample,
+    EbvBaryCoordPullModel,
+#endif
 
     EbvLast
 };
@@ -219,8 +239,17 @@ __inline const char* GetBuiltInVariableString(TBuiltInVariable v)
     case EbvLocalInvocationId:    return "LocalInvocationID";
     case EbvGlobalInvocationId:   return "GlobalInvocationID";
     case EbvLocalInvocationIndex: return "LocalInvocationIndex";
+    case EbvSubGroupSize:         return "SubGroupSize";
+    case EbvSubGroupInvocation:   return "SubGroupInvocation";
+    case EbvSubGroupEqMask:       return "SubGroupEqMask";
+    case EbvSubGroupGeMask:       return "SubGroupGeMask";
+    case EbvSubGroupGtMask:       return "SubGroupGtMask";
+    case EbvSubGroupLeMask:       return "SubGroupLeMask";
+    case EbvSubGroupLtMask:       return "SubGroupLtMask";
     case EbvVertexId:             return "VertexId";
     case EbvInstanceId:           return "InstanceId";
+    case EbvVertexIndex:          return "VertexIndex";
+    case EbvInstanceIndex:        return "InstanceIndex";
     case EbvBaseVertex:           return "BaseVertex";
     case EbvBaseInstance:         return "BaseInstance";
     case EbvDrawId:               return "DrawId";
@@ -266,6 +295,15 @@ __inline const char* GetBuiltInVariableString(TBuiltInVariable v)
     case EbvSamplePosition:       return "SamplePosition";
     case EbvSampleMask:           return "SampleMaskIn";
     case EbvHelperInvocation:     return "HelperInvocation";
+#ifdef AMD_EXTENSIONS
+    case EbvBaryCoordNoPersp:           return "BaryCoordNoPersp";
+    case EbvBaryCoordNoPerspCentroid:   return "BaryCoordNoPerspCentroid";
+    case EbvBaryCoordNoPerspSample:     return "BaryCoordNoPerspSample";
+    case EbvBaryCoordSmooth:            return "BaryCoordSmooth";
+    case EbvBaryCoordSmoothCentroid:    return "BaryCoordSmoothCentroid";
+    case EbvBaryCoordSmoothSample:      return "BaryCoordSmoothSample";
+    case EbvBaryCoordPullModel:         return "BaryCoordPullModel";
+#endif
     default:                      return "unknown built-in variable";
     }
 }

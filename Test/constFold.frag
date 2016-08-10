@@ -127,3 +127,22 @@ void foo3()
 {
     mat3x2 r32 = mm2 * mm32;
 }
+
+struct cag {
+    int   i;
+    float f;
+    bool  b;
+};
+const cag a0[3] = cag[3](cag(3, 2.0, true), cag(1, 5.0, true), cag(1, 9.0, false));
+
+void foo4()
+{
+    int a = int(a0[2].f);
+}
+
+const bool cval1 = all(bvec4(true, true, true, true));
+const bool cval2 = all(bvec4(false, false, false, false));
+const bool cval3 = all(bvec4(true, true, false, true));
+const bool cval4 = any(bvec4(true, true, true, true));
+const bool cval5 = any(bvec4(false, false, false, false));
+const bool cval6 = any(bvec4(false, true, false, false));

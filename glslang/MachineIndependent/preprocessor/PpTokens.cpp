@@ -140,6 +140,8 @@ void TPpContext::RecordToken(TokenStream *pTok, int token, TPpToken* ppToken)
         break;
     case PpAtomConstInt:
     case PpAtomConstUint:
+    case PpAtomConstInt64:
+    case PpAtomConstUint64:
     case PpAtomConstFloat:
     case PpAtomConstDouble:
         str = ppToken->name;
@@ -176,15 +178,18 @@ int TPpContext::ReadToken(TokenStream *pTok, TPpToken *ppToken)
     if (ltoken > 127)
         ltoken += 128;
     switch (ltoken) {
-    case '#':        
-        if (lReadByte(pTok) == '#') {
-            parseContext.requireProfile(ppToken->loc, ~EEsProfile, "token pasting (##)");
-            parseContext.profileRequires(ppToken->loc, ~EEsProfile, 130, 0, "token pasting (##)");
-            parseContext.error(ppToken->loc, "token pasting not implemented (internal error)", "##", "");
-            //return PpAtomPaste;
-            return ReadToken(pTok, ppToken);
-        } else
-            lUnreadByte(pTok);
+    case '#':
+        // Check for ##, unless the current # is the last character
+        if (pTok->current < pTok->data.size()) {
+            if (lReadByte(pTok) == '#') {
+                parseContext.requireProfile(ppToken->loc, ~EEsProfile, "token pasting (##)");
+                parseContext.profileRequires(ppToken->loc, ~EEsProfile, 130, 0, "token pasting (##)");
+                parseContext.error(ppToken->loc, "token pasting not implemented (internal error)", "##", "");
+                //return PpAtomPaste;
+                return ReadToken(pTok, ppToken);
+            } else
+                lUnreadByte(pTok);
+        }
         break;
     case PpAtomConstString:
     case PpAtomIdentifier:
@@ -192,9 +197,11 @@ int TPpContext::ReadToken(TokenStream *pTok, TPpToken *ppToken)
     case PpAtomConstDouble:
     case PpAtomConstInt:
     case PpAtomConstUint:
+    case PpAtomConstInt64:
+    case PpAtomConstUint64:
         len = 0;
         ch = lReadByte(pTok);
-        while (ch != 0) {
+        while (ch != 0 && ch != EndOfInput) {
             if (len < MaxTokenLength) {
                 tokenText[len] = (char)ch;
                 len++;
@@ -214,12 +221,10 @@ int TPpContext::ReadToken(TokenStream *pTok, TPpToken *ppToken)
             break;
         case PpAtomConstFloat:
         case PpAtomConstDouble:
-            strcpy(ppToken->name, tokenText);
             ppToken->dval = atof(ppToken->name);
             break;
         case PpAtomConstInt:
         case PpAtomConstUint:
-            strcpy(ppToken->name, tokenText);
             if (len > 0 && tokenText[0] == '0') {
                 if (len > 1 && (tokenText[1] == 'x' || tokenText[1] == 'X'))
                     ppToken->ival = strtol(ppToken->name, 0, 16);
@@ -227,6 +232,16 @@ int TPpContext::ReadToken(TokenStream *pTok, TPpToken *ppToken)
                     ppToken->ival = strtol(ppToken->name, 0, 8);
             } else
                 ppToken->ival = atoi(ppToken->name);
+            break;
+        case PpAtomConstInt64:
+        case PpAtomConstUint64:
+            if (len > 0 && tokenText[0] == '0') {
+                if (len > 1 && (tokenText[1] == 'x' || tokenText[1] == 'X'))
+                    ppToken->i64val = strtoll(ppToken->name, nullptr, 16);
+                else
+                    ppToken->i64val = strtoll(ppToken->name, nullptr, 8);
+            } else
+                ppToken->i64val = atoll(ppToken->name);
             break;
         }
     }

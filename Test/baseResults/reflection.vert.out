@@ -85,7 +85,7 @@ Uniform block reflection:
 nameless: offset -1, type ffffffff, size 496, index -1
 named: offset -1, type ffffffff, size 304, index -1
 c_nameless: offset -1, type ffffffff, size 112, index -1
-nested: offset -1, type ffffffff, size 28, index -1
+nested: offset -1, type ffffffff, size 32, index -1
 abl[0]: offset -1, type ffffffff, size 4, index -1
 abl[1]: offset -1, type ffffffff, size 4, index -1
 abl[2]: offset -1, type ffffffff, size 4, index -1
@@ -94,4 +94,11 @@ abl2[0]: offset -1, type ffffffff, size 4, index -1
 abl2[1]: offset -1, type ffffffff, size 4, index -1
 abl2[2]: offset -1, type ffffffff, size 4, index -1
 abl2[3]: offset -1, type ffffffff, size 4, index -1
+
+Vertex attribute reflection:
+attributeFloat: offset 0, type 1406, size 0, index 0
+attributeFloat2: offset 0, type 8b50, size 0, index 0
+attributeFloat3: offset 0, type 8b51, size 0, index 0
+attributeFloat4: offset 0, type 8b52, size 0, index 0
+attributeMat4: offset 0, type 8b5c, size 0, index 0
 

@@ -62,6 +62,8 @@ void TType::buildMangledName(TString& mangledName)
     case EbtDouble:             mangledName += 'd';      break;
     case EbtInt:                mangledName += 'i';      break;
     case EbtUint:               mangledName += 'u';      break;
+    case EbtInt64:              mangledName += "i64";    break;
+    case EbtUint64:             mangledName += "u64";    break;
     case EbtBool:               mangledName += 'b';      break;
     case EbtAtomicUint:         mangledName += "au";     break;
     case EbtSampler:
@@ -71,9 +73,13 @@ void TType::buildMangledName(TString& mangledName)
         default: break; // some compilers want this
         }
         if (sampler.image)
-            mangledName += "I";
+            mangledName += "I";  // a normal image
+        else if (sampler.sampler)
+            mangledName += "p";  // a "pure" sampler
+        else if (!sampler.combined)
+            mangledName += "t";  // a "pure" texture
         else
-            mangledName += "s";
+            mangledName += "s";  // traditional combined sampler
         if (sampler.arrayed)
             mangledName += "A";
         if (sampler.shadow)
@@ -87,6 +93,7 @@ void TType::buildMangledName(TString& mangledName)
         case EsdCube:     mangledName += "C";  break;
         case EsdRect:     mangledName += "R2"; break;
         case EsdBuffer:   mangledName += "B";  break;
+        case EsdSubpass:  mangledName += "P";  break;
         default: break; // some compilers want this
         }
         if (sampler.ms)
@@ -115,7 +122,13 @@ void TType::buildMangledName(TString& mangledName)
         const int maxSize = 11;
         char buf[maxSize];
         for (int i = 0; i < arraySizes->getNumDims(); ++i) {
-            snprintf(buf, maxSize, "%d", arraySizes->getDimSize(i));
+            if (arraySizes->getDimNode(i)) {
+                if (arraySizes->getDimNode(i)->getAsSymbolNode())
+                    snprintf(buf, maxSize, "s%d", arraySizes->getDimNode(i)->getAsSymbolNode()->getId());
+                else
+                    snprintf(buf, maxSize, "s%p", arraySizes->getDimNode(i));
+            } else
+                snprintf(buf, maxSize, "%d", arraySizes->getDimSize(i));
             mangledName += '[';
             mangledName += buf;
             mangledName += ']';
@@ -237,7 +250,7 @@ TSymbol::TSymbol(const TSymbol& copyOf)
 }
 
 TVariable::TVariable(const TVariable& copyOf) : TSymbol(copyOf)
-{	
+{
     type.deepCopy(copyOf.type);
     userType = copyOf.userType;
     numExtensions = 0;
@@ -245,11 +258,14 @@ TVariable::TVariable(const TVariable& copyOf) : TSymbol(copyOf)
     if (copyOf.numExtensions != 0)
         setExtensions(copyOf.numExtensions, copyOf.extensions);
 
-    if (! copyOf.unionArray.empty()) {
+    if (! copyOf.constArray.empty()) {
         assert(! copyOf.type.isStruct());
-        TConstUnionArray newArray(copyOf.unionArray, 0, copyOf.unionArray.size());
-        unionArray = newArray;
+        TConstUnionArray newArray(copyOf.constArray, 0, copyOf.constArray.size());
+        constArray = newArray;
     }
+
+    // don't support specialization-constant subtrees in cloned tables
+    constSubtree = nullptr;
 }
 
 TVariable* TVariable::clone() const
@@ -260,7 +276,7 @@ TVariable* TVariable::clone() const
 }
 
 TFunction::TFunction(const TFunction& copyOf) : TSymbol(copyOf)
-{	
+{
     for (unsigned int i = 0; i < copyOf.parameters.size(); ++i) {
         TParameter param;
         parameters.push_back(param);

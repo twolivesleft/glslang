@@ -1,9 +1,11 @@
-#version 310 es
+#version 450
+
+
 
 layout(binding = 0) uniform atomic_uint counter;
 
 layout(binding = 0, offset = 4) uniform atomic_uint countArr[4];
-uniform uint value;
+shared uint value;
 
 int arrX[gl_WorkGroupSize.x];
 int arrY[gl_WorkGroupSize.y];
@@ -20,6 +22,7 @@ void main()
     func(counter);
     uint val = atomicCounter(countArr[2]);
     atomicCounterDecrement(counter);
+    atomicCounterIncrement(counter);
 }
 
 shared int atomi;

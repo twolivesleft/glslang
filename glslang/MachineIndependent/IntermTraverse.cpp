@@ -54,7 +54,7 @@ namespace glslang {
 //
 
 //
-// Traversal functions for terminals are straighforward....
+// Traversal functions for terminals are straightforward....
 //
 void TIntermMethod::traverse(TIntermTraverser*)
 {
@@ -115,7 +115,7 @@ void TIntermBinary::traverse(TIntermTraverser *it)
 
     //
     // Visit the node after the children, if requested and the traversal
-    // hasn't been cancelled yet.
+    // hasn't been canceled yet.
     //
     if (visit && it->postVisit)
         it->visitBinary(EvPostVisit, this);
