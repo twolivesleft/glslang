@@ -78,6 +78,7 @@ struct TSampler {   // misnomer now; includes images, textures without sampler, 
     bool   combined : 1;  // true means texture is combined with a sampler, false means texture with no sampler
     bool    sampler : 1;  // true means a pure sampler, other fields should be clear()
     bool   external : 1;  // GL_OES_EGL_image_external
+    bool      video : 1;  // K extension
 
     bool isImage()       const { return image && dim != EsdSubpass; }
     bool isSubpass()     const { return dim == EsdSubpass; }
@@ -87,6 +88,7 @@ struct TSampler {   // misnomer now; includes images, textures without sampler, 
     bool isShadow()      const { return shadow; }
     bool isArrayed()     const { return arrayed; }
     bool isMultiSample() const { return ms; }
+    bool isVideo()       const { return video; }
 
     void clear()
     {
@@ -99,10 +101,11 @@ struct TSampler {   // misnomer now; includes images, textures without sampler, 
         combined = false;
         sampler = false;
         external = false;
+        video = false;
     }
 
     // make a combined sampler and texture
-    void set(TBasicType t, TSamplerDim d, bool a = false, bool s = false, bool m = false)
+    void set(TBasicType t, TSamplerDim d, bool a = false, bool s = false, bool m = false, bool v = false)
     {
         clear();
         type = t;
@@ -111,6 +114,7 @@ struct TSampler {   // misnomer now; includes images, textures without sampler, 
         shadow = s;
         ms = m;
         combined = true;
+        video = v;
     }
 
     // make an image
@@ -201,6 +205,10 @@ struct TSampler {   // misnomer now; includes images, textures without sampler, 
         }
         if (external) {
             s.append("ExternalOES");
+            return s;
+        }
+        if (video) {
+            s.append("Video");
             return s;
         }
         switch (dim) {

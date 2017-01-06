@@ -2692,8 +2692,10 @@ void TBuiltIns::add2ndGenerationSamplingImaging(int version, EProfile profile, c
     for (int image = 0; image <= 1; ++image) { // loop over "bool" image vs sampler
 
         for (int shadow = 0; shadow <= 1; ++shadow) { // loop over "bool" shadow or not
-            for (int ms = 0; ms <=1; ++ms) {
+            for (int ms = 0; ms <=1; ++ms) { for (int video = 0; video <= 1; ++video) {
                 if ((ms || image) && shadow)
+                    continue;
+                if ((ms || image || shadow) && video)
                     continue;
                 if (ms && profile != EEsProfile && version < 150)
                     continue;
@@ -2712,6 +2714,8 @@ void TBuiltIns::add2ndGenerationSamplingImaging(int version, EProfile profile, c
                             continue;
                         if (dim != Esd2D && dim != EsdSubpass && ms)
                             continue;
+                        if (dim != Esd2D && video)
+                            continue;
                         if ((dim == Esd3D || dim == EsdRect) && arrayed)
                             continue;
                         if (dim == Esd3D && shadow)
@@ -2720,14 +2724,19 @@ void TBuiltIns::add2ndGenerationSamplingImaging(int version, EProfile profile, c
                             continue;
                         if (dim == EsdBuffer && skipBuffer)
                             continue;
-                        if (dim == EsdBuffer && (shadow || arrayed || ms))
+                        if (dim == EsdBuffer && (shadow || arrayed || ms || video))
                             continue;
                         if (ms && arrayed && profile == EEsProfile && version < 310)
+                            continue;
+                        if (image && video)
                             continue;
 
                         for (int bType = 0; bType < 3; ++bType) { // float, int, uint results
 
                             if (shadow && bType > 0)
+                                continue;
+
+                            if (video && bType > 0)
                                 continue;
 
                             if (dim == EsdRect && version < 140 && bType > 0)
@@ -2747,7 +2756,8 @@ void TBuiltIns::add2ndGenerationSamplingImaging(int version, EProfile profile, c
                             } else {
                                 sampler.set(bTypes[bType], (TSamplerDim)dim, arrayed ? true : false,
                                                                              shadow  ? true : false,
-                                                                             ms      ? true : false);
+                                                                             ms      ? true : false,
+                                                                             video   ? true : false);
                             }
 
                             TString typeName = sampler.getString();
@@ -2757,7 +2767,9 @@ void TBuiltIns::add2ndGenerationSamplingImaging(int version, EProfile profile, c
                                 continue;
                             }
 
-                            addQueryFunctions(sampler, typeName, version, profile);
+                            if (!video) {
+                                addQueryFunctions(sampler, typeName, version, profile);
+                            }
 
                             if (image)
                                 addImageFunctions(sampler, typeName, version, profile);
@@ -2768,7 +2780,7 @@ void TBuiltIns::add2ndGenerationSamplingImaging(int version, EProfile profile, c
                         }
                     }
                 }
-            }
+            }}
         }
     }
 
