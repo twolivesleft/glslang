@@ -1,13 +1,13 @@
 hlsl.samplegrad.basic.dx10.vert
 Shader version: 450
 0:? Sequence
-0:50  Function Definition: main( (global structure{temp 4-component vector of float FragCoord Pos})
+0:27  Function Definition: main( (temp structure{temp 4-component vector of float Position Pos})
 0:27    Function Parameters: 
 0:?     Sequence
 0:30      Sequence
 0:30        move second child to first child (temp 4-component vector of float)
 0:30          'txval10' (temp 4-component vector of float)
-0:30          textureGrad (global 4-component vector of float)
+0:30          textureGrad (temp 4-component vector of float)
 0:30            Construct combined texture-sampler (temp sampler1D)
 0:30              'g_tTex1df4' (layout(binding=0 ) uniform texture1D)
 0:30              'g_sSamp' (layout(binding=0 ) uniform sampler)
@@ -20,7 +20,7 @@ Shader version: 450
 0:31      Sequence
 0:31        move second child to first child (temp 4-component vector of int)
 0:31          'txval11' (temp 4-component vector of int)
-0:31          textureGrad (global 4-component vector of int)
+0:31          textureGrad (temp 4-component vector of int)
 0:31            Construct combined texture-sampler (temp isampler1D)
 0:31              'g_tTex1di4' (uniform itexture1D)
 0:31              'g_sSamp' (layout(binding=0 ) uniform sampler)
@@ -33,7 +33,7 @@ Shader version: 450
 0:32      Sequence
 0:32        move second child to first child (temp 4-component vector of uint)
 0:32          'txval12' (temp 4-component vector of uint)
-0:32          textureGrad (global 4-component vector of uint)
+0:32          textureGrad (temp 4-component vector of uint)
 0:32            Construct combined texture-sampler (temp usampler1D)
 0:32              'g_tTex1du4' (uniform utexture1D)
 0:32              'g_sSamp' (layout(binding=0 ) uniform sampler)
@@ -46,7 +46,7 @@ Shader version: 450
 0:34      Sequence
 0:34        move second child to first child (temp 4-component vector of float)
 0:34          'txval20' (temp 4-component vector of float)
-0:34          textureGrad (global 4-component vector of float)
+0:34          textureGrad (temp 4-component vector of float)
 0:34            Construct combined texture-sampler (temp sampler2D)
 0:34              'g_tTex2df4' (uniform texture2D)
 0:34              'g_sSamp' (layout(binding=0 ) uniform sampler)
@@ -62,7 +62,7 @@ Shader version: 450
 0:35      Sequence
 0:35        move second child to first child (temp 4-component vector of int)
 0:35          'txval21' (temp 4-component vector of int)
-0:35          textureGrad (global 4-component vector of int)
+0:35          textureGrad (temp 4-component vector of int)
 0:35            Construct combined texture-sampler (temp isampler2D)
 0:35              'g_tTex2di4' (uniform itexture2D)
 0:35              'g_sSamp' (layout(binding=0 ) uniform sampler)
@@ -78,7 +78,7 @@ Shader version: 450
 0:36      Sequence
 0:36        move second child to first child (temp 4-component vector of uint)
 0:36          'txval22' (temp 4-component vector of uint)
-0:36          textureGrad (global 4-component vector of uint)
+0:36          textureGrad (temp 4-component vector of uint)
 0:36            Construct combined texture-sampler (temp usampler2D)
 0:36              'g_tTex2du4' (uniform utexture2D)
 0:36              'g_sSamp' (layout(binding=0 ) uniform sampler)
@@ -94,7 +94,7 @@ Shader version: 450
 0:38      Sequence
 0:38        move second child to first child (temp 4-component vector of float)
 0:38          'txval30' (temp 4-component vector of float)
-0:38          textureGrad (global 4-component vector of float)
+0:38          textureGrad (temp 4-component vector of float)
 0:38            Construct combined texture-sampler (temp sampler3D)
 0:38              'g_tTex3df4' (uniform texture3D)
 0:38              'g_sSamp' (layout(binding=0 ) uniform sampler)
@@ -113,7 +113,7 @@ Shader version: 450
 0:39      Sequence
 0:39        move second child to first child (temp 4-component vector of int)
 0:39          'txval31' (temp 4-component vector of int)
-0:39          textureGrad (global 4-component vector of int)
+0:39          textureGrad (temp 4-component vector of int)
 0:39            Construct combined texture-sampler (temp isampler3D)
 0:39              'g_tTex3di4' (uniform itexture3D)
 0:39              'g_sSamp' (layout(binding=0 ) uniform sampler)
@@ -132,7 +132,7 @@ Shader version: 450
 0:40      Sequence
 0:40        move second child to first child (temp 4-component vector of uint)
 0:40          'txval32' (temp 4-component vector of uint)
-0:40          textureGrad (global 4-component vector of uint)
+0:40          textureGrad (temp 4-component vector of uint)
 0:40            Construct combined texture-sampler (temp usampler3D)
 0:40              'g_tTex3du4' (uniform utexture3D)
 0:40              'g_sSamp' (layout(binding=0 ) uniform sampler)
@@ -151,7 +151,7 @@ Shader version: 450
 0:42      Sequence
 0:42        move second child to first child (temp 4-component vector of float)
 0:42          'txval40' (temp 4-component vector of float)
-0:42          textureGrad (global 4-component vector of float)
+0:42          textureGrad (temp 4-component vector of float)
 0:42            Construct combined texture-sampler (temp samplerCube)
 0:42              'g_tTexcdf4' (uniform textureCube)
 0:42              'g_sSamp' (layout(binding=0 ) uniform sampler)
@@ -170,7 +170,7 @@ Shader version: 450
 0:43      Sequence
 0:43        move second child to first child (temp 4-component vector of int)
 0:43          'txval41' (temp 4-component vector of int)
-0:43          textureGrad (global 4-component vector of int)
+0:43          textureGrad (temp 4-component vector of int)
 0:43            Construct combined texture-sampler (temp isamplerCube)
 0:43              'g_tTexcdi4' (uniform itextureCube)
 0:43              'g_sSamp' (layout(binding=0 ) uniform sampler)
@@ -189,7 +189,7 @@ Shader version: 450
 0:44      Sequence
 0:44        move second child to first child (temp 4-component vector of uint)
 0:44          'txval42' (temp 4-component vector of uint)
-0:44          textureGrad (global 4-component vector of uint)
+0:44          textureGrad (temp 4-component vector of uint)
 0:44            Construct combined texture-sampler (temp usamplerCube)
 0:44              'g_tTexcdu4' (uniform utextureCube)
 0:44              'g_sSamp' (layout(binding=0 ) uniform sampler)
@@ -206,8 +206,8 @@ Shader version: 450
 0:?               1.200000
 0:?               1.300000
 0:46      move second child to first child (temp 4-component vector of float)
-0:46        Pos: direct index for structure (temp 4-component vector of float FragCoord)
-0:46          'vsout' (temp structure{temp 4-component vector of float FragCoord Pos})
+0:46        Pos: direct index for structure (temp 4-component vector of float)
+0:46          'vsout' (temp structure{temp 4-component vector of float Pos})
 0:46          Constant:
 0:46            0 (const int)
 0:?         Constant:
@@ -215,8 +215,15 @@ Shader version: 450
 0:?           0.000000
 0:?           0.000000
 0:?           0.000000
-0:48      Branch: Return with expression
-0:48        'vsout' (temp structure{temp 4-component vector of float FragCoord Pos})
+0:48      Sequence
+0:48        Sequence
+0:48          move second child to first child (temp 4-component vector of float)
+0:?             'Pos' (out 4-component vector of float Position)
+0:48            Pos: direct index for structure (temp 4-component vector of float)
+0:48              'vsout' (temp structure{temp 4-component vector of float Pos})
+0:48              Constant:
+0:48                0 (const int)
+0:48        Branch: Return
 0:?   Linker Objects
 0:?     'g_sSamp' (layout(binding=0 ) uniform sampler)
 0:?     'g_tTex1df4a' (layout(binding=1 ) uniform texture1D)
@@ -232,6 +239,7 @@ Shader version: 450
 0:?     'g_tTexcdf4' (uniform textureCube)
 0:?     'g_tTexcdi4' (uniform itextureCube)
 0:?     'g_tTexcdu4' (uniform utextureCube)
+0:?     'PerVertex_out' (out block{out 4-component vector of float Position Pos})
 
 
 Linked vertex stage:
@@ -239,13 +247,13 @@ Linked vertex stage:
 
 Shader version: 450
 0:? Sequence
-0:50  Function Definition: main( (global structure{temp 4-component vector of float FragCoord Pos})
+0:27  Function Definition: main( (temp structure{temp 4-component vector of float Position Pos})
 0:27    Function Parameters: 
 0:?     Sequence
 0:30      Sequence
 0:30        move second child to first child (temp 4-component vector of float)
 0:30          'txval10' (temp 4-component vector of float)
-0:30          textureGrad (global 4-component vector of float)
+0:30          textureGrad (temp 4-component vector of float)
 0:30            Construct combined texture-sampler (temp sampler1D)
 0:30              'g_tTex1df4' (layout(binding=0 ) uniform texture1D)
 0:30              'g_sSamp' (layout(binding=0 ) uniform sampler)
@@ -258,7 +266,7 @@ Shader version: 450
 0:31      Sequence
 0:31        move second child to first child (temp 4-component vector of int)
 0:31          'txval11' (temp 4-component vector of int)
-0:31          textureGrad (global 4-component vector of int)
+0:31          textureGrad (temp 4-component vector of int)
 0:31            Construct combined texture-sampler (temp isampler1D)
 0:31              'g_tTex1di4' (uniform itexture1D)
 0:31              'g_sSamp' (layout(binding=0 ) uniform sampler)
@@ -271,7 +279,7 @@ Shader version: 450
 0:32      Sequence
 0:32        move second child to first child (temp 4-component vector of uint)
 0:32          'txval12' (temp 4-component vector of uint)
-0:32          textureGrad (global 4-component vector of uint)
+0:32          textureGrad (temp 4-component vector of uint)
 0:32            Construct combined texture-sampler (temp usampler1D)
 0:32              'g_tTex1du4' (uniform utexture1D)
 0:32              'g_sSamp' (layout(binding=0 ) uniform sampler)
@@ -284,7 +292,7 @@ Shader version: 450
 0:34      Sequence
 0:34        move second child to first child (temp 4-component vector of float)
 0:34          'txval20' (temp 4-component vector of float)
-0:34          textureGrad (global 4-component vector of float)
+0:34          textureGrad (temp 4-component vector of float)
 0:34            Construct combined texture-sampler (temp sampler2D)
 0:34              'g_tTex2df4' (uniform texture2D)
 0:34              'g_sSamp' (layout(binding=0 ) uniform sampler)
@@ -300,7 +308,7 @@ Shader version: 450
 0:35      Sequence
 0:35        move second child to first child (temp 4-component vector of int)
 0:35          'txval21' (temp 4-component vector of int)
-0:35          textureGrad (global 4-component vector of int)
+0:35          textureGrad (temp 4-component vector of int)
 0:35            Construct combined texture-sampler (temp isampler2D)
 0:35              'g_tTex2di4' (uniform itexture2D)
 0:35              'g_sSamp' (layout(binding=0 ) uniform sampler)
@@ -316,7 +324,7 @@ Shader version: 450
 0:36      Sequence
 0:36        move second child to first child (temp 4-component vector of uint)
 0:36          'txval22' (temp 4-component vector of uint)
-0:36          textureGrad (global 4-component vector of uint)
+0:36          textureGrad (temp 4-component vector of uint)
 0:36            Construct combined texture-sampler (temp usampler2D)
 0:36              'g_tTex2du4' (uniform utexture2D)
 0:36              'g_sSamp' (layout(binding=0 ) uniform sampler)
@@ -332,7 +340,7 @@ Shader version: 450
 0:38      Sequence
 0:38        move second child to first child (temp 4-component vector of float)
 0:38          'txval30' (temp 4-component vector of float)
-0:38          textureGrad (global 4-component vector of float)
+0:38          textureGrad (temp 4-component vector of float)
 0:38            Construct combined texture-sampler (temp sampler3D)
 0:38              'g_tTex3df4' (uniform texture3D)
 0:38              'g_sSamp' (layout(binding=0 ) uniform sampler)
@@ -351,7 +359,7 @@ Shader version: 450
 0:39      Sequence
 0:39        move second child to first child (temp 4-component vector of int)
 0:39          'txval31' (temp 4-component vector of int)
-0:39          textureGrad (global 4-component vector of int)
+0:39          textureGrad (temp 4-component vector of int)
 0:39            Construct combined texture-sampler (temp isampler3D)
 0:39              'g_tTex3di4' (uniform itexture3D)
 0:39              'g_sSamp' (layout(binding=0 ) uniform sampler)
@@ -370,7 +378,7 @@ Shader version: 450
 0:40      Sequence
 0:40        move second child to first child (temp 4-component vector of uint)
 0:40          'txval32' (temp 4-component vector of uint)
-0:40          textureGrad (global 4-component vector of uint)
+0:40          textureGrad (temp 4-component vector of uint)
 0:40            Construct combined texture-sampler (temp usampler3D)
 0:40              'g_tTex3du4' (uniform utexture3D)
 0:40              'g_sSamp' (layout(binding=0 ) uniform sampler)
@@ -389,7 +397,7 @@ Shader version: 450
 0:42      Sequence
 0:42        move second child to first child (temp 4-component vector of float)
 0:42          'txval40' (temp 4-component vector of float)
-0:42          textureGrad (global 4-component vector of float)
+0:42          textureGrad (temp 4-component vector of float)
 0:42            Construct combined texture-sampler (temp samplerCube)
 0:42              'g_tTexcdf4' (uniform textureCube)
 0:42              'g_sSamp' (layout(binding=0 ) uniform sampler)
@@ -408,7 +416,7 @@ Shader version: 450
 0:43      Sequence
 0:43        move second child to first child (temp 4-component vector of int)
 0:43          'txval41' (temp 4-component vector of int)
-0:43          textureGrad (global 4-component vector of int)
+0:43          textureGrad (temp 4-component vector of int)
 0:43            Construct combined texture-sampler (temp isamplerCube)
 0:43              'g_tTexcdi4' (uniform itextureCube)
 0:43              'g_sSamp' (layout(binding=0 ) uniform sampler)
@@ -427,7 +435,7 @@ Shader version: 450
 0:44      Sequence
 0:44        move second child to first child (temp 4-component vector of uint)
 0:44          'txval42' (temp 4-component vector of uint)
-0:44          textureGrad (global 4-component vector of uint)
+0:44          textureGrad (temp 4-component vector of uint)
 0:44            Construct combined texture-sampler (temp usamplerCube)
 0:44              'g_tTexcdu4' (uniform utextureCube)
 0:44              'g_sSamp' (layout(binding=0 ) uniform sampler)
@@ -444,8 +452,8 @@ Shader version: 450
 0:?               1.200000
 0:?               1.300000
 0:46      move second child to first child (temp 4-component vector of float)
-0:46        Pos: direct index for structure (temp 4-component vector of float FragCoord)
-0:46          'vsout' (temp structure{temp 4-component vector of float FragCoord Pos})
+0:46        Pos: direct index for structure (temp 4-component vector of float)
+0:46          'vsout' (temp structure{temp 4-component vector of float Pos})
 0:46          Constant:
 0:46            0 (const int)
 0:?         Constant:
@@ -453,8 +461,15 @@ Shader version: 450
 0:?           0.000000
 0:?           0.000000
 0:?           0.000000
-0:48      Branch: Return with expression
-0:48        'vsout' (temp structure{temp 4-component vector of float FragCoord Pos})
+0:48      Sequence
+0:48        Sequence
+0:48          move second child to first child (temp 4-component vector of float)
+0:?             'Pos' (out 4-component vector of float Position)
+0:48            Pos: direct index for structure (temp 4-component vector of float)
+0:48              'vsout' (temp structure{temp 4-component vector of float Pos})
+0:48              Constant:
+0:48                0 (const int)
+0:48        Branch: Return
 0:?   Linker Objects
 0:?     'g_sSamp' (layout(binding=0 ) uniform sampler)
 0:?     'g_tTex1df4a' (layout(binding=1 ) uniform texture1D)
@@ -470,17 +485,17 @@ Shader version: 450
 0:?     'g_tTexcdf4' (uniform textureCube)
 0:?     'g_tTexcdi4' (uniform itextureCube)
 0:?     'g_tTexcdu4' (uniform utextureCube)
+0:?     'PerVertex_out' (out block{out 4-component vector of float Position Pos})
 
 // Module Version 10000
 // Generated by (magic number): 80001
-// Id's are bound by 158
+// Id's are bound by 164
 
                               Capability Shader
                               Capability Sampled1D
                1:             ExtInstImport  "GLSL.std.450"
                               MemoryModel Logical GLSL450
-                              EntryPoint Vertex 4  "main"
-                              Source HLSL 450
+                              EntryPoint Vertex 4  "main" 156 163
                               Name 4  "main"
                               Name 9  "txval10"
                               Name 12  "g_tTex1df4"
@@ -510,7 +525,11 @@ Shader version: 450
                               Name 148  "VS_OUTPUT"
                               MemberName 148(VS_OUTPUT) 0  "Pos"
                               Name 150  "vsout"
-                              Name 157  "g_tTex1df4a"
+                              Name 156  "Pos"
+                              Name 160  "g_tTex1df4a"
+                              Name 161  "PerVertex_out"
+                              MemberName 161(PerVertex_out) 0  "Pos"
+                              Name 163  "PerVertex_out"
                               Decorate 12(g_tTex1df4) DescriptorSet 0
                               Decorate 12(g_tTex1df4) Binding 0
                               Decorate 16(g_sSamp) DescriptorSet 0
@@ -526,9 +545,11 @@ Shader version: 450
                               Decorate 124(g_tTexcdf4) DescriptorSet 0
                               Decorate 133(g_tTexcdi4) DescriptorSet 0
                               Decorate 142(g_tTexcdu4) DescriptorSet 0
-                              MemberDecorate 148(VS_OUTPUT) 0 BuiltIn FragCoord
-                              Decorate 157(g_tTex1df4a) DescriptorSet 0
-                              Decorate 157(g_tTex1df4a) Binding 1
+                              Decorate 156(Pos) BuiltIn Position
+                              Decorate 160(g_tTex1df4a) DescriptorSet 0
+                              Decorate 160(g_tTex1df4a) Binding 1
+                              MemberDecorate 161(PerVertex_out) 0 BuiltIn Position
+                              Decorate 161(PerVertex_out) Block
                2:             TypeVoid
                3:             TypeFunction 2
                6:             TypeFloat 32
@@ -618,7 +639,12 @@ Shader version: 450
              151:     24(int) Constant 0
              152:    6(float) Constant 0
              153:    7(fvec4) ConstantComposite 152 152 152 152
-157(g_tTex1df4a):     11(ptr) Variable UniformConstant
+             155:             TypePointer Output 7(fvec4)
+        156(Pos):    155(ptr) Variable Output
+160(g_tTex1df4a):     11(ptr) Variable UniformConstant
+161(PerVertex_out):             TypeStruct 7(fvec4)
+             162:             TypePointer Output 161(PerVertex_out)
+163(PerVertex_out):    162(ptr) Variable Output
          4(main):           2 Function None 3
                5:             Label
       9(txval10):      8(ptr) Variable Function
@@ -696,6 +722,8 @@ Shader version: 450
                               Store 139(txval42) 147
              154:      8(ptr) AccessChain 150(vsout) 151
                               Store 154 153
-             155:148(VS_OUTPUT) Load 150(vsout)
-                              ReturnValue 155
+             157:      8(ptr) AccessChain 150(vsout) 151
+             158:    7(fvec4) Load 157
+                              Store 156(Pos) 158
+                              Return
                               FunctionEnd
