@@ -821,7 +821,7 @@ Id Builder::makeFloat16Constant(float f16, bool specConstant)
 }
 #endif
 
-Id Builder::findCompositeConstant(Op typeClass, std::vector<Id>& comps) const
+Id Builder::findCompositeConstant(Op typeClass, const std::vector<Id>& comps) const
 {
     Instruction* constant = 0;
     bool found = false;
@@ -850,7 +850,7 @@ Id Builder::findCompositeConstant(Op typeClass, std::vector<Id>& comps) const
 }
 
 // Comments in header
-Id Builder::makeCompositeConstant(Id typeId, std::vector<Id>& members, bool specConstant)
+Id Builder::makeCompositeConstant(Id typeId, const std::vector<Id>& members, bool specConstant)
 {
     Op opcode = specConstant ? OpSpecConstantComposite : OpConstantComposite;
     assert(typeId);
@@ -1100,7 +1100,7 @@ Id Builder::createLoad(Id lValue)
 }
 
 // Comments in header
-Id Builder::createAccessChain(StorageClass storageClass, Id base, std::vector<Id>& offsets)
+Id Builder::createAccessChain(StorageClass storageClass, Id base, const std::vector<Id>& offsets)
 {
     // Figure out the final resulting type.
     spv::Id typeId = getTypeId(base);
@@ -1127,7 +1127,8 @@ Id Builder::createAccessChain(StorageClass storageClass, Id base, std::vector<Id
 
 Id Builder::createArrayLength(Id base, unsigned int member)
 {
-    Instruction* length = new Instruction(getUniqueId(), makeIntType(32), OpArrayLength);
+    spv::Id intType = makeIntType(32);
+    Instruction* length = new Instruction(getUniqueId(), intType, OpArrayLength);
     length->addIdOperand(base);
     length->addImmediateOperand(member);
     buildPoint->addInstruction(std::unique_ptr<Instruction>(length));
@@ -1150,7 +1151,7 @@ Id Builder::createCompositeExtract(Id composite, Id typeId, unsigned index)
     return extract->getResultId();
 }
 
-Id Builder::createCompositeExtract(Id composite, Id typeId, std::vector<unsigned>& indexes)
+Id Builder::createCompositeExtract(Id composite, Id typeId, const std::vector<unsigned>& indexes)
 {
     // Generate code for spec constants if in spec constant operation
     // generation mode.
@@ -1177,7 +1178,7 @@ Id Builder::createCompositeInsert(Id object, Id composite, Id typeId, unsigned i
     return insert->getResultId();
 }
 
-Id Builder::createCompositeInsert(Id object, Id composite, Id typeId, std::vector<unsigned>& indexes)
+Id Builder::createCompositeInsert(Id object, Id composite, Id typeId, const std::vector<unsigned>& indexes)
 {
     Instruction* insert = new Instruction(getUniqueId(), typeId, OpCompositeInsert);
     insert->addIdOperand(object);
@@ -1328,7 +1329,7 @@ Id Builder::createSpecConstantOp(Op opCode, Id typeId, const std::vector<Id>& op
     return op->getResultId();
 }
 
-Id Builder::createFunctionCall(spv::Function* function, std::vector<spv::Id>& args)
+Id Builder::createFunctionCall(spv::Function* function, const std::vector<spv::Id>& args)
 {
     Instruction* op = new Instruction(getUniqueId(), function->getReturnType(), OpFunctionCall);
     op->addIdOperand(function->getId());
@@ -1340,7 +1341,7 @@ Id Builder::createFunctionCall(spv::Function* function, std::vector<spv::Id>& ar
 }
 
 // Comments in header
-Id Builder::createRvalueSwizzle(Decoration precision, Id typeId, Id source, std::vector<unsigned>& channels)
+Id Builder::createRvalueSwizzle(Decoration precision, Id typeId, Id source, const std::vector<unsigned>& channels)
 {
     if (channels.size() == 1)
         return setPrecision(createCompositeExtract(source, typeId, channels.front()), precision);
@@ -1362,7 +1363,7 @@ Id Builder::createRvalueSwizzle(Decoration precision, Id typeId, Id source, std:
 }
 
 // Comments in header
-Id Builder::createLvalueSwizzle(Id typeId, Id target, Id source, std::vector<unsigned>& channels)
+Id Builder::createLvalueSwizzle(Id typeId, Id target, Id source, const std::vector<unsigned>& channels)
 {
     if (channels.size() == 1 && getNumComponents(source) == 1)
         return createCompositeInsert(source, target, typeId, channels.front());
@@ -1448,7 +1449,7 @@ Id Builder::smearScalar(Decoration precision, Id scalar, Id vectorType)
 }
 
 // Comments in header
-Id Builder::createBuiltinCall(Id resultType, Id builtins, int entryPoint, std::vector<Id>& args)
+Id Builder::createBuiltinCall(Id resultType, Id builtins, int entryPoint, const std::vector<Id>& args)
 {
     Instruction* inst = new Instruction(getUniqueId(), resultType, OpExtInst);
     inst->addIdOperand(builtins);
@@ -1663,7 +1664,7 @@ Id Builder::createTextureCall(Decoration precision, Id resultType, bool sparse, 
 }
 
 // Comments in header
-Id Builder::createTextureQueryCall(Op opCode, const TextureParameters& parameters)
+Id Builder::createTextureQueryCall(Op opCode, const TextureParameters& parameters, bool isUnsignedResult)
 {
     // All these need a capability
     addCapability(CapabilityImageQuery);
@@ -1696,10 +1697,12 @@ Id Builder::createTextureQueryCall(Op opCode, const TextureParameters& parameter
         }
         if (isArrayedImageType(getImageType(parameters.sampler)))
             ++numComponents;
+
+        Id intType = isUnsignedResult ? makeUintType(32) : makeIntType(32);
         if (numComponents == 1)
-            resultType = makeIntType(32);
+            resultType = intType;
         else
-            resultType = makeVectorType(makeIntType(32), numComponents);
+            resultType = makeVectorType(intType, numComponents);
 
         break;
     }
@@ -1708,7 +1711,7 @@ Id Builder::createTextureQueryCall(Op opCode, const TextureParameters& parameter
         break;
     case OpImageQueryLevels:
     case OpImageQuerySamples:
-        resultType = makeIntType(32);
+        resultType = isUnsignedResult ? makeUintType(32) : makeIntType(32);
         break;
     default:
         assert(0);
@@ -1796,7 +1799,7 @@ Id Builder::createCompositeCompare(Decoration precision, Id value1, Id value2, b
 }
 
 // OpCompositeConstruct
-Id Builder::createCompositeConstruct(Id typeId, std::vector<Id>& constituents)
+Id Builder::createCompositeConstruct(Id typeId, const std::vector<Id>& constituents)
 {
     assert(isAggregateType(typeId) || (getNumTypeConstituents(typeId) > 1 && getNumTypeConstituents(typeId) == (int)constituents.size()));
 
@@ -1834,34 +1837,72 @@ Id Builder::createConstructor(Decoration precision, const std::vector<Id>& sourc
     if (sources.size() == 1 && isScalar(sources[0]) && numTargetComponents > 1)
         return smearScalar(precision, sources[0], resultTypeId);
 
+    // accumulate the arguments for OpCompositeConstruct
+    std::vector<Id> constituents;
     Id scalarTypeId = getScalarTypeId(resultTypeId);
-    std::vector<Id> constituents;  // accumulate the arguments for OpCompositeConstruct
-    for (unsigned int i = 0; i < sources.size(); ++i) {
-        assert(! isAggregate(sources[i]));
-        unsigned int sourceSize = getNumComponents(sources[i]);
+
+    // lambda to store the result of visiting an argument component
+    const auto latchResult = [&](Id comp) {
+        if (numTargetComponents > 1)
+            constituents.push_back(comp);
+        else
+            result = comp;
+        ++targetComponent;
+    };
+
+    // lambda to visit a vector argument's components
+    const auto accumulateVectorConstituents = [&](Id sourceArg) {
+        unsigned int sourceSize = getNumComponents(sourceArg);
         unsigned int sourcesToUse = sourceSize;
         if (sourcesToUse + targetComponent > numTargetComponents)
             sourcesToUse = numTargetComponents - targetComponent;
 
         for (unsigned int s = 0; s < sourcesToUse; ++s) {
-            Id arg = sources[i];
-            if (sourceSize > 1) {
-                std::vector<unsigned> swiz;
-                swiz.push_back(s);
-                arg = createRvalueSwizzle(precision, scalarTypeId, arg, swiz);
-            }
-
-            if (numTargetComponents > 1)
-                constituents.push_back(arg);
-            else
-                result = arg;
-            ++targetComponent;
+            std::vector<unsigned> swiz;
+            swiz.push_back(s);
+            latchResult(createRvalueSwizzle(precision, scalarTypeId, sourceArg, swiz));
         }
+    };
+
+    // lambda to visit a matrix argument's components
+    const auto accumulateMatrixConstituents = [&](Id sourceArg) {
+        unsigned int sourceSize = getNumColumns(sourceArg) * getNumRows(sourceArg);
+        unsigned int sourcesToUse = sourceSize;
+        if (sourcesToUse + targetComponent > numTargetComponents)
+            sourcesToUse = numTargetComponents - targetComponent;
+
+        int col = 0;
+        int row = 0;
+        for (unsigned int s = 0; s < sourcesToUse; ++s) {
+            if (row >= getNumRows(sourceArg)) {
+                row = 0;
+                col++;
+            }
+            std::vector<Id> indexes;
+            indexes.push_back(col);
+            indexes.push_back(row);
+            latchResult(createCompositeExtract(sourceArg, scalarTypeId, indexes));
+            row++;
+        }
+    };
+
+    // Go through the source arguments, each one could have either
+    // a single or multiple components to contribute.
+    for (unsigned int i = 0; i < sources.size(); ++i) {
+        if (isScalar(sources[i]))
+            latchResult(sources[i]);
+        else if (isVector(sources[i]))
+            accumulateVectorConstituents(sources[i]);
+        else if (isMatrix(sources[i]))
+            accumulateMatrixConstituents(sources[i]);
+        else
+            assert(0);
 
         if (targetComponent >= numTargetComponents)
             break;
     }
 
+    // If the result is a vector, make it from the gathered constituents.
     if (constituents.size() > 0)
         result = createCompositeConstruct(resultTypeId, constituents);
 
@@ -2013,7 +2054,8 @@ void Builder::If::makeEndIf()
 }
 
 // Comments in header
-void Builder::makeSwitch(Id selector, int numSegments, std::vector<int>& caseValues, std::vector<int>& valueIndexToSegment, int defaultSegment,
+void Builder::makeSwitch(Id selector, int numSegments, const std::vector<int>& caseValues,
+                         const std::vector<int>& valueIndexToSegment, int defaultSegment,
                          std::vector<Block*>& segmentBlocks)
 {
     Function& function = buildPoint->getParent();
@@ -2356,7 +2398,7 @@ void Builder::dump(std::vector<unsigned int>& out) const
 
     for (auto it = extensions.cbegin(); it != extensions.cend(); ++it) {
         Instruction extInst(0, 0, OpExtension);
-        extInst.addStringOperand(*it);
+        extInst.addStringOperand(it->c_str());
         extInst.dump(out);
     }
 
