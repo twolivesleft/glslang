@@ -4341,7 +4341,7 @@ void TParseContext::layoutObjectCheck(const TSourceLoc& loc, const TSymbol& symb
     // user-variable location check, which are required for SPIR-V in/out:
     //  - variables have it directly,
     //  - blocks have it on each member (already enforced), so check first one
-    if (spvVersion.spv > 0 && !parsingBuiltins && qualifier.builtIn == EbvNone &&
+    /*if (spvVersion.spv > 0 && !parsingBuiltins && qualifier.builtIn == EbvNone &&
         !qualifier.hasLocation() && !intermediate.getAutoMapLocations()) {
 
         switch (qualifier.storage) {
@@ -4355,7 +4355,7 @@ void TParseContext::layoutObjectCheck(const TSourceLoc& loc, const TSymbol& symb
         default:
             break;
         }
-    }
+    }*/
 
     // Check packing and matrix
     if (qualifier.hasUniformLayout()) {
