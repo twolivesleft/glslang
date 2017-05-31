@@ -75,6 +75,7 @@ using CompileVulkanToSpirvTestAMD = GlslangTest<::testing::TestWithParam<std::st
 #ifdef NV_EXTENSIONS
 using CompileVulkanToSpirvTestNV = GlslangTest<::testing::TestWithParam<std::string>>;
 #endif
+using CompileUpgradeTextureToSampledTextureAndDropSamplersTest = GlslangTest<::testing::TestWithParam<std::string>>;
 
 // Compiling GLSL to SPIR-V under Vulkan semantics. Expected to successfully
 // generate SPIR-V.
@@ -172,6 +173,15 @@ TEST_P(CompileVulkanToSpirvTestNV, FromFile)
 }
 #endif
 
+TEST_P(CompileUpgradeTextureToSampledTextureAndDropSamplersTest, FromFile)
+{
+    loadCompileUpgradeTextureToSampledTextureAndDropSamplersAndCheck(GlobalTestSettings.testRoot,
+                                                                     GetParam(),
+                                                                     Source::GLSL,
+                                                                     Semantics::Vulkan,
+                                                                     Target::Spv);
+}
+
 // clang-format off
 INSTANTIATE_TEST_CASE_P(
     Glsl, CompileVulkanToSpirvTest,
@@ -210,6 +220,8 @@ INSTANTIATE_TEST_CASE_P(
         "spv.430.frag",
         "spv.430.vert",
         "spv.450.tesc",
+        "spv.450.geom",
+        "spv.450.noRedecl.tesc",
         "spv.accessChain.frag",
         "spv.aggOps.frag",
         "spv.always-discard.frag",
@@ -281,6 +293,7 @@ INSTANTIATE_TEST_CASE_P(
         "spv.test.vert",
         "spv.texture.frag",
         "spv.texture.vert",
+        "spv.textureBuffer.vert",
         "spv.image.frag",
         "spv.types.frag",
         "spv.uint.frag",
@@ -301,6 +314,7 @@ INSTANTIATE_TEST_CASE_P(
         "spv.specConstant.comp",
         "spv.specConstantComposite.vert",
         "spv.specConstantOperations.vert",
+        "spv.storageBuffer.vert",
         "spv.precise.tese",
         "spv.precise.tesc",
     })),
@@ -403,6 +417,14 @@ INSTANTIATE_TEST_CASE_P(
 FileNameAsCustomTestSuffix
 );
 #endif
+
+INSTANTIATE_TEST_CASE_P(
+    Glsl, CompileUpgradeTextureToSampledTextureAndDropSamplersTest,
+    ::testing::ValuesIn(std::vector<std::string>({
+      "spv.texture.sampler.transform.frag",
+    })),
+    FileNameAsCustomTestSuffix
+);
 // clang-format on
 
 }  // anonymous namespace
