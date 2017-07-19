@@ -1361,7 +1361,7 @@ TIntermTyped* HlslParseContext::flattenAccess(TIntermTyped* base, int member)
     const TType dereferencedType(base->getType(), member);  // dereferenced type
     const TIntermSymbol& symbolNode = *base->getAsSymbolNode();
 
-    TIntermTyped* flattened = flattenAccess(symbolNode.getId(), member, dereferencedType, symbolNode.getFlattenSubset());
+	TIntermTyped* flattened = NULL;// flattenAccess(symbolNode.getId(), member, dereferencedType, symbolNode.getFlattenSubset());
 
     return flattened ? flattened : base;
 }
@@ -1381,13 +1381,13 @@ TIntermTyped* HlslParseContext::flattenAccess(int uniqueId, int member, const TT
         member = flattenData->second.offsets[newSubset];
         const TVariable* memberVariable = flattenData->second.members[member];
         subsetSymbol = intermediate.addSymbol(*memberVariable);
-        subsetSymbol->setFlattenSubset(-1);
+        //subsetSymbol->setFlattenSubset(-1);
     } else {
 
         // If this is not the final flattening, accumulate the position and return
         // an object of the partially dereferenced type.
         subsetSymbol = new TIntermSymbol(uniqueId, "flattenShadow", dereferencedType);
-        subsetSymbol->setFlattenSubset(newSubset);
+        //subsetSymbol->setFlattenSubset(newSubset);
     }
 
     return subsetSymbol;
