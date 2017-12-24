@@ -2514,8 +2514,8 @@ void TParseContext::transparentOpaqueCheck(const TSourceLoc& loc, const TType& t
         if (spvVersion.vulkan > 0)
             vulkanRemoved(loc, "non-opaque uniforms outside a block");
         // OpenGL wants locations on these (unless they are getting automapped)
-        if (spvVersion.openGl > 0 && !type.getQualifier().hasLocation() && !intermediate.getAutoMapLocations())
-            error(loc, "non-opaque uniform variables need a layout(location=L)", identifier.c_str(), "");
+        //if (spvVersion.openGl > 0 && !type.getQualifier().hasLocation() && !intermediate.getAutoMapLocations())
+        //    error(loc, "non-opaque uniform variables need a layout(location=L)", identifier.c_str(), "");
     }
 }
 
