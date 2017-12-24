@@ -2474,6 +2474,11 @@ bool TIntermediate::promoteBinary(TIntermBinary& node)
                 return false;
             node.setLeft(left);
             node.setRight(right);
+
+            // Update the original base assumption on result type..
+            node.setType(left->getType());
+            node.getWritableType().getQualifier().clear();
+
             break;
 
         default:
@@ -3170,10 +3175,10 @@ TIntermTyped* TIntermediate::promoteConstantUnion(TBasicType promoteTo, TIntermC
                             node->getLoc());
 }
 
-void TIntermAggregate::addToPragmaTable(const TPragmaTable& pTable)
+void TIntermAggregate::setPragmaTable(const TPragmaTable& pTable)
 {
-    assert(!pragmaTable);
-    pragmaTable = new TPragmaTable();
+    assert(pragmaTable == nullptr);
+    pragmaTable = new TPragmaTable;
     *pragmaTable = pTable;
 }
 
@@ -3221,5 +3226,21 @@ void TIntermediate::performTextureUpgradeAndSamplerRemovalTransformation(TInterm
     TextureUpgradeAndSamplerRemovalTransform transform;
     root->traverse(&transform);
 }
+
+const char* TIntermediate::getResourceName(TResourceType res)
+{
+    switch (res) {
+    case EResSampler: return "shift-sampler-binding";
+    case EResTexture: return "shift-texture-binding";
+    case EResImage:   return "shift-image-binding";
+    case EResUbo:     return "shift-UBO-binding";
+    case EResSsbo:    return "shift-ssbo-binding";
+    case EResUav:     return "shift-uav-binding";
+    default:
+        assert(0); // internal error: should only be called with valid resource types.
+        return nullptr;
+    }
+}
+
 
 } // end namespace glslang

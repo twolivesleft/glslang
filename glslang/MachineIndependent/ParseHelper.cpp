@@ -49,9 +49,10 @@ namespace glslang {
 
 TParseContext::TParseContext(TSymbolTable& symbolTable, TIntermediate& interm, bool parsingBuiltins,
                              int version, EProfile profile, const SpvVersion& spvVersion, EShLanguage language,
-                             TInfoSink& infoSink, bool forwardCompatible, EShMessages messages) :
+                             TInfoSink& infoSink, bool forwardCompatible, EShMessages messages,
+                             const TString* entryPoint) :
             TParseContextBase(symbolTable, interm, parsingBuiltins, version, profile, spvVersion, language,
-                              infoSink, forwardCompatible, messages),
+                              infoSink, forwardCompatible, messages, entryPoint),
             inMain(false),
             blockName(nullptr),
             limits(resources.limits),
@@ -88,6 +89,9 @@ TParseContext::TParseContext(TSymbolTable& symbolTable, TIntermediate& interm, b
 
     if (language == EShLangGeometry)
         globalOutputDefaults.layoutStream = 0;
+
+    if (entryPoint != nullptr && entryPoint->size() > 0 && *entryPoint != "main")
+        infoSink.info.message(EPrefixError, "Source entry point must be \"main\"");
 }
 
 TParseContext::~TParseContext()
@@ -122,11 +126,6 @@ void TParseContext::setPrecisionDefaults()
             sampler.set(EbtFloat, Esd2D);
             sampler.external = true;
             defaultSamplerPrecision[computeSamplerTypeIndex(sampler)] = EpqLow;
-        } else {
-            // Non-ES profile
-            // All default to highp.
-            for (int type = 0; type < maxSamplerIndex; ++type)
-                defaultSamplerPrecision[type] = EpqHigh;
         }
 
         // If we are parsing built-in computational variables/functions, it is meaningful to record
@@ -141,6 +140,13 @@ void TParseContext::setPrecisionDefaults()
                 defaultPrecision[EbtInt] = EpqHigh;
                 defaultPrecision[EbtUint] = EpqHigh;
                 defaultPrecision[EbtFloat] = EpqHigh;
+            }
+
+            if (profile != EEsProfile) {
+                // Non-ES profile
+                // All sampler precisions default to highp.
+                for (int type = 0; type < maxSamplerIndex; ++type)
+                    defaultSamplerPrecision[type] = EpqHigh;
             }
         }
 
@@ -383,7 +389,8 @@ TIntermTyped* TParseContext::handleBracketDereference(const TSourceLoc& loc, TIn
                 if (base->getQualifier().storage == EvqBuffer)
                     requireProfile(base->getLoc(), ~EEsProfile, "variable indexing buffer block array");
                 else if (base->getQualifier().storage == EvqUniform)
-                    profileRequires(base->getLoc(), EEsProfile, 0, Num_AEP_gpu_shader5, AEP_gpu_shader5, "variable indexing uniform block array");
+                    profileRequires(base->getLoc(), EEsProfile, 320, Num_AEP_gpu_shader5, AEP_gpu_shader5,
+                                    "variable indexing uniform block array");
                 else {
                     // input/output blocks either don't exist or can be variable indexed
                 }
@@ -392,7 +399,7 @@ TIntermTyped* TParseContext::handleBracketDereference(const TSourceLoc& loc, TIn
             else if (base->getBasicType() == EbtSampler && version >= 130) {
                 const char* explanation = "variable indexing sampler array";
                 requireProfile(base->getLoc(), EEsProfile | ECoreProfile | ECompatibilityProfile, explanation);
-                profileRequires(base->getLoc(), EEsProfile, 0, Num_AEP_gpu_shader5, AEP_gpu_shader5, explanation);
+                profileRequires(base->getLoc(), EEsProfile, 320, Num_AEP_gpu_shader5, AEP_gpu_shader5, explanation);
                 profileRequires(base->getLoc(), ECoreProfile | ECompatibilityProfile, 400, nullptr, explanation);
             }
 
@@ -422,29 +429,6 @@ TIntermTyped* TParseContext::handleBracketDereference(const TSourceLoc& loc, TIn
     }
 
     return result;
-}
-
-void TParseContext::checkIndex(const TSourceLoc& loc, const TType& type, int& index)
-{
-    if (index < 0) {
-        error(loc, "", "[", "index out of range '%d'", index);
-        index = 0;
-    } else if (type.isArray()) {
-        if (type.isExplicitlySizedArray() && index >= type.getOuterArraySize()) {
-            error(loc, "", "[", "array index out of range '%d'", index);
-            index = type.getOuterArraySize() - 1;
-        }
-    } else if (type.isVector()) {
-        if (index >= type.getVectorSize()) {
-            error(loc, "", "[", "vector index out of range '%d'", index);
-            index = type.getVectorSize() - 1;
-        }
-    } else if (type.isMatrix()) {
-        if (index >= type.getMatrixCols()) {
-            error(loc, "", "[", "matrix index out of range '%d'", index);
-            index = type.getMatrixCols() - 1;
-        }
-    }
 }
 
 // for ES 2.0 (version 100) limitations for almost all index operations except vertex-shader uniforms
@@ -681,7 +665,8 @@ TIntermTyped* TParseContext::handleDotDereference(const TSourceLoc& loc, TInterm
     // leaving swizzles and struct/block dereferences.
 
     TIntermTyped* result = base;
-    if (base->isVector() || base->isScalar()) {
+    if ((base->isVector() || base->isScalar()) &&
+        (base->isFloatingDomain() || base->isIntegerDomain() || base->getBasicType() == EbtBool)) {
         if (base->isScalar()) {
             const char* dotFeature = "scalar swizzle";
             requireProfile(loc, ~EEsProfile, dotFeature);
@@ -1147,7 +1132,13 @@ void TParseContext::computeBuiltinPrecisions(TIntermTyped& node, const TFunction
             operationPrecision = std::max(operationPrecision, function[arg].type->getQualifier().precision);
         }
         // compute the result precision
+#ifdef AMD_EXTENSIONS
+        if (agg->isSampling() ||
+            agg->getOp() == EOpImageLoad || agg->getOp() == EOpImageStore ||
+            agg->getOp() == EOpImageLoadLod || agg->getOp() == EOpImageStoreLod)
+#else
         if (agg->isSampling() || agg->getOp() == EOpImageLoad || agg->getOp() == EOpImageStore)
+#endif
             resultPrecision = sequence[0]->getAsTyped()->getQualifier().precision;
         else if (function.getType().getBasicType() != EbtBool)
             resultPrecision = function.getType().getQualifier().precision == EpqNone ?
@@ -1391,6 +1382,8 @@ void TParseContext::builtInOpCheck(const TSourceLoc& loc, const TFunction& fnCan
         arg0 = unaryArg;
     }
 
+    TString featureString;
+    const char* feature = nullptr;
     switch (callNode.getOp()) {
     case EOpTextureGather:
     case EOpTextureGatherOffset:
@@ -1399,8 +1392,9 @@ void TParseContext::builtInOpCheck(const TSourceLoc& loc, const TFunction& fnCan
         // Figure out which variants are allowed by what extensions,
         // and what arguments must be constant for which situations.
 
-        TString featureString = fnCandidate.getName() + "(...)";
-        const char* feature = featureString.c_str();
+        featureString = fnCandidate.getName();
+        featureString += "(...)";
+        feature = featureString.c_str();
         profileRequires(loc, EEsProfile, 310, nullptr, feature);
         int compArg = -1;  // track which argument, if any, is the constant component argument
         switch (callNode.getOp()) {
@@ -1421,7 +1415,8 @@ void TParseContext::builtInOpCheck(const TSourceLoc& loc, const TFunction& fnCan
             else
                 profileRequires(loc, ~EEsProfile, 400, E_GL_ARB_gpu_shader5, feature);
             if (! (*argp)[fnCandidate[0].type->getSampler().shadow ? 3 : 2]->getAsConstantUnion())
-                profileRequires(loc, EEsProfile, 0, Num_AEP_gpu_shader5, AEP_gpu_shader5, "non-constant offset argument");
+                profileRequires(loc, EEsProfile, 320, Num_AEP_gpu_shader5, AEP_gpu_shader5,
+                                "non-constant offset argument");
             if (! fnCandidate[0].type->getSampler().shadow)
                 compArg = 3;
             break;
@@ -1455,8 +1450,9 @@ void TParseContext::builtInOpCheck(const TSourceLoc& loc, const TFunction& fnCan
             bias = fnCandidate.getParamCount() > 4;
 
         if (bias) {
-            TString biasFeatureString = fnCandidate.getName() + "with bias argument";
-            const char* feature = biasFeatureString.c_str();
+            featureString = fnCandidate.getName();
+            featureString += "with bias argument";
+            feature = featureString.c_str();
             profileRequires(loc, ~EEsProfile, 450, nullptr, feature);
             requireExtensions(loc, 1, &E_GL_AMD_texture_gather_bias_lod, feature);
         }
@@ -1478,8 +1474,9 @@ void TParseContext::builtInOpCheck(const TSourceLoc& loc, const TFunction& fnCan
             bias = fnCandidate.getParamCount() > 5;
 
         if (bias) {
-            TString featureString = fnCandidate.getName() + "with bias argument";
-            const char* feature = featureString.c_str();
+            featureString = fnCandidate.getName();
+            featureString += "with bias argument";
+            feature = featureString.c_str();
             profileRequires(loc, ~EEsProfile, 450, nullptr, feature);
             requireExtensions(loc, 1, &E_GL_AMD_texture_gather_bias_lod, feature);
         }
@@ -1566,6 +1563,23 @@ void TParseContext::builtInOpCheck(const TSourceLoc& loc, const TFunction& fnCan
         break;
     }
 
+#ifdef NV_EXTENSIONS
+    case EOpAtomicAdd:
+    case EOpAtomicMin:
+    case EOpAtomicMax:
+    case EOpAtomicAnd:
+    case EOpAtomicOr:
+    case EOpAtomicXor:
+    case EOpAtomicExchange:
+    case EOpAtomicCompSwap:
+    {
+        if (arg0->getType().getBasicType() == EbtInt64 || arg0->getType().getBasicType() == EbtUint64)
+            requireExtensions(loc, 1, &E_GL_NV_shader_atomic_int64, fnCandidate.getName().c_str());
+
+        break;
+    }
+#endif
+
     case EOpInterpolateAtCentroid:
     case EOpInterpolateAtSample:
     case EOpInterpolateAtOffset:
@@ -1635,7 +1649,8 @@ void TParseContext::nonOpBuiltInCheck(const TSourceLoc& loc, const TFunction& fn
                     profileRequires(loc, ~EEsProfile, 400, E_GL_ARB_gpu_shader5, feature);
                 int offsetArg = fnCandidate[0].type->getSampler().shadow ? 3 : 2;
                 if (! callNode.getSequence()[offsetArg]->getAsConstantUnion())
-                    profileRequires(loc, EEsProfile, 0, Num_AEP_gpu_shader5, AEP_gpu_shader5, "non-constant offset argument");
+                    profileRequires(loc, EEsProfile, 320, Num_AEP_gpu_shader5, AEP_gpu_shader5,
+                                    "non-constant offset argument");
                 if (! fnCandidate[0].type->getSampler().shadow)
                     compArg = 3;
             } else if (fnCandidate.getName().compare("textureGatherOffsets") == 0) {
@@ -2452,6 +2467,16 @@ void TParseContext::boolCheck(const TSourceLoc& loc, const TPublicType& pType)
 
 void TParseContext::samplerCheck(const TSourceLoc& loc, const TType& type, const TString& identifier, TIntermTyped* /*initializer*/)
 {
+    // Check that the appropriate extension is enabled if external sampler is used.
+    // There are two extensions. The correct one must be used based on GLSL version.
+    if (type.getBasicType() == EbtSampler && type.getSampler().external) {
+        if (version < 300) {
+            requireExtensions(loc, 1, &E_GL_OES_EGL_image_external, "samplerExternalOES");
+        } else {
+            requireExtensions(loc, 1, &E_GL_OES_EGL_image_external_essl3, "samplerExternalOES");
+        }
+    }
+
     if (type.getQualifier().storage == EvqUniform)
         return;
 
@@ -2476,16 +2501,22 @@ void TParseContext::atomicUintCheck(const TSourceLoc& loc, const TType& type, co
         error(loc, "atomic_uints can only be used in uniform variables or function parameters:", type.getBasicTypeString().c_str(), identifier.c_str());
 }
 
-void TParseContext::transparentCheck(const TSourceLoc& loc, const TType& type, const TString& /*identifier*/)
+void TParseContext::transparentOpaqueCheck(const TSourceLoc& loc, const TType& type, const TString& identifier)
 {
     if (parsingBuiltins)
         return;
 
-    // Vulkan doesn't allow transparent uniforms outside of blocks
-    if (spvVersion.vulkan == 0 || type.getQualifier().storage != EvqUniform)
+    if (type.getQualifier().storage != EvqUniform)
         return;
-    if (type.containsNonOpaque())
-        vulkanRemoved(loc, "non-opaque uniforms outside a block");
+
+    if (type.containsNonOpaque()) {
+        // Vulkan doesn't allow transparent uniforms outside of blocks
+        if (spvVersion.vulkan > 0)
+            vulkanRemoved(loc, "non-opaque uniforms outside a block");
+        // OpenGL wants locations on these (unless they are getting automapped)
+        if (spvVersion.openGl > 0 && !type.getQualifier().hasLocation() && !intermediate.getAutoMapLocations())
+            error(loc, "non-opaque uniform variables need a layout(location=L)", identifier.c_str(), "");
+    }
 }
 
 //
@@ -2538,7 +2569,7 @@ void TParseContext::globalQualifierTypeCheck(const TSourceLoc& loc, const TQuali
 
     // now, knowing it is a shader in/out, do all the in/out semantic checks
 
-    if (publicType.basicType == EbtBool) {
+    if (publicType.basicType == EbtBool && !parsingBuiltins) {
         error(loc, "cannot be bool", GetStorageQualifierString(qualifier.storage), "");
         return;
     }
@@ -2980,7 +3011,7 @@ void TParseContext::structArrayCheck(const TSourceLoc& /*loc*/, const TType& typ
     }
 }
 
-void TParseContext::arraySizesCheck(const TSourceLoc& loc, const TQualifier& qualifier, const TArraySizes* arraySizes, bool initializer, bool lastMember)
+void TParseContext::arraySizesCheck(const TSourceLoc& loc, const TQualifier& qualifier, TArraySizes* arraySizes, bool initializer, bool lastMember)
 {
     assert(arraySizes);
 
@@ -2993,8 +3024,10 @@ void TParseContext::arraySizesCheck(const TSourceLoc& loc, const TQualifier& qua
         return;
 
     // No environment allows any non-outer-dimension to be implicitly sized
-    if (arraySizes->isInnerImplicit())
+    if (arraySizes->isInnerImplicit()) {
         error(loc, "only outermost dimension of an array of arrays can be implicitly sized", "[]", "");
+        arraySizes->clearInnerImplicit();
+    }
 
     if (arraySizes->isInnerSpecialization())
         error(loc, "only outermost dimension of an array of arrays can be a specialization constant", "[]", "");
@@ -3014,19 +3047,22 @@ void TParseContext::arraySizesCheck(const TSourceLoc& loc, const TQualifier& qua
     switch (language) {
     case EShLangGeometry:
         if (qualifier.storage == EvqVaryingIn)
-            if (extensionsTurnedOn(Num_AEP_geometry_shader, AEP_geometry_shader))
+            if ((profile == EEsProfile && version >= 320) ||
+                extensionsTurnedOn(Num_AEP_geometry_shader, AEP_geometry_shader))
                 return;
         break;
     case EShLangTessControl:
         if ( qualifier.storage == EvqVaryingIn ||
             (qualifier.storage == EvqVaryingOut && ! qualifier.patch))
-            if (extensionsTurnedOn(Num_AEP_tessellation_shader, AEP_tessellation_shader))
+            if ((profile == EEsProfile && version >= 320) ||
+                extensionsTurnedOn(Num_AEP_tessellation_shader, AEP_tessellation_shader))
                 return;
         break;
     case EShLangTessEvaluation:
         if ((qualifier.storage == EvqVaryingIn && ! qualifier.patch) ||
              qualifier.storage == EvqVaryingOut)
-            if (extensionsTurnedOn(Num_AEP_tessellation_shader, AEP_tessellation_shader))
+            if ((profile == EEsProfile && version >= 320) ||
+                extensionsTurnedOn(Num_AEP_tessellation_shader, AEP_tessellation_shader))
                 return;
         break;
     default:
@@ -3265,7 +3301,8 @@ TSymbol* TParseContext::redeclareBuiltinVariable(const TSourceLoc& loc, const TS
         return nullptr;
 
     bool nonEsRedecls = (profile != EEsProfile && (version >= 130 || identifier == "gl_TexCoord"));
-    bool    esRedecls = (profile == EEsProfile && extensionsTurnedOn(Num_AEP_shader_io_blocks, AEP_shader_io_blocks));
+    bool    esRedecls = (profile == EEsProfile &&
+                         (version >= 320 || extensionsTurnedOn(Num_AEP_shader_io_blocks, AEP_shader_io_blocks)));
     if (! esRedecls && ! nonEsRedecls)
         return nullptr;
 
@@ -3404,7 +3441,7 @@ TSymbol* TParseContext::redeclareBuiltinVariable(const TSourceLoc& loc, const TS
 void TParseContext::redeclareBuiltinBlock(const TSourceLoc& loc, TTypeList& newTypeList, const TString& blockName, const TString* instanceName, TArraySizes* arraySizes)
 {
     const char* feature = "built-in block redeclaration";
-    profileRequires(loc, EEsProfile, 0, Num_AEP_shader_io_blocks, AEP_shader_io_blocks, feature);
+    profileRequires(loc, EEsProfile, 320, Num_AEP_shader_io_blocks, AEP_shader_io_blocks, feature);
     profileRequires(loc, ~EEsProfile, 410, E_GL_ARB_separate_shader_objects, feature);
 
     if (blockName != "gl_PerVertex" && blockName != "gl_PerFragment") {
@@ -3450,17 +3487,24 @@ void TParseContext::redeclareBuiltinBlock(const TSourceLoc& loc, TTypeList& newT
         return;
     }
 
+    // Fix XFB stuff up, it applies to the order of the redeclaration, not
+    // the order of the original members.
+    if (currentBlockQualifier.storage == EvqVaryingOut && globalOutputDefaults.hasXfbBuffer()) {
+        currentBlockQualifier.layoutXfbBuffer = globalOutputDefaults.layoutXfbBuffer;
+        fixBlockXfbOffsets(currentBlockQualifier, newTypeList);
+    }
+
     // Edit and error check the container against the redeclaration
     //  - remove unused members
     //  - ensure remaining qualifiers/types match
+
     TType& type = block->getWritableType();
 
 #ifdef NV_EXTENSIONS
     // if gl_PerVertex is redeclared for the purpose of passing through "gl_Position"
-    // for passthrough purpose, the redclared block should have the same qualifers as
+    // for passthrough purpose, the redeclared block should have the same qualifers as
     // the current one
-    if (currentBlockQualifier.layoutPassthrough)
-    {
+    if (currentBlockQualifier.layoutPassthrough) {
         type.getQualifier().layoutPassthrough = currentBlockQualifier.layoutPassthrough;
         type.getQualifier().storage = currentBlockQualifier.storage;
         type.getQualifier().layoutStream = currentBlockQualifier.layoutStream;
@@ -3501,10 +3545,12 @@ void TParseContext::redeclareBuiltinBlock(const TSourceLoc& loc, TTypeList& newT
                 arrayLimitCheck(loc, member->type->getFieldName(), newType.getOuterArraySize());
             if (newType.getQualifier().isMemory())
                 error(memberLoc, "cannot add memory qualifier to redeclared block member", member->type->getFieldName().c_str(), "");
-            if (newType.getQualifier().hasLayout())
-                error(memberLoc, "cannot add layout to redeclared block member", member->type->getFieldName().c_str(), "");
+            if (newType.getQualifier().hasNonXfbLayout())
+                error(memberLoc, "cannot add non-XFB layout to redeclared block member", member->type->getFieldName().c_str(), "");
             if (newType.getQualifier().patch)
                 error(memberLoc, "cannot add patch to redeclared block member", member->type->getFieldName().c_str(), "");
+            if (newType.getQualifier().hasXfbBuffer() && newType.getQualifier().layoutXfbBuffer != currentBlockQualifier.layoutXfbBuffer)
+                error(memberLoc, "member cannot contradict block (or what block inherited from global)", "xfb_buffer", "");
             oldType.getQualifier().centroid = newType.getQualifier().centroid;
             oldType.getQualifier().sample = newType.getQualifier().sample;
             oldType.getQualifier().invariant = newType.getQualifier().invariant;
@@ -3512,15 +3558,9 @@ void TParseContext::redeclareBuiltinBlock(const TSourceLoc& loc, TTypeList& newT
             oldType.getQualifier().smooth = newType.getQualifier().smooth;
             oldType.getQualifier().flat = newType.getQualifier().flat;
             oldType.getQualifier().nopersp = newType.getQualifier().nopersp;
-
-#ifdef NV_EXTENSIONS
-            if (member->type->getFieldName() == "gl_Layer") {
-                if (!newType.getQualifier().layoutViewportRelative && newType.getQualifier().layoutSecondaryViewportRelativeOffset == -2048)
-                    error(loc, "redeclaration only allowed for viewport_relative or secondary_view_offset layout", "redeclaration", member->type->getFieldName().c_str());
-                oldType.getQualifier().layoutViewportRelative = newType.getQualifier().layoutViewportRelative;
-                oldType.getQualifier().layoutSecondaryViewportRelativeOffset = newType.getQualifier().layoutSecondaryViewportRelativeOffset;
-            }
-#endif
+            oldType.getQualifier().layoutXfbOffset = newType.getQualifier().layoutXfbOffset;
+            if (oldType.getQualifier().layoutXfbOffset != TQualifier::layoutXfbBufferEnd)
+                type.getQualifier().layoutXfbBuffer = currentBlockQualifier.layoutXfbBuffer;
             if (oldType.isImplicitlySizedArray() && newType.isExplicitlySizedArray())
                 oldType.changeOuterArraySize(newType.getOuterArraySize());
 
@@ -4038,7 +4078,8 @@ void TParseContext::setLayoutQualifier(const TSourceLoc& loc, TPublicType& publi
             bool found = false;
             for (TBlendEquationShift be = (TBlendEquationShift)0; be < EBlendCount; be = (TBlendEquationShift)(be + 1)) {
                 if (id == TQualifier::getBlendEquationString(be)) {
-                    requireExtensions(loc, 1, &E_GL_KHR_blend_equation_advanced, "blend equation");
+                    profileRequires(loc, EEsProfile, 320, E_GL_KHR_blend_equation_advanced, "blend equation");
+                    profileRequires(loc, ~EEsProfile, 0, E_GL_KHR_blend_equation_advanced, "blend equation");
                     intermediate.addBlendEquation(be);
                     publicType.shaderQualifiers.blendEquation = true;
                     found = true;
@@ -4442,8 +4483,8 @@ void TParseContext::layoutObjectCheck(const TSourceLoc& loc, const TSymbol& symb
         switch (qualifier.storage) {
         case EvqVaryingIn:
         case EvqVaryingOut:
-            if (type.getBasicType() != EbtBlock || 
-                (!(*type.getStruct())[0].type->getQualifier().hasLocation() && 
+            if (type.getBasicType() != EbtBlock ||
+                (!(*type.getStruct())[0].type->getQualifier().hasLocation() &&
                   (*type.getStruct())[0].type->getQualifier().builtIn == EbvNone))
                 error(loc, "SPIR-V requires location for user input/output", "location", "");
             break;
@@ -4535,6 +4576,8 @@ void TParseContext::layoutTypeCheck(const TSourceLoc& loc, const TType& type)
             break;
         case EvqUniform:
         case EvqBuffer:
+            if (type.getBasicType() == EbtBlock)
+                error(loc, "cannot apply to uniform or buffer block", "location", "");
             break;
         default:
             error(loc, "can only apply to uniform, buffer, in, or out storage qualifiers", "location", "");
@@ -4595,7 +4638,7 @@ void TParseContext::layoutTypeCheck(const TSourceLoc& loc, const TType& type)
                 } else
                     lastBinding += type.getCumulativeArraySize();
             }
-            if (lastBinding >= resources.maxCombinedTextureImageUnits)
+            if (spvVersion.vulkan == 0 && lastBinding >= resources.maxCombinedTextureImageUnits)
                 error(loc, "sampler binding not less than gl_MaxCombinedTextureImageUnits", "binding", type.isArray() ? "(using array)" : "");
         }
         if (type.getBasicType() == EbtAtomicUint) {
@@ -4844,7 +4887,7 @@ void TParseContext::fixOffset(const TSourceLoc& loc, TSymbol& symbol)
             // Check for overlap
             int numOffsets = 4;
             if (symbol.getType().isArray()) {
-                if (symbol.getType().isExplicitlySizedArray())
+                if (symbol.getType().isExplicitlySizedArray() && ! symbol.getType().getArraySizes()->isInnerImplicit())
                     numOffsets *= symbol.getType().getCumulativeArraySize();
                 else {
                     // "It is a compile-time error to declare an unsized array of atomic_uint."
@@ -5111,7 +5154,7 @@ TIntermNode* TParseContext::declareVariable(const TSourceLoc& loc, TString& iden
 
     samplerCheck(loc, type, identifier, initializer);
     atomicUintCheck(loc, type, identifier);
-    transparentCheck(loc, type, identifier);
+    transparentOpaqueCheck(loc, type, identifier);
 
     if (identifier != "gl_FragCoord" && (publicType.shaderQualifiers.originUpperLeft || publicType.shaderQualifiers.pixelCenterInteger))
         error(loc, "can only apply origin_upper_left and pixel_center_origin to gl_FragCoord", "layout qualifier", "");
@@ -5485,7 +5528,7 @@ TIntermTyped* TParseContext::addConstructor(const TSourceLoc& loc, TIntermNode* 
 
     bool singleArg;
     if (aggrNode) {
-        if (aggrNode->getOp() != EOpNull || aggrNode->getSequence().size() == 1)
+        if (aggrNode->getOp() != EOpNull)
             singleArg = true;
         else
             singleArg = false;
@@ -5805,7 +5848,7 @@ void TParseContext::declareBlock(const TSourceLoc& loc, TTypeList& typeList, con
             case EvqVaryingOut:
                 requireProfile(memberLoc, ECoreProfile | ECompatibilityProfile | EEsProfile, feature);
                 profileRequires(memberLoc, ECoreProfile | ECompatibilityProfile, 440, E_GL_ARB_enhanced_layouts, feature);
-                profileRequires(memberLoc, EEsProfile, 0, Num_AEP_shader_io_blocks, AEP_shader_io_blocks, feature);
+                profileRequires(memberLoc, EEsProfile, 320, Num_AEP_shader_io_blocks, AEP_shader_io_blocks, feature);
                 memberWithLocation = true;
                 break;
             default:
@@ -5929,14 +5972,14 @@ void TParseContext::blockStageIoCheck(const TSourceLoc& loc, const TQualifier& q
         // "Compute shaders do not permit user-defined input variables..."
         requireStage(loc, (EShLanguageMask)(EShLangTessControlMask|EShLangTessEvaluationMask|EShLangGeometryMask|EShLangFragmentMask), "input block");
         if (language == EShLangFragment)
-            profileRequires(loc, EEsProfile, 0, Num_AEP_shader_io_blocks, AEP_shader_io_blocks, "fragment input block");
+            profileRequires(loc, EEsProfile, 320, Num_AEP_shader_io_blocks, AEP_shader_io_blocks, "fragment input block");
         break;
     case EvqVaryingOut:
         profileRequires(loc, ~EEsProfile, 150, E_GL_ARB_separate_shader_objects, "output block");
         requireStage(loc, (EShLanguageMask)(EShLangVertexMask|EShLangTessControlMask|EShLangTessEvaluationMask|EShLangGeometryMask), "output block");
         // ES 310 can have a block before shader_io is turned on, so skip this test for built-ins
         if (language == EShLangVertex && ! parsingBuiltins)
-            profileRequires(loc, EEsProfile, 0, Num_AEP_shader_io_blocks, AEP_shader_io_blocks, "vertex output block");
+            profileRequires(loc, EEsProfile, 320, Num_AEP_shader_io_blocks, AEP_shader_io_blocks, "vertex output block");
         break;
     default:
         error(loc, "only uniform, buffer, in, or out blocks are supported", blockName->c_str(), "");

@@ -336,6 +336,8 @@ void HlslScanContext::fillInKeywordMap()
     (*KeywordMap)["RWTexture2DArray"] =        EHTokRWTexture2darray;
     (*KeywordMap)["RWTexture3D"] =             EHTokRWTexture3d;
     (*KeywordMap)["RWBuffer"] =                EHTokRWBuffer;
+    (*KeywordMap)["SubpassInput"] =            EHTokSubpassInput;
+    (*KeywordMap)["SubpassInputMS"] =          EHTokSubpassInputMS;
 
     (*KeywordMap)["AppendStructuredBuffer"] =  EHTokAppendStructuredBuffer;
     (*KeywordMap)["ByteAddressBuffer"] =       EHTokByteAddressBuffer;
@@ -343,6 +345,7 @@ void HlslScanContext::fillInKeywordMap()
     (*KeywordMap)["RWByteAddressBuffer"] =     EHTokRWByteAddressBuffer;
     (*KeywordMap)["RWStructuredBuffer"] =      EHTokRWStructuredBuffer;
     (*KeywordMap)["StructuredBuffer"] =        EHTokStructuredBuffer;
+    (*KeywordMap)["TextureBuffer"] =           EHTokTextureBuffer;
 
     (*KeywordMap)["class"] =                   EHTokClass;
     (*KeywordMap)["struct"] =                  EHTokStruct;
@@ -420,32 +423,6 @@ void HlslScanContext::fillInKeywordMap()
     }
 
     (*SemanticMap)["SV_POSITION"] =               EbvPosition;
-    (*SemanticMap)["SV_CLIPDISTANCE"] =           EbvClipDistance;
-    (*SemanticMap)["SV_CLIPDISTANCE0"] =          EbvClipDistance;
-    (*SemanticMap)["SV_CLIPDISTANCE1"] =          EbvClipDistance;
-    (*SemanticMap)["SV_CLIPDISTANCE2"] =          EbvClipDistance;
-    (*SemanticMap)["SV_CLIPDISTANCE3"] =          EbvClipDistance;
-    (*SemanticMap)["SV_CLIPDISTANCE4"] =          EbvClipDistance;
-    (*SemanticMap)["SV_CLIPDISTANCE5"] =          EbvClipDistance;
-    (*SemanticMap)["SV_CLIPDISTANCE6"] =          EbvClipDistance;
-    (*SemanticMap)["SV_CLIPDISTANCE7"] =          EbvClipDistance;
-    (*SemanticMap)["SV_CLIPDISTANCE8"] =          EbvClipDistance;
-    (*SemanticMap)["SV_CLIPDISTANCE9"] =          EbvClipDistance;
-    (*SemanticMap)["SV_CLIPDISTANCE10"] =         EbvClipDistance;
-    (*SemanticMap)["SV_CLIPDISTANCE11"] =         EbvClipDistance;
-    (*SemanticMap)["SV_CULLDISTANCE"] =           EbvCullDistance;
-    (*SemanticMap)["SV_CULLDISTANCE0"] =          EbvCullDistance;
-    (*SemanticMap)["SV_CULLDISTANCE1"] =          EbvCullDistance;
-    (*SemanticMap)["SV_CULLDISTANCE2"] =          EbvCullDistance;
-    (*SemanticMap)["SV_CULLDISTANCE3"] =          EbvCullDistance;
-    (*SemanticMap)["SV_CULLDISTANCE4"] =          EbvCullDistance;
-    (*SemanticMap)["SV_CULLDISTANCE5"] =          EbvCullDistance;
-    (*SemanticMap)["SV_CULLDISTANCE6"] =          EbvCullDistance;
-    (*SemanticMap)["SV_CULLDISTANCE7"] =          EbvCullDistance;
-    (*SemanticMap)["SV_CULLDISTANCE8"] =          EbvCullDistance;
-    (*SemanticMap)["SV_CULLDISTANCE9"] =          EbvCullDistance;
-    (*SemanticMap)["SV_CULLDISTANCE10"] =         EbvCullDistance;
-    (*SemanticMap)["SV_CULLDISTANCE11"] =         EbvCullDistance;
     (*SemanticMap)["SV_VERTEXID"] =               EbvVertexIndex;
     (*SemanticMap)["SV_VIEWPORTARRAYINDEX"] =     EbvViewportIndex;
     (*SemanticMap)["SV_TESSFACTOR"] =             EbvTessLevelOuter;
@@ -853,6 +830,9 @@ EHlslTokenClass HlslScanContext::tokenizeIdentifier()
     case EHTokRWByteAddressBuffer:
     case EHTokRWStructuredBuffer:
     case EHTokStructuredBuffer:
+    case EHTokTextureBuffer:
+    case EHTokSubpassInput:
+    case EHTokSubpassInputMS:
         return keyword;
 
     // variable, user type, ...
