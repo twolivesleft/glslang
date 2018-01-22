@@ -376,7 +376,7 @@ bool HlslGrammar::acceptDeclaration(TIntermNode*& nodeList)
 
     bool forbidDeclarators = (peekTokenClass(EHTokCBuffer) || peekTokenClass(EHTokTBuffer));
     // fully_specified_type
-    if (! acceptFullySpecifiedType(declaredType, nodeList, declarator.attributes))
+    if (! acceptFullySpecifiedType(declaredType, nodeList, declarator.attributes, forbidDeclarators))
         return false;
 
     // cbuffer and tbuffer end with the closing '}'.
@@ -583,7 +583,7 @@ bool HlslGrammar::acceptFullySpecifiedType(TType& type, const TAttributeMap& att
     TIntermNode* nodeList = nullptr;
     return acceptFullySpecifiedType(type, nodeList, attributes);
 }
-bool HlslGrammar::acceptFullySpecifiedType(TType& type, TIntermNode*& nodeList, const TAttributeMap& attributes)
+bool HlslGrammar::acceptFullySpecifiedType(TType& type, TIntermNode*& nodeList, const TAttributeMap& attributes, bool forbidDeclarators)
 {
     // type_qualifier
     TQualifier qualifier;
@@ -611,7 +611,9 @@ bool HlslGrammar::acceptFullySpecifiedType(TType& type, TIntermNode*& nodeList, 
         parseContext.transferTypeAttributes(attributes, type);
 
         // further, it can create an anonymous instance of the block
-        if (peek() != EHTokIdentifier)
+        // (cbuffer and tbuffer don't consume the next identifier, and
+        // should set forbidDeclarators)
+        if (forbidDeclarators || peek() != EHTokIdentifier)
             parseContext.declareBlock(loc, type);
     } else {
         // Some qualifiers are set when parsing the type.  Merge those with
@@ -3049,6 +3051,8 @@ bool HlslGrammar::acceptPostfixExpression(TIntermTyped*& node)
         }
         if (! peekTokenClass(EHTokLeftParen)) {
             node = parseContext.handleVariable(idToken.loc, fullName);
+            if (node == nullptr)
+                return false;
         } else if (acceptFunctionCall(idToken.loc, *fullName, node, nullptr)) {
             // function_call (nothing else to do yet)
         } else {
@@ -3782,9 +3786,17 @@ bool HlslGrammar::acceptJumpStatement(TIntermNode*& statement)
     switch (jump) {
     case EHTokContinue:
         statement = intermediate.addBranch(EOpContinue, token.loc);
+        if (parseContext.loopNestingLevel == 0) {
+            expected("loop");
+            return false;
+        }
         break;
     case EHTokBreak:
         statement = intermediate.addBranch(EOpBreak, token.loc);
+        if (parseContext.loopNestingLevel == 0 && parseContext.switchSequenceStack.size() == 0) {
+            expected("loop or switch");
+            return false;
+        }
         break;
     case EHTokDiscard:
         statement = intermediate.addBranch(EOpKill, token.loc);
@@ -4077,6 +4089,7 @@ const char* HlslGrammar::getTypeString(EHlslTokenClass tokenClass) const
     case EHTokMin16int:   return "min16int";
     case EHTokMin12int:   return "min12int";
     case EHTokConstantBuffer: return "ConstantBuffer";
+    case EHTokLayout:     return "layout";
     default:
         return nullptr;
     }
