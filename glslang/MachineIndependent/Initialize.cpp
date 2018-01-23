@@ -1358,7 +1358,7 @@ void TBuiltIns::initialize(int version, EProfile profile, const SpvVersion& spvV
                 "\n");
             } else {
                 commonBuiltins.append(
-                    "highp ivec2 textureSize(samplerExternalOES, int lod);"   // GL_OES_EGL_image_external_essl3
+                    "highp ivec2 textureSize(samplerVideo, int lod);"   // GL_OES_EGL_image_external_essl3
                     "vec4 texture(samplerVideo, vec2);"                 // GL_OES_EGL_image_external_essl3
                     "vec4 texture(samplerVideo, vec2, float bias);"     // GL_OES_EGL_image_external_essl3
                     "vec4 textureProj(samplerVideo, vec3);"             // GL_OES_EGL_image_external_essl3

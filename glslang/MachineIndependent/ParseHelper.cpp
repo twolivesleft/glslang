@@ -2469,13 +2469,13 @@ void TParseContext::samplerCheck(const TSourceLoc& loc, const TType& type, const
 {
     // Check that the appropriate extension is enabled if external sampler is used.
     // There are two extensions. The correct one must be used based on GLSL version.
-    if (type.getBasicType() == EbtSampler && type.getSampler().external) {
+    /*if (type.getBasicType() == EbtSampler && type.getSampler().external) {
         if (version < 300) {
             requireExtensions(loc, 1, &E_GL_OES_EGL_image_external, "samplerExternalOES");
         } else {
             requireExtensions(loc, 1, &E_GL_OES_EGL_image_external_essl3, "samplerExternalOES");
         }
-    }
+    }*/
 
     if (type.getQualifier().storage == EvqUniform)
         return;
