@@ -146,9 +146,7 @@ void TPpContext::TokenStream::putToken(int token, TPpToken* ppToken)
 #endif
     case PpAtomConstFloat:
     case PpAtomConstDouble:
-#ifdef AMD_EXTENSIONS
     case PpAtomConstFloat16:
-#endif
         str = ppToken->name;
         while (*str) {
             putSubtoken(*str);
@@ -186,9 +184,7 @@ int TPpContext::TokenStream::getToken(TParseContextBase& parseContext, TPpToken 
     case PpAtomIdentifier:
     case PpAtomConstFloat:
     case PpAtomConstDouble:
-#ifdef AMD_EXTENSIONS
     case PpAtomConstFloat16:
-#endif
     case PpAtomConstInt:
     case PpAtomConstUint:
     case PpAtomConstInt64:
@@ -218,9 +214,7 @@ int TPpContext::TokenStream::getToken(TParseContextBase& parseContext, TPpToken 
             break;
         case PpAtomConstFloat:
         case PpAtomConstDouble:
-#ifdef AMD_EXTENSIONS
         case PpAtomConstFloat16:
-#endif
             ppToken->dval = atof(ppToken->name);
             break;
         case PpAtomConstInt:
