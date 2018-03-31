@@ -82,7 +82,6 @@ struct TSampler {   // misnomer now; includes images, textures without sampler, 
     bool    sampler : 1;  // true means a pure sampler, other fields should be clear()
     bool   external : 1;  // GL_OES_EGL_image_external
     unsigned int vectorSize : 3;  // vector return type size.
-    bool      video : 1;  // K extension
 
     // Some languages support structures as sample results.  Storing the whole structure in the
     // TSampler is too large, so there is an index to a separate table.
@@ -105,7 +104,6 @@ struct TSampler {   // misnomer now; includes images, textures without sampler, 
     bool isArrayed()     const { return arrayed; }
     bool isMultiSample() const { return ms; }
     bool hasReturnStruct() const { return structReturnIndex != noReturnStruct; }
-    bool isVideo()       const { return video; }
 
     void clear()
     {
@@ -122,11 +120,10 @@ struct TSampler {   // misnomer now; includes images, textures without sampler, 
 
         // by default, returns a single vec4;
         vectorSize = 4;
-        video = false;
     }
 
     // make a combined sampler and texture
-    void set(TBasicType t, TSamplerDim d, bool a = false, bool s = false, bool m = false, bool v = false)
+    void set(TBasicType t, TSamplerDim d, bool a = false, bool s = false, bool m = false)
     {
         clear();
         type = t;
@@ -135,7 +132,6 @@ struct TSampler {   // misnomer now; includes images, textures without sampler, 
         shadow = s;
         ms = m;
         combined = true;
-        video = v;
     }
 
     // make an image
@@ -235,10 +231,6 @@ struct TSampler {   // misnomer now; includes images, textures without sampler, 
         }
         if (external) {
             s.append("ExternalOES");
-            return s;
-        }
-        if (video) {
-            s.append("Video");
             return s;
         }
         switch (dim) {

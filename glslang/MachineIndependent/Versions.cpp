@@ -154,7 +154,7 @@ void TParseVersions::initializeExtensionBehavior()
     extensionBehavior[E_GL_OES_texture_3D]                   = EBhDisable;
     extensionBehavior[E_GL_OES_standard_derivatives]         = EBhDisable;
     extensionBehavior[E_GL_EXT_frag_depth]                   = EBhDisable;
-    extensionBehavior[E_GL_OES_EGL_image_external]           = EBhEnable;
+    extensionBehavior[E_GL_OES_EGL_image_external]           = EBhDisable;
     extensionBehavior[E_GL_OES_EGL_image_external_essl3]     = EBhDisable;
     extensionBehavior[E_GL_EXT_shader_texture_lod]           = EBhDisable;
     extensionBehavior[E_GL_EXT_shadow_samplers]              = EBhDisable;
@@ -201,8 +201,8 @@ void TParseVersions::initializeExtensionBehavior()
     extensionBehavior[E_GL_EXT_control_flow_attributes]                 = EBhDisable;
 
     // #line and #include
-    extensionBehavior[E_GL_GOOGLE_cpp_style_line_directive]          = EBhEnable;
-    extensionBehavior[E_GL_GOOGLE_include_directive]                 = EBhEnable;
+    extensionBehavior[E_GL_GOOGLE_cpp_style_line_directive]          = EBhDisable;
+    extensionBehavior[E_GL_GOOGLE_include_directive]                 = EBhDisable;
 
 #ifdef AMD_EXTENSIONS
     extensionBehavior[E_GL_AMD_shader_ballot]                        = EBhDisable;

@@ -402,7 +402,7 @@ Id Builder::makeFunctionType(Id returnType, const std::vector<Id>& paramTypes)
     return type->getResultId();
 }
 
-Id Builder::makeImageType(Id sampledType, Dim dim, bool depth, bool arrayed, bool ms, unsigned sampled, ImageFormat format, bool external)
+Id Builder::makeImageType(Id sampledType, Dim dim, bool depth, bool arrayed, bool ms, unsigned sampled, ImageFormat format)
 {
     assert(sampled == 1 || sampled == 2);
 
@@ -416,8 +416,7 @@ Id Builder::makeImageType(Id sampledType, Dim dim, bool depth, bool arrayed, boo
             type->getImmediateOperand(3) == (arrayed ? 1u : 0u) &&
             type->getImmediateOperand(4) == (     ms ? 1u : 0u) &&
             type->getImmediateOperand(5) == sampled &&
-            type->getImmediateOperand(6) == (unsigned int)format &&
-            type->getImmediateOperand(7) == (external ? 1u : 0u))
+            type->getImmediateOperand(6) == (unsigned int)format)
             return type->getResultId();
     }
 
@@ -430,7 +429,6 @@ Id Builder::makeImageType(Id sampledType, Dim dim, bool depth, bool arrayed, boo
     type->addImmediateOperand(     ms ? 1 : 0);
     type->addImmediateOperand(sampled);
     type->addImmediateOperand((unsigned int)format);
-    type->addImmediateOperand(external ? 1 : 0);
 
     groupedTypes[OpTypeImage].push_back(type);
     constantsTypesGlobals.push_back(std::unique_ptr<Instruction>(type));

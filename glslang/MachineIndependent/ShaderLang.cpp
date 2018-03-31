@@ -657,7 +657,6 @@ void TranslateEnvironment(const TEnvironment* environment, EShMessages& messages
             }
         }
 
-        //infoSink.info << "Warning, version " << version << " is not yet complete; most version-specific features are present, but some are missing.\n";
         // client
         switch (environment->client.client) {
         case EShClientVulkan:

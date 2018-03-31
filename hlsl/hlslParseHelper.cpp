@@ -1387,13 +1387,13 @@ TIntermTyped* HlslParseContext::flattenAccess(int uniqueId, int member, TStorage
         member = flattenData->second.offsets[newSubset];
         const TVariable* memberVariable = flattenData->second.members[member];
         subsetSymbol = intermediate.addSymbol(*memberVariable);
-        //subsetSymbol->setFlattenSubset(-1);
+        subsetSymbol->setFlattenSubset(-1);
     } else {
 
         // If this is not the final flattening, accumulate the position and return
         // an object of the partially dereferenced type.
         subsetSymbol = new TIntermSymbol(uniqueId, "flattenShadow", dereferencedType);
-        //subsetSymbol->setFlattenSubset(newSubset);
+        subsetSymbol->setFlattenSubset(newSubset);
     }
 
     return subsetSymbol;

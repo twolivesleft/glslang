@@ -1389,20 +1389,20 @@ void TBuiltIns::initialize(int version, EProfile profile, const SpvVersion& spvV
         if (spvVersion.spv == 0) {
             if (version < 300) {
                 commonBuiltins.append(
-                    "vec4 texture2D(samplerVideo, vec2 coord);" // GL_OES_EGL_image_external
-                    "vec4 texture2DProj(samplerVideo, vec3);"   // GL_OES_EGL_image_external
-                    "vec4 texture2DProj(samplerVideo, vec4);"   // GL_OES_EGL_image_external
+                    "vec4 texture2D(samplerExternalOES, vec2 coord);" // GL_OES_EGL_image_external
+                    "vec4 texture2DProj(samplerExternalOES, vec3);"   // GL_OES_EGL_image_external
+                    "vec4 texture2DProj(samplerExternalOES, vec4);"   // GL_OES_EGL_image_external
                 "\n");
             } else {
                 commonBuiltins.append(
-                    "highp ivec2 textureSize(samplerVideo, int lod);"   // GL_OES_EGL_image_external_essl3
-                    "vec4 texture(samplerVideo, vec2);"                 // GL_OES_EGL_image_external_essl3
-                    "vec4 texture(samplerVideo, vec2, float bias);"     // GL_OES_EGL_image_external_essl3
-                    "vec4 textureProj(samplerVideo, vec3);"             // GL_OES_EGL_image_external_essl3
-                    "vec4 textureProj(samplerVideo, vec3, float bias);" // GL_OES_EGL_image_external_essl3
-                    "vec4 textureProj(samplerVideo, vec4);"             // GL_OES_EGL_image_external_essl3
-                    "vec4 textureProj(samplerVideo, vec4, float bias);" // GL_OES_EGL_image_external_essl3
-                    "vec4 texelFetch(samplerVideo, ivec2, int lod);"    // GL_OES_EGL_image_external_essl3
+                    "highp ivec2 textureSize(samplerExternalOES, int lod);"   // GL_OES_EGL_image_external_essl3
+                    "vec4 texture(samplerExternalOES, vec2);"                 // GL_OES_EGL_image_external_essl3
+                    "vec4 texture(samplerExternalOES, vec2, float bias);"     // GL_OES_EGL_image_external_essl3
+                    "vec4 textureProj(samplerExternalOES, vec3);"             // GL_OES_EGL_image_external_essl3
+                    "vec4 textureProj(samplerExternalOES, vec3, float bias);" // GL_OES_EGL_image_external_essl3
+                    "vec4 textureProj(samplerExternalOES, vec4);"             // GL_OES_EGL_image_external_essl3
+                    "vec4 textureProj(samplerExternalOES, vec4, float bias);" // GL_OES_EGL_image_external_essl3
+                    "vec4 texelFetch(samplerExternalOES, ivec2, int lod);"    // GL_OES_EGL_image_external_essl3
                 "\n");
             }
             commonBuiltins.append(
@@ -5833,10 +5833,8 @@ void TBuiltIns::add2ndGenerationSamplingImaging(int version, EProfile profile, c
     for (int image = 0; image <= 1; ++image) { // loop over "bool" image vs sampler
 
         for (int shadow = 0; shadow <= 1; ++shadow) { // loop over "bool" shadow or not
-            for (int ms = 0; ms <=1; ++ms) { for (int video = 0; video <= 1; ++video) {
+            for (int ms = 0; ms <=1; ++ms) {
                 if ((ms || image) && shadow)
-                    continue;
-                if ((ms || image || shadow) && video)
                     continue;
                 if (ms && profile != EEsProfile && version < 150)
                     continue;
@@ -5855,8 +5853,6 @@ void TBuiltIns::add2ndGenerationSamplingImaging(int version, EProfile profile, c
                             continue;
                         if (dim != Esd2D && dim != EsdSubpass && ms)
                             continue;
-                        if (dim != Esd2D && video)
-                            continue;
                         if ((dim == Esd3D || dim == EsdRect) && arrayed)
                             continue;
                         if (dim == Esd3D && shadow)
@@ -5865,13 +5861,10 @@ void TBuiltIns::add2ndGenerationSamplingImaging(int version, EProfile profile, c
                             continue;
                         if (dim == EsdBuffer && skipBuffer)
                             continue;
-                        if (dim == EsdBuffer && (shadow || arrayed || ms || video))
+                        if (dim == EsdBuffer && (shadow || arrayed || ms))
                             continue;
                         if (ms && arrayed && profile == EEsProfile && version < 310)
                             continue;
-                        if (image && video)
-                            continue;
-
 #ifdef AMD_EXTENSIONS
                         for (int bType = 0; bType < 4; ++bType) { // float, float16, int, uint results
 
@@ -5886,9 +5879,6 @@ void TBuiltIns::add2ndGenerationSamplingImaging(int version, EProfile profile, c
                             if (shadow && bType > 0)
                                 continue;
 #endif
-                            if (video && bType > 0)
-                                continue;
-
                             if (dim == EsdRect && version < 140 && bType > 0)
                                 continue;
 
@@ -5906,8 +5896,7 @@ void TBuiltIns::add2ndGenerationSamplingImaging(int version, EProfile profile, c
                             } else {
                                 sampler.set(bTypes[bType], (TSamplerDim)dim, arrayed ? true : false,
                                                                              shadow  ? true : false,
-                                                                             ms      ? true : false,
-                                                                             video   ? true : false);
+                                                                             ms      ? true : false);
                             }
 
                             TString typeName = sampler.getString();
@@ -5917,9 +5906,7 @@ void TBuiltIns::add2ndGenerationSamplingImaging(int version, EProfile profile, c
                                 continue;
                             }
 
-                            if (!video) {
-                                addQueryFunctions(sampler, typeName, version, profile);
-                            }
+                            addQueryFunctions(sampler, typeName, version, profile);
 
                             if (image)
                                 addImageFunctions(sampler, typeName, version, profile);
@@ -5941,7 +5928,7 @@ void TBuiltIns::add2ndGenerationSamplingImaging(int version, EProfile profile, c
                         }
                     }
                 }
-            }}
+            }
         }
     }
 

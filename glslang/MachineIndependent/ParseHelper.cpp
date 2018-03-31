@@ -2569,13 +2569,13 @@ void TParseContext::samplerCheck(const TSourceLoc& loc, const TType& type, const
 {
     // Check that the appropriate extension is enabled if external sampler is used.
     // There are two extensions. The correct one must be used based on GLSL version.
-    /*if (type.getBasicType() == EbtSampler && type.getSampler().external) {
+    if (type.getBasicType() == EbtSampler && type.getSampler().external) {
         if (version < 300) {
             requireExtensions(loc, 1, &E_GL_OES_EGL_image_external, "samplerExternalOES");
         } else {
             requireExtensions(loc, 1, &E_GL_OES_EGL_image_external_essl3, "samplerExternalOES");
         }
-    }*/
+    }
 
     if (type.getQualifier().storage == EvqUniform)
         return;
@@ -2614,8 +2614,8 @@ void TParseContext::transparentOpaqueCheck(const TSourceLoc& loc, const TType& t
         if (spvVersion.vulkan > 0)
             vulkanRemoved(loc, "non-opaque uniforms outside a block");
         // OpenGL wants locations on these (unless they are getting automapped)
-        //if (spvVersion.openGl > 0 && !type.getQualifier().hasLocation() && !intermediate.getAutoMapLocations())
-        //    error(loc, "non-opaque uniform variables need a layout(location=L)", identifier.c_str(), "");
+        if (spvVersion.openGl > 0 && !type.getQualifier().hasLocation() && !intermediate.getAutoMapLocations())
+            error(loc, "non-opaque uniform variables need a layout(location=L)", identifier.c_str(), "");
     }
 }
 
@@ -4505,7 +4505,7 @@ void TParseContext::layoutObjectCheck(const TSourceLoc& loc, const TSymbol& symb
     // user-variable location check, which are required for SPIR-V in/out:
     //  - variables have it directly,
     //  - blocks have it on each member (already enforced), so check first one
-    /*if (spvVersion.spv > 0 && !parsingBuiltins && qualifier.builtIn == EbvNone &&
+    if (spvVersion.spv > 0 && !parsingBuiltins && qualifier.builtIn == EbvNone &&
         !qualifier.hasLocation() && !intermediate.getAutoMapLocations()) {
 
         switch (qualifier.storage) {
@@ -4519,7 +4519,7 @@ void TParseContext::layoutObjectCheck(const TSourceLoc& loc, const TSymbol& symb
         default:
             break;
         }
-    }*/
+    }
 
     // Check packing and matrix
     if (qualifier.hasUniformLayout()) {

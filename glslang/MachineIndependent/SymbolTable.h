@@ -268,7 +268,6 @@ public:
         mangledName.erase(0, prefix.size());
     }
 
-    virtual void changeName(const TString* newName) { name = newName; mangledName = *name + '('; }
     virtual const TString& getMangledName() const override { return mangledName; }
     virtual const TType& getType() const override { return returnType; }
     virtual TBuiltInVariable getDeclaredBuiltInType() const { return declaredBuiltIn; }
