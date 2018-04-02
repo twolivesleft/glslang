@@ -2626,8 +2626,8 @@ void TParseContext::transparentOpaqueCheck(const TSourceLoc& loc, const TType& t
         if (spvVersion.vulkan > 0)
             vulkanRemoved(loc, "non-opaque uniforms outside a block");
         // OpenGL wants locations on these (unless they are getting automapped)
-        if (spvVersion.openGl > 0 && !type.getQualifier().hasLocation() && !intermediate.getAutoMapLocations())
-            error(loc, "non-opaque uniform variables need a layout(location=L)", identifier.c_str(), "");
+        //if (spvVersion.openGl > 0 && !type.getQualifier().hasLocation() && !intermediate.getAutoMapLocations())
+        //    error(loc, "non-opaque uniform variables need a layout(location=L)", identifier.c_str(), "");
     }
 }
 
@@ -4524,10 +4524,10 @@ void TParseContext::layoutObjectCheck(const TSourceLoc& loc, const TSymbol& symb
         switch (qualifier.storage) {
         case EvqVaryingIn:
         case EvqVaryingOut:
-            if (type.getBasicType() != EbtBlock ||
-                (!(*type.getStruct())[0].type->getQualifier().hasLocation() &&
-                  (*type.getStruct())[0].type->getQualifier().builtIn == EbvNone))
-                error(loc, "SPIR-V requires location for user input/output", "location", "");
+            //if (type.getBasicType() != EbtBlock ||
+            //    (!(*type.getStruct())[0].type->getQualifier().hasLocation() &&
+            //      (*type.getStruct())[0].type->getQualifier().builtIn == EbvNone))
+            //    error(loc, "SPIR-V requires location for user input/output", "location", "");
             break;
         default:
             break;
