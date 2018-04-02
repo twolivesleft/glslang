@@ -2574,7 +2574,7 @@ spv::Id TGlslangToSpvTraverser::convertGlslangToSpvType(const glslang::TType& ty
             } else {
                 // an image is present, make its type
                 spvType = builder.makeImageType(getSampledType(sampler), TranslateDimensionality(sampler), sampler.shadow, sampler.arrayed, sampler.ms,
-                                                sampler.image ? 2 : 1, TranslateImageFormat(type));
+                                                sampler.image ? 2 : 1, TranslateImageFormat(type), sampler.video);
                 if (sampler.combined) {
                     // already has both image and sampler, make the combined type
                     spvType = builder.makeSampledImageType(spvType);

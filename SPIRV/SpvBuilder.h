@@ -127,7 +127,7 @@ public:
     Id makeArrayType(Id element, Id sizeId, int stride);  // 0 stride means no stride decoration
     Id makeRuntimeArray(Id element);
     Id makeFunctionType(Id returnType, const std::vector<Id>& paramTypes);
-    Id makeImageType(Id sampledType, Dim, bool depth, bool arrayed, bool ms, unsigned sampled, ImageFormat format);
+    Id makeImageType(Id sampledType, Dim, bool depth, bool arrayed, bool ms, unsigned sampled, ImageFormat format, bool video);
     Id makeSamplerType();
     Id makeSampledImageType(Id imageType);
 
