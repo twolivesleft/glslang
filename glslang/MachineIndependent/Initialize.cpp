@@ -1418,6 +1418,19 @@ void TBuiltIns::initialize(int version, EProfile profile, const SpvVersion& spvV
         }
     }
 
+    if (profile >= 300) {
+        commonBuiltins.append(
+            "highp ivec2 textureSize(samplerVideo, int lod);"
+            "vec4 texture(samplerVideo, vec2);"
+            "vec4 texture(samplerVideo, vec2, float bias);"
+            "vec4 textureProj(samplerVideo, vec3);"
+            "vec4 textureProj(samplerVideo, vec3, float bias);"
+            "vec4 textureProj(samplerVideo, vec4);"
+            "vec4 textureProj(samplerVideo, vec4, float bias);"
+            "vec4 texelFetch(samplerVideo, ivec2, int lod);"
+            "\n");
+    }
+
     //
     // Noise functions.
     //

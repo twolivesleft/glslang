@@ -585,6 +585,7 @@ void TScanContext::fillInKeywordMap()
     (*KeywordMap)["sampler1DArray"] =          SAMPLER1DARRAY;
 
     (*KeywordMap)["samplerExternalOES"] =      SAMPLEREXTERNALOES; // GL_OES_EGL_image_external
+	(*KeywordMap)["samplerVideo"] =            SAMPLERVIDEO; // K extension
 
     (*KeywordMap)["sampler"] =                 SAMPLER;
     (*KeywordMap)["samplerShadow"] =           SAMPLERSHADOW;
@@ -1344,7 +1345,11 @@ int TScanContext::tokenizeIdentifier()
             return keyword;
         return identifierOrType();
 
-    case TEXTURE2D:
+    case SAMPLERVIDEO:
+        afterType = true;
+        return keyword;
+
+	case TEXTURE2D:
     case TEXTURECUBE:
     case TEXTURECUBEARRAY:
     case ITEXTURECUBEARRAY:

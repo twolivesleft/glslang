@@ -448,7 +448,7 @@ protected:
     TParseContext(TParseContext&);
     TParseContext& operator=(TParseContext&);
 
-    static const int maxSamplerIndex = EsdNumDims * (EbtNumTypes * (2 * 2 * 2 * 2 * 2)); // see computeSamplerTypeIndex()
+    static const int maxSamplerIndex = EsdNumDims * (EbtNumTypes * (2 * 2 * 2 * 2 * 2 * 2)); // see computeSamplerTypeIndex()
     TPrecisionQualifier defaultSamplerPrecision[maxSamplerIndex];
     TPrecisionManager precisionManager;
     TQualifier globalBufferDefaults;
