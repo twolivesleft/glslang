@@ -95,6 +95,8 @@ void TType::buildMangledName(TString& mangledName) const
             mangledName += "S";
         if (sampler.external)
             mangledName += "E";
+		if (sampler.external)
+			mangledName += "V";
         switch (sampler.dim) {
         case Esd1D:       mangledName += "1";  break;
         case Esd2D:       mangledName += "2";  break;

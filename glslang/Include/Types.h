@@ -81,6 +81,7 @@ struct TSampler {   // misnomer now; includes images, textures without sampler, 
     bool   combined : 1;  // true means texture is combined with a sampler, false means texture with no sampler
     bool    sampler : 1;  // true means a pure sampler, other fields should be clear()
     bool   external : 1;  // GL_OES_EGL_image_external
+	bool      video : 1;  // K extension
     unsigned int vectorSize : 3;  // vector return type size.
 
     // Some languages support structures as sample results.  Storing the whole structure in the
@@ -116,6 +117,7 @@ struct TSampler {   // misnomer now; includes images, textures without sampler, 
         combined = false;
         sampler = false;
         external = false;
+		video = false;
         structReturnIndex = noReturnStruct;
 
         // by default, returns a single vec4;
@@ -186,6 +188,7 @@ struct TSampler {   // misnomer now; includes images, textures without sampler, 
                 combined == right.combined &&
                  sampler == right.sampler &&
                 external == right.external &&
+			       video == right.video &&
               vectorSize == right.vectorSize &&
        structReturnIndex == right.structReturnIndex;            
     }
@@ -233,6 +236,10 @@ struct TSampler {   // misnomer now; includes images, textures without sampler, 
             s.append("ExternalOES");
             return s;
         }
+		if (video) {
+			s.append("Video");
+			return s;
+		}
         switch (dim) {
         case Esd1D:      s.append("1D");      break;
         case Esd2D:      s.append("2D");      break;

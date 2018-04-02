@@ -6560,9 +6560,10 @@ int HlslParseContext::computeSamplerTypeIndex(TSampler& sampler)
     int arrayIndex = sampler.arrayed ? 1 : 0;
     int shadowIndex = sampler.shadow ? 1 : 0;
     int externalIndex = sampler.external ? 1 : 0;
+	int videoIndex = sampler.video ? 1 : 0;
 
     return EsdNumDims *
-           (EbtNumTypes * (2 * (2 * arrayIndex + shadowIndex) + externalIndex) + sampler.type) + sampler.dim;
+           (EbtNumTypes * (2 * (2 * (2 * arrayIndex + shadowIndex) + externalIndex) + videoIndex) + sampler.type) + sampler.dim;
 }
 
 //

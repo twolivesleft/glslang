@@ -129,6 +129,18 @@ void TParseContext::setPrecisionDefaults()
             defaultSamplerPrecision[computeSamplerTypeIndex(sampler)] = EpqLow;
         }
 
+		if (profile == EEsProfile) {
+			// Most don't have defaults, a few default to lowp.
+			TSampler sampler;
+			sampler.set(EbtFloat, Esd2D);
+			defaultSamplerPrecision[computeSamplerTypeIndex(sampler)] = EpqLow;
+			sampler.set(EbtFloat, EsdCube);
+			defaultSamplerPrecision[computeSamplerTypeIndex(sampler)] = EpqLow;
+			sampler.set(EbtFloat, Esd2D);
+			sampler.video = true;
+			defaultSamplerPrecision[computeSamplerTypeIndex(sampler)] = EpqLow;
+		}
+
         // If we are parsing built-in computational variables/functions, it is meaningful to record
         // whether the built-in has no precision qualifier, as that ambiguity
         // is used to resolve the precision from the supplied arguments/operands instead.
@@ -2946,11 +2958,12 @@ int TParseContext::computeSamplerTypeIndex(TSampler& sampler)
     int arrayIndex    = sampler.arrayed ? 1 : 0;
     int shadowIndex   = sampler.shadow  ? 1 : 0;
     int externalIndex = sampler.external? 1 : 0;
+	int videoIndex    = sampler.video   ? 1 : 0;
     int imageIndex    = sampler.image   ? 1 : 0;
     int msIndex       = sampler.ms      ? 1 : 0;
 
-    int flattened = EsdNumDims * (EbtNumTypes * (2 * (2 * (2 * (2 * arrayIndex + msIndex) + imageIndex) + shadowIndex) +
-                                                 externalIndex) + sampler.type) + sampler.dim;
+    int flattened = EsdNumDims * (EbtNumTypes * (2 * (2 * (2 * (2 * (2 * arrayIndex + msIndex) + imageIndex) + shadowIndex) +
+                                                 externalIndex) + videoIndex) + sampler.type) + sampler.dim;
     assert(flattened < maxSamplerIndex);
 
     return flattened;
