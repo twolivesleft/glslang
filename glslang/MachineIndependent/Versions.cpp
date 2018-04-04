@@ -201,7 +201,7 @@ void TParseVersions::initializeExtensionBehavior()
     extensionBehavior[E_GL_EXT_control_flow_attributes]                 = EBhDisable;
 
     // #line and #include
-    extensionBehavior[E_GL_GOOGLE_cpp_style_line_directive]          = EBhDisable;
+    extensionBehavior[E_GL_GOOGLE_cpp_style_line_directive]          = EBhEnable;
     extensionBehavior[E_GL_GOOGLE_include_directive]                 = EBhEnable;
 
 #ifdef AMD_EXTENSIONS
