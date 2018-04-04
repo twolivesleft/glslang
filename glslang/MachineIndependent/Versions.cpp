@@ -202,7 +202,7 @@ void TParseVersions::initializeExtensionBehavior()
 
     // #line and #include
     extensionBehavior[E_GL_GOOGLE_cpp_style_line_directive]          = EBhDisable;
-    extensionBehavior[E_GL_GOOGLE_include_directive]                 = EBhDisable;
+    extensionBehavior[E_GL_GOOGLE_include_directive]                 = EBhEnable;
 
 #ifdef AMD_EXTENSIONS
     extensionBehavior[E_GL_AMD_shader_ballot]                        = EBhDisable;
