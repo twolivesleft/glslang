@@ -98,6 +98,7 @@ struct TSampler {   // misnomer now; includes images, textures without sampler, 
     bool isExternal()    const { return false; }
     void setExternal(bool e) { }
     bool isYuv()         const { return false; }
+    bool isVideo()       const { return false; }
 #else
 	bool      video : 1;  // K extension
     unsigned int vectorSize : 3;  // vector return type size.
@@ -128,6 +129,7 @@ struct TSampler {   // misnomer now; includes images, textures without sampler, 
     bool isExternal()    const { return external; }
     void setExternal(bool e) { external = e; }
     bool isYuv()         const { return yuv; }
+    bool isVideo()       const { return video; }
 #endif
     bool isTexture()     const { return !sampler && !image; }
     bool isPureSampler() const { return sampler; }
