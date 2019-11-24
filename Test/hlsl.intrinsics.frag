@@ -42,6 +42,7 @@ float PixelShaderFunctionS(float inF0, float inF1, float inF2, uint inU0, int in
     float r021 = ddy_coarse(inF0);
     float r022 = ddy_fine(inF0);
     float r023 = degrees(inF0);
+    float r024 = distance(inF0, inF1);
     // EvaluateAttributeAtCentroid(inF0);
     // EvaluateAttributeAtSample(inF0, 0);
     // TODO: EvaluateAttributeSnapped(inF0, int2(1,2));
@@ -52,6 +53,7 @@ float PixelShaderFunctionS(float inF0, float inF1, float inF2, uint inU0, int in
     float r031 = floor(inF0);
     // TODO: fma(inD0, inD1, inD2);
     float r033 = fmod(inF0, inF1);
+    float r033i = fmod(inF0, 2);
     float r034 = frac(inF0);
     float r036 = fwidth(inF0);
     bool r037 = isinf(inF0);
