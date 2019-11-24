@@ -216,6 +216,7 @@ GLSLANG_WEB_EXCLUDE_ON
 %token <lex> SAMPLER2DMSARRAY ISAMPLER2DMSARRAY USAMPLER2DMSARRAY
 %token <lex> SAMPLEREXTERNALOES
 %token <lex> SAMPLEREXTERNAL2DY2YEXT
+%token <lex> SAMPLERVIDEO
 %token <lex> ISAMPLER1DARRAY USAMPLER1D USAMPLER1DARRAY 
 %token <lex> F16SAMPLER1D F16SAMPLER2D F16SAMPLER3D F16SAMPLER2DRECT F16SAMPLERCUBE
 %token <lex> F16SAMPLER1DARRAY F16SAMPLER2DARRAY F16SAMPLERCUBEARRAY
@@ -3120,6 +3121,12 @@ GLSLANG_WEB_EXCLUDE_ON
         $$.basicType = EbtSampler;
         $$.sampler.set(EbtFloat, Esd2D);
         $$.sampler.yuv = true;
+    }
+    | SAMPLERVIDEO {
+        $$.init($1.loc, parseContext.symbolTable.atGlobalLevel());
+        $$.basicType = EbtSampler;
+        $$.sampler.set(EbtFloat, Esd2D);
+        $$.sampler.video = true;
     }
     | SUBPASSINPUT {
         parseContext.requireStage($1.loc, EShLangFragment, "subpass input");
