@@ -1481,12 +1481,15 @@ int TScanContext::tokenizeIdentifier()
         return identifierOrType();
 
     case SAMPLEREXTERNAL2DY2YEXT:
-    case SAMPLERVIDEO:
         afterType = true;
         if (parseContext.symbolTable.atBuiltInLevel() ||
             parseContext.extensionTurnedOn(E_GL_EXT_YUV_target))
             return keyword;
         return identifierOrType();
+
+    case SAMPLERVIDEO:
+        afterType = true;
+        return keyword;
 
     case ITEXTURE1DARRAY:
     case UTEXTURE1D:
