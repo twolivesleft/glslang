@@ -228,7 +228,7 @@ struct TSampler {   // misnomer now; includes images, textures without sampler, 
          isPureSampler() == right.isPureSampler() &&
             isExternal() == right.isExternal() &&
                  isYuv() == right.isYuv() &&
-               isVideo() == right.isVideo() &&
+               isVideo() == right.isVideo()
 #ifdef ENABLE_HLSL
       && getVectorSize() == right.getVectorSize() &&
   getStructReturnIndex() == right.getStructReturnIndex()
