@@ -512,8 +512,7 @@ Id Builder::makeImageType(Id sampledType, Dim dim, bool depth, bool arrayed, boo
             type->getImmediateOperand(3) == (arrayed ? 1u : 0u) &&
             type->getImmediateOperand(4) == (     ms ? 1u : 0u) &&
             type->getImmediateOperand(5) == sampled &&
-            type->getImmediateOperand(6) == (unsigned int)format &&
-			type->getImmediateOperand(8) == (video ? 1u : 0u))
+            type->getImmediateOperand(6) == (unsigned int)format)
             return type->getResultId();
     }
 
@@ -526,8 +525,6 @@ Id Builder::makeImageType(Id sampledType, Dim dim, bool depth, bool arrayed, boo
     type->addImmediateOperand(     ms ? 1 : 0);
     type->addImmediateOperand(sampled);
     type->addImmediateOperand((unsigned int)format);
-	type->addImmediateOperand(0); // Access Qualifier
-	type->addImmediateOperand(video ? 1 : 0);
 
     groupedTypes[OpTypeImage].push_back(type);
     constantsTypesGlobals.push_back(std::unique_ptr<Instruction>(type));
