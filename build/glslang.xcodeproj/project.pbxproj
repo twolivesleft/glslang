@@ -3,111 +3,8 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 54;
+	objectVersion = 46;
 	objects = {
-
-/* Begin PBXAggregateTarget section */
-		00881D88D7FA4DECBC2D39EF /* Nightly */ = {
-			isa = PBXAggregateTarget;
-			buildConfigurationList = 4262F5882ADC465DAE57C457 /* Build configuration list for PBXAggregateTarget "Nightly" */;
-			buildPhases = (
-				3509CD93AF787B2EE786DF97 /* Generate CMakeFiles/Nightly */,
-			);
-			dependencies = (
-				7D06473ABC3840CCBA467702 /* PBXTargetDependency */,
-			);
-			name = Nightly;
-			productName = Nightly;
-		};
-		2FD4224F2613412C9C626D44 /* Experimental */ = {
-			isa = PBXAggregateTarget;
-			buildConfigurationList = 6AC474B6802449259C2E9C10 /* Build configuration list for PBXAggregateTarget "Experimental" */;
-			buildPhases = (
-				6F0DA0ACB22562B5BEF6B39A /* Generate CMakeFiles/Experimental */,
-			);
-			dependencies = (
-				CBBA5A7D8083423B8A44BFC0 /* PBXTargetDependency */,
-			);
-			name = Experimental;
-			productName = Experimental;
-		};
-		4E9BBFF4C67044BA9716E6F4 /* ALL_BUILD */ = {
-			isa = PBXAggregateTarget;
-			buildConfigurationList = F67C8EA60BDF4F778D3B7449 /* Build configuration list for PBXAggregateTarget "ALL_BUILD" */;
-			buildPhases = (
-				3425403AF2B868439D6D0C46 /* Generate CMakeFiles/ALL_BUILD */,
-			);
-			dependencies = (
-				485414725B194A00BEC59DA7 /* PBXTargetDependency */,
-				529FCEFEEB804B90907306B0 /* PBXTargetDependency */,
-				74A7882AA69B4550BA78EF93 /* PBXTargetDependency */,
-				AE935ABE59654A9CBBC5E264 /* PBXTargetDependency */,
-				2DFEBE3CD6FE44C581A8DE1E /* PBXTargetDependency */,
-				D62780E21D23430DBD8290A8 /* PBXTargetDependency */,
-				41D56832ED5D4B55AB936238 /* PBXTargetDependency */,
-			);
-			name = ALL_BUILD;
-			productName = ALL_BUILD;
-		};
-		75606560418A4ABAB44DFE92 /* install */ = {
-			isa = PBXAggregateTarget;
-			buildConfigurationList = 71E8AC0528F44A29AC6C0640 /* Build configuration list for PBXAggregateTarget "install" */;
-			buildPhases = (
-				93426DA6A4AC2C2AC9CE883C /* CMake PostBuild Rules */,
-			);
-			dependencies = (
-				409426D465A34E5CACCB813A /* PBXTargetDependency */,
-			);
-			name = install;
-			productName = install;
-		};
-		8AD3B8248D34460DB9F0AE7C /* ZERO_CHECK */ = {
-			isa = PBXAggregateTarget;
-			buildConfigurationList = 4B7553FC3ADB4C0CB206463E /* Build configuration list for PBXAggregateTarget "ZERO_CHECK" */;
-			buildPhases = (
-				2B3AB724F19DBB5CA1742F2E /* Generate CMakeFiles/ZERO_CHECK */,
-			);
-			dependencies = (
-			);
-			name = ZERO_CHECK;
-			productName = ZERO_CHECK;
-		};
-		9A6DCAB277994C09B9F7A630 /* Continuous */ = {
-			isa = PBXAggregateTarget;
-			buildConfigurationList = E93D29458806400F9218142E /* Build configuration list for PBXAggregateTarget "Continuous" */;
-			buildPhases = (
-				02A62282DA3038C15E506B7A /* Generate CMakeFiles/Continuous */,
-			);
-			dependencies = (
-				FEC7A586E075409D8AFD702F /* PBXTargetDependency */,
-			);
-			name = Continuous;
-			productName = Continuous;
-		};
-		C7B577C33D5B4D06B59FD49A /* NightlyMemoryCheck */ = {
-			isa = PBXAggregateTarget;
-			buildConfigurationList = B2B99AAA39B847C1A0F3F687 /* Build configuration list for PBXAggregateTarget "NightlyMemoryCheck" */;
-			buildPhases = (
-				AA2CAFFE6082EA44DF77B6C5 /* Generate CMakeFiles/NightlyMemoryCheck */,
-			);
-			dependencies = (
-				A05939AEFA0D4A878F34B016 /* PBXTargetDependency */,
-			);
-			name = NightlyMemoryCheck;
-			productName = NightlyMemoryCheck;
-		};
-		DEE7E5AD768C47D5A4F44A01 /* RUN_TESTS */ = {
-			isa = PBXAggregateTarget;
-			buildConfigurationList = DC33E840C4A64BF1AEA15730 /* Build configuration list for PBXAggregateTarget "RUN_TESTS" */;
-			buildPhases = (
-				003C8D08B0008F35F218E126 /* CMake PostBuild Rules */,
-			);
-			dependencies = (
-			);
-			name = RUN_TESTS;
-			productName = RUN_TESTS;
-		};
-/* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
 		091DE0D0792D4C1CBEF3C871 /* ShaderLang.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 670F66034BFD46D5A5E6BB60 /* ShaderLang.cpp */; };
@@ -162,75 +59,12 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		07BF21F28A804110B83603DA /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 49C4ECC094164546B75B00C2 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 7B7C7A8185524B21878B1EEF;
-			remoteInfo = HLSL;
-		};
-		08BD36336CB94E80ADBFA4A9 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 49C4ECC094164546B75B00C2 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 2B59A49732404D10941BC123;
-			remoteInfo = SPVRemapper;
-		};
-		17334A849EB642F5A7FF0F44 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 49C4ECC094164546B75B00C2 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 8AD3B8248D34460DB9F0AE7C;
-			remoteInfo = ZERO_CHECK;
-		};
-		1E1DD56510784B6CA5C9ABE9 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 49C4ECC094164546B75B00C2 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 8AD3B8248D34460DB9F0AE7C;
-			remoteInfo = ZERO_CHECK;
-		};
-		294462FF46DA4D66BD7D3FF2 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 49C4ECC094164546B75B00C2 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 8AD3B8248D34460DB9F0AE7C;
-			remoteInfo = ZERO_CHECK;
-		};
-		37D4065F9CE448DDA8F8FCBF /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 49C4ECC094164546B75B00C2 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 64240CB3A417426A98BB5FBD;
-			remoteInfo = OGLCompiler;
-		};
 		44536D494DB24A628535760F /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 49C4ECC094164546B75B00C2 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 64240CB3A417426A98BB5FBD;
 			remoteInfo = OGLCompiler;
-		};
-		4CE5D2B78A2742A1B096DEA1 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 49C4ECC094164546B75B00C2 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 8AD3B8248D34460DB9F0AE7C;
-			remoteInfo = ZERO_CHECK;
-		};
-		521A2BF6E4514CA592F23277 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 49C4ECC094164546B75B00C2 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 9E205D830AD946BA9BD3A5F2;
-			remoteInfo = OSDependent;
-		};
-		57736F7EA78D4EC38E05CB0A /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 49C4ECC094164546B75B00C2 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 4E9BBFF4C67044BA9716E6F4;
-			remoteInfo = ALL_BUILD;
 		};
 		64CB5ECF55144361960B0C3F /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -239,33 +73,12 @@
 			remoteGlobalIDString = 64240CB3A417426A98BB5FBD;
 			remoteInfo = OGLCompiler;
 		};
-		676F76A0BFE241D28AE815C2 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 49C4ECC094164546B75B00C2 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 8AD3B8248D34460DB9F0AE7C;
-			remoteInfo = ZERO_CHECK;
-		};
-		6EC4CC4D074142188B930466 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 49C4ECC094164546B75B00C2 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 39316BB95FA540439CA8B1AE;
-			remoteInfo = SPIRV;
-		};
 		7FF0A34105D141438BF84F29 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 49C4ECC094164546B75B00C2 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 7B7C7A8185524B21878B1EEF;
 			remoteInfo = HLSL;
-		};
-		AF587ECEA95B4F458ED24584 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 49C4ECC094164546B75B00C2 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 8AD3B8248D34460DB9F0AE7C;
-			remoteInfo = ZERO_CHECK;
 		};
 		B1D6E1F4431C413C822FF4D3 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -274,47 +87,12 @@
 			remoteGlobalIDString = 7B7C7A8185524B21878B1EEF;
 			remoteInfo = HLSL;
 		};
-		B6C5A0320DBA4037A946870B /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 49C4ECC094164546B75B00C2 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 9A322F4489CA47B2A6849417;
-			remoteInfo = glslang;
-		};
 		BFA9803238D042A69850BA52 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 49C4ECC094164546B75B00C2 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 9A322F4489CA47B2A6849417;
 			remoteInfo = glslang;
-		};
-		C35DCE2E12F847159565226B /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 49C4ECC094164546B75B00C2 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 8AD3B8248D34460DB9F0AE7C;
-			remoteInfo = ZERO_CHECK;
-		};
-		C7FDD899FB714689AB27ECAF /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 49C4ECC094164546B75B00C2 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 8AD3B8248D34460DB9F0AE7C;
-			remoteInfo = ZERO_CHECK;
-		};
-		CF62BC4878E74B459AD0F546 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 49C4ECC094164546B75B00C2 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 8AD3B8248D34460DB9F0AE7C;
-			remoteInfo = ZERO_CHECK;
-		};
-		CFD8CC17DD08442D92BDFB8D /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 49C4ECC094164546B75B00C2 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 8AD3B8248D34460DB9F0AE7C;
-			remoteInfo = ZERO_CHECK;
 		};
 		D5BD119DB39A4684860D8A7E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -329,13 +107,6 @@
 			proxyType = 1;
 			remoteGlobalIDString = 9E205D830AD946BA9BD3A5F2;
 			remoteInfo = OSDependent;
-		};
-		ED15A0E106A54519A7FF3D64 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 49C4ECC094164546B75B00C2 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 8AD3B8248D34460DB9F0AE7C;
-			remoteInfo = ZERO_CHECK;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -989,7 +760,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				59C8CE5CFD4148B796E934B8 /* PBXTargetDependency */,
 			);
 			name = SPVRemapper;
 			productName = SPVRemapper;
@@ -1009,7 +779,6 @@
 				F74D7B595BC14E16A154B6C4 /* PBXTargetDependency */,
 				E0EF05D96143474DBFAB7F30 /* PBXTargetDependency */,
 				3C2D3D265C8A4C1EBA4F8F94 /* PBXTargetDependency */,
-				31FA387C9CA54099ACD0999C /* PBXTargetDependency */,
 				24E9D791ABEF40CEA78B4A2D /* PBXTargetDependency */,
 			);
 			name = SPIRV;
@@ -1027,7 +796,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				0988A82018014A909F8B6E9A /* PBXTargetDependency */,
 			);
 			name = OGLCompiler;
 			productName = OGLCompiler;
@@ -1044,7 +812,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				FE90AFA719B04BD5883626DF /* PBXTargetDependency */,
 			);
 			name = HLSL;
 			productName = HLSL;
@@ -1063,7 +830,6 @@
 			dependencies = (
 				161EAC9EDC884515B08B6C59 /* PBXTargetDependency */,
 				5EF8058DBE1C4D76B001B21D /* PBXTargetDependency */,
-				2775253EFE534929821C0AA2 /* PBXTargetDependency */,
 				BFC01A4BB047414FBEEB7F3D /* PBXTargetDependency */,
 			);
 			name = glslang;
@@ -1081,7 +847,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				6229D61D125346BC89B7821F /* PBXTargetDependency */,
 			);
 			name = OSDependent;
 			productName = OSDependent;
@@ -1108,156 +873,15 @@
 			projectDirPath = ../;
 			projectRoot = "";
 			targets = (
-				4E9BBFF4C67044BA9716E6F4 /* ALL_BUILD */,
-				9A6DCAB277994C09B9F7A630 /* Continuous */,
-				2FD4224F2613412C9C626D44 /* Experimental */,
 				7B7C7A8185524B21878B1EEF /* HLSL */,
-				00881D88D7FA4DECBC2D39EF /* Nightly */,
-				C7B577C33D5B4D06B59FD49A /* NightlyMemoryCheck */,
 				64240CB3A417426A98BB5FBD /* OGLCompiler */,
 				9E205D830AD946BA9BD3A5F2 /* OSDependent */,
-				DEE7E5AD768C47D5A4F44A01 /* RUN_TESTS */,
 				39316BB95FA540439CA8B1AE /* SPIRV */,
 				2B59A49732404D10941BC123 /* SPVRemapper */,
-				8AD3B8248D34460DB9F0AE7C /* ZERO_CHECK */,
 				9A322F4489CA47B2A6849417 /* glslang */,
-				75606560418A4ABAB44DFE92 /* install */,
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		003C8D08B0008F35F218E126 /* CMake PostBuild Rules */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			name = "CMake PostBuild Rules";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "set -e\nif test \"$CONFIGURATION\" = \"Debug\"; then :\n  cd /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build\n  /opt/homebrew/Cellar/cmake/3.22.1/bin/ctest --force-new-ctest-process -C $CONFIGURATION$EFFECTIVE_PLATFORM_NAME\nfi\nif test \"$CONFIGURATION\" = \"Release\"; then :\n  cd /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build\n  /opt/homebrew/Cellar/cmake/3.22.1/bin/ctest --force-new-ctest-process -C $CONFIGURATION$EFFECTIVE_PLATFORM_NAME\nfi\nif test \"$CONFIGURATION\" = \"MinSizeRel\"; then :\n  cd /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build\n  /opt/homebrew/Cellar/cmake/3.22.1/bin/ctest --force-new-ctest-process -C $CONFIGURATION$EFFECTIVE_PLATFORM_NAME\nfi\nif test \"$CONFIGURATION\" = \"RelWithDebInfo\"; then :\n  cd /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build\n  /opt/homebrew/Cellar/cmake/3.22.1/bin/ctest --force-new-ctest-process -C $CONFIGURATION$EFFECTIVE_PLATFORM_NAME\nfi\n";
-			showEnvVarsInLog = 0;
-		};
-		02A62282DA3038C15E506B7A /* Generate CMakeFiles/Continuous */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Generate CMakeFiles/Continuous";
-			outputPaths = (
-				/Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build/CMakeFiles/Continuous,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "set -e\nif test \"$CONFIGURATION\" = \"Debug\"; then :\n  cd /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build\n  /opt/homebrew/Cellar/cmake/3.22.1/bin/ctest -C $CONFIGURATION$EFFECTIVE_PLATFORM_NAME -D Continuous\nfi\nif test \"$CONFIGURATION\" = \"Release\"; then :\n  cd /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build\n  /opt/homebrew/Cellar/cmake/3.22.1/bin/ctest -C $CONFIGURATION$EFFECTIVE_PLATFORM_NAME -D Continuous\nfi\nif test \"$CONFIGURATION\" = \"MinSizeRel\"; then :\n  cd /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build\n  /opt/homebrew/Cellar/cmake/3.22.1/bin/ctest -C $CONFIGURATION$EFFECTIVE_PLATFORM_NAME -D Continuous\nfi\nif test \"$CONFIGURATION\" = \"RelWithDebInfo\"; then :\n  cd /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build\n  /opt/homebrew/Cellar/cmake/3.22.1/bin/ctest -C $CONFIGURATION$EFFECTIVE_PLATFORM_NAME -D Continuous\nfi\n";
-			showEnvVarsInLog = 0;
-		};
-		2B3AB724F19DBB5CA1742F2E /* Generate CMakeFiles/ZERO_CHECK */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Generate CMakeFiles/ZERO_CHECK";
-			outputPaths = (
-				/Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build/CMakeFiles/ZERO_CHECK,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "set -e\nif test \"$CONFIGURATION\" = \"Debug\"; then :\n  cd /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build\n  make -f /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build/CMakeScripts/ReRunCMake.make\nfi\nif test \"$CONFIGURATION\" = \"Release\"; then :\n  cd /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build\n  make -f /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build/CMakeScripts/ReRunCMake.make\nfi\nif test \"$CONFIGURATION\" = \"MinSizeRel\"; then :\n  cd /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build\n  make -f /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build/CMakeScripts/ReRunCMake.make\nfi\nif test \"$CONFIGURATION\" = \"RelWithDebInfo\"; then :\n  cd /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build\n  make -f /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build/CMakeScripts/ReRunCMake.make\nfi\n";
-			showEnvVarsInLog = 0;
-		};
-		3425403AF2B868439D6D0C46 /* Generate CMakeFiles/ALL_BUILD */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Generate CMakeFiles/ALL_BUILD";
-			outputPaths = (
-				/Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build/CMakeFiles/ALL_BUILD,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "set -e\nif test \"$CONFIGURATION\" = \"Debug\"; then :\n  cd /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build\n  echo Build\\ all\\ projects\nfi\nif test \"$CONFIGURATION\" = \"Release\"; then :\n  cd /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build\n  echo Build\\ all\\ projects\nfi\nif test \"$CONFIGURATION\" = \"MinSizeRel\"; then :\n  cd /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build\n  echo Build\\ all\\ projects\nfi\nif test \"$CONFIGURATION\" = \"RelWithDebInfo\"; then :\n  cd /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build\n  echo Build\\ all\\ projects\nfi\n";
-			showEnvVarsInLog = 0;
-		};
-		3509CD93AF787B2EE786DF97 /* Generate CMakeFiles/Nightly */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Generate CMakeFiles/Nightly";
-			outputPaths = (
-				/Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build/CMakeFiles/Nightly,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "set -e\nif test \"$CONFIGURATION\" = \"Debug\"; then :\n  cd /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build\n  /opt/homebrew/Cellar/cmake/3.22.1/bin/ctest -C $CONFIGURATION$EFFECTIVE_PLATFORM_NAME -D Nightly\nfi\nif test \"$CONFIGURATION\" = \"Release\"; then :\n  cd /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build\n  /opt/homebrew/Cellar/cmake/3.22.1/bin/ctest -C $CONFIGURATION$EFFECTIVE_PLATFORM_NAME -D Nightly\nfi\nif test \"$CONFIGURATION\" = \"MinSizeRel\"; then :\n  cd /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build\n  /opt/homebrew/Cellar/cmake/3.22.1/bin/ctest -C $CONFIGURATION$EFFECTIVE_PLATFORM_NAME -D Nightly\nfi\nif test \"$CONFIGURATION\" = \"RelWithDebInfo\"; then :\n  cd /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build\n  /opt/homebrew/Cellar/cmake/3.22.1/bin/ctest -C $CONFIGURATION$EFFECTIVE_PLATFORM_NAME -D Nightly\nfi\n";
-			showEnvVarsInLog = 0;
-		};
-		6F0DA0ACB22562B5BEF6B39A /* Generate CMakeFiles/Experimental */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Generate CMakeFiles/Experimental";
-			outputPaths = (
-				/Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build/CMakeFiles/Experimental,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "set -e\nif test \"$CONFIGURATION\" = \"Debug\"; then :\n  cd /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build\n  /opt/homebrew/Cellar/cmake/3.22.1/bin/ctest -C $CONFIGURATION$EFFECTIVE_PLATFORM_NAME -D Experimental\nfi\nif test \"$CONFIGURATION\" = \"Release\"; then :\n  cd /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build\n  /opt/homebrew/Cellar/cmake/3.22.1/bin/ctest -C $CONFIGURATION$EFFECTIVE_PLATFORM_NAME -D Experimental\nfi\nif test \"$CONFIGURATION\" = \"MinSizeRel\"; then :\n  cd /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build\n  /opt/homebrew/Cellar/cmake/3.22.1/bin/ctest -C $CONFIGURATION$EFFECTIVE_PLATFORM_NAME -D Experimental\nfi\nif test \"$CONFIGURATION\" = \"RelWithDebInfo\"; then :\n  cd /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build\n  /opt/homebrew/Cellar/cmake/3.22.1/bin/ctest -C $CONFIGURATION$EFFECTIVE_PLATFORM_NAME -D Experimental\nfi\n";
-			showEnvVarsInLog = 0;
-		};
-		93426DA6A4AC2C2AC9CE883C /* CMake PostBuild Rules */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			name = "CMake PostBuild Rules";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "set -e\nif test \"$CONFIGURATION\" = \"Debug\"; then :\n  cd /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build\n  /opt/homebrew/Cellar/cmake/3.22.1/bin/cmake -DBUILD_TYPE=$CONFIGURATION -DEFFECTIVE_PLATFORM_NAME=$EFFECTIVE_PLATFORM_NAME -P cmake_install.cmake\nfi\nif test \"$CONFIGURATION\" = \"Release\"; then :\n  cd /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build\n  /opt/homebrew/Cellar/cmake/3.22.1/bin/cmake -DBUILD_TYPE=$CONFIGURATION -DEFFECTIVE_PLATFORM_NAME=$EFFECTIVE_PLATFORM_NAME -P cmake_install.cmake\nfi\nif test \"$CONFIGURATION\" = \"MinSizeRel\"; then :\n  cd /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build\n  /opt/homebrew/Cellar/cmake/3.22.1/bin/cmake -DBUILD_TYPE=$CONFIGURATION -DEFFECTIVE_PLATFORM_NAME=$EFFECTIVE_PLATFORM_NAME -P cmake_install.cmake\nfi\nif test \"$CONFIGURATION\" = \"RelWithDebInfo\"; then :\n  cd /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build\n  /opt/homebrew/Cellar/cmake/3.22.1/bin/cmake -DBUILD_TYPE=$CONFIGURATION -DEFFECTIVE_PLATFORM_NAME=$EFFECTIVE_PLATFORM_NAME -P cmake_install.cmake\nfi\n";
-			showEnvVarsInLog = 0;
-		};
-		AA2CAFFE6082EA44DF77B6C5 /* Generate CMakeFiles/NightlyMemoryCheck */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Generate CMakeFiles/NightlyMemoryCheck";
-			outputPaths = (
-				/Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build/CMakeFiles/NightlyMemoryCheck,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "set -e\nif test \"$CONFIGURATION\" = \"Debug\"; then :\n  cd /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build\n  /opt/homebrew/Cellar/cmake/3.22.1/bin/ctest -C $CONFIGURATION$EFFECTIVE_PLATFORM_NAME -D NightlyMemoryCheck\nfi\nif test \"$CONFIGURATION\" = \"Release\"; then :\n  cd /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build\n  /opt/homebrew/Cellar/cmake/3.22.1/bin/ctest -C $CONFIGURATION$EFFECTIVE_PLATFORM_NAME -D NightlyMemoryCheck\nfi\nif test \"$CONFIGURATION\" = \"MinSizeRel\"; then :\n  cd /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build\n  /opt/homebrew/Cellar/cmake/3.22.1/bin/ctest -C $CONFIGURATION$EFFECTIVE_PLATFORM_NAME -D NightlyMemoryCheck\nfi\nif test \"$CONFIGURATION\" = \"RelWithDebInfo\"; then :\n  cd /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build\n  /opt/homebrew/Cellar/cmake/3.22.1/bin/ctest -C $CONFIGURATION$EFFECTIVE_PLATFORM_NAME -D NightlyMemoryCheck\nfi\n";
-			showEnvVarsInLog = 0;
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		2CADAD72850C44C1BDB0051A /* Sources */ = {
@@ -1354,11 +978,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		0988A82018014A909F8B6E9A /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 8AD3B8248D34460DB9F0AE7C /* ZERO_CHECK */;
-			targetProxy = 4CE5D2B78A2742A1B096DEA1 /* PBXContainerItemProxy */;
-		};
 		161EAC9EDC884515B08B6C59 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 9E205D830AD946BA9BD3A5F2 /* OSDependent */;
@@ -1369,95 +988,20 @@
 			target = 7B7C7A8185524B21878B1EEF /* HLSL */;
 			targetProxy = B1D6E1F4431C413C822FF4D3 /* PBXContainerItemProxy */;
 		};
-		2775253EFE534929821C0AA2 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 8AD3B8248D34460DB9F0AE7C /* ZERO_CHECK */;
-			targetProxy = CFD8CC17DD08442D92BDFB8D /* PBXContainerItemProxy */;
-		};
-		2DFEBE3CD6FE44C581A8DE1E /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 8AD3B8248D34460DB9F0AE7C /* ZERO_CHECK */;
-			targetProxy = ED15A0E106A54519A7FF3D64 /* PBXContainerItemProxy */;
-		};
-		31FA387C9CA54099ACD0999C /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 8AD3B8248D34460DB9F0AE7C /* ZERO_CHECK */;
-			targetProxy = C7FDD899FB714689AB27ECAF /* PBXContainerItemProxy */;
-		};
 		3C2D3D265C8A4C1EBA4F8F94 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 64240CB3A417426A98BB5FBD /* OGLCompiler */;
 			targetProxy = 44536D494DB24A628535760F /* PBXContainerItemProxy */;
-		};
-		409426D465A34E5CACCB813A /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 4E9BBFF4C67044BA9716E6F4 /* ALL_BUILD */;
-			targetProxy = 57736F7EA78D4EC38E05CB0A /* PBXContainerItemProxy */;
-		};
-		41D56832ED5D4B55AB936238 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 7B7C7A8185524B21878B1EEF /* HLSL */;
-			targetProxy = 07BF21F28A804110B83603DA /* PBXContainerItemProxy */;
-		};
-		485414725B194A00BEC59DA7 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 9A322F4489CA47B2A6849417 /* glslang */;
-			targetProxy = B6C5A0320DBA4037A946870B /* PBXContainerItemProxy */;
-		};
-		529FCEFEEB804B90907306B0 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 9E205D830AD946BA9BD3A5F2 /* OSDependent */;
-			targetProxy = 521A2BF6E4514CA592F23277 /* PBXContainerItemProxy */;
-		};
-		59C8CE5CFD4148B796E934B8 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 8AD3B8248D34460DB9F0AE7C /* ZERO_CHECK */;
-			targetProxy = 1E1DD56510784B6CA5C9ABE9 /* PBXContainerItemProxy */;
 		};
 		5EF8058DBE1C4D76B001B21D /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 64240CB3A417426A98BB5FBD /* OGLCompiler */;
 			targetProxy = 64CB5ECF55144361960B0C3F /* PBXContainerItemProxy */;
 		};
-		6229D61D125346BC89B7821F /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 8AD3B8248D34460DB9F0AE7C /* ZERO_CHECK */;
-			targetProxy = 294462FF46DA4D66BD7D3FF2 /* PBXContainerItemProxy */;
-		};
-		74A7882AA69B4550BA78EF93 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 64240CB3A417426A98BB5FBD /* OGLCompiler */;
-			targetProxy = 37D4065F9CE448DDA8F8FCBF /* PBXContainerItemProxy */;
-		};
-		7D06473ABC3840CCBA467702 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 8AD3B8248D34460DB9F0AE7C /* ZERO_CHECK */;
-			targetProxy = 676F76A0BFE241D28AE815C2 /* PBXContainerItemProxy */;
-		};
-		A05939AEFA0D4A878F34B016 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 8AD3B8248D34460DB9F0AE7C /* ZERO_CHECK */;
-			targetProxy = 17334A849EB642F5A7FF0F44 /* PBXContainerItemProxy */;
-		};
-		AE935ABE59654A9CBBC5E264 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 39316BB95FA540439CA8B1AE /* SPIRV */;
-			targetProxy = 6EC4CC4D074142188B930466 /* PBXContainerItemProxy */;
-		};
 		BFC01A4BB047414FBEEB7F3D /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 7B7C7A8185524B21878B1EEF /* HLSL */;
 			targetProxy = 7FF0A34105D141438BF84F29 /* PBXContainerItemProxy */;
-		};
-		CBBA5A7D8083423B8A44BFC0 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 8AD3B8248D34460DB9F0AE7C /* ZERO_CHECK */;
-			targetProxy = C35DCE2E12F847159565226B /* PBXContainerItemProxy */;
-		};
-		D62780E21D23430DBD8290A8 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 2B59A49732404D10941BC123 /* SPVRemapper */;
-			targetProxy = 08BD36336CB94E80ADBFA4A9 /* PBXContainerItemProxy */;
 		};
 		E0EF05D96143474DBFAB7F30 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -1469,88 +1013,9 @@
 			target = 9A322F4489CA47B2A6849417 /* glslang */;
 			targetProxy = BFA9803238D042A69850BA52 /* PBXContainerItemProxy */;
 		};
-		FE90AFA719B04BD5883626DF /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 8AD3B8248D34460DB9F0AE7C /* ZERO_CHECK */;
-			targetProxy = AF587ECEA95B4F458ED24584 /* PBXContainerItemProxy */;
-		};
-		FEC7A586E075409D8AFD702F /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 8AD3B8248D34460DB9F0AE7C /* ZERO_CHECK */;
-			targetProxy = CF62BC4878E74B459AD0F546 /* PBXContainerItemProxy */;
-		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
-		01FD956993B54B64B7B6F20C /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",
-					"$(inherited)",
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				OTHER_LDFLAGS = " $(inherited)";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = install;
-				SECTORDER_FLAGS = "";
-				SYMROOT = /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build;
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = "$(inherited)";
-			};
-			name = Debug;
-		};
-		0B3808753B3C4914AA2595C4 /* RelWithDebInfo */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",
-					"$(inherited)",
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				OTHER_LDFLAGS = " $(inherited)";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = ALL_BUILD;
-				SECTORDER_FLAGS = "";
-				SYMROOT = /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build;
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = "$(inherited)";
-			};
-			name = RelWithDebInfo;
-		};
-		0F156CB385344494830C79ED /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",
-					"$(inherited)",
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				OTHER_LDFLAGS = " $(inherited)";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = Nightly;
-				SECTORDER_FLAGS = "";
-				SYMROOT = /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build;
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = "$(inherited)";
-			};
-			name = Debug;
-		};
 		10BFB7C7E4F54F7E98C7D3F0 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1594,29 +1059,6 @@
 			};
 			name = Release;
 		};
-		18FADF07BEC64498A0CDEE60 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",
-					"$(inherited)",
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				OTHER_LDFLAGS = " $(inherited)";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = ZERO_CHECK;
-				SECTORDER_FLAGS = "";
-				SYMROOT = /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build;
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = "$(inherited)";
-			};
-			name = Debug;
-		};
 		1D9BFA34646C45198AE36F8D /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1658,29 +1100,6 @@
 				WARNING_CFLAGS = "$(inherited)";
 			};
 			name = Debug;
-		};
-		247D87ABE3924F92A87CC96F /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",
-					"$(inherited)",
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				OTHER_LDFLAGS = " $(inherited)";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = Continuous;
-				SECTORDER_FLAGS = "";
-				SYMROOT = /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build;
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = "$(inherited)";
-			};
-			name = Release;
 		};
 		2C40612C4CE149448E467E31 /* MinSizeRel */ = {
 			isa = XCBuildConfiguration;
@@ -1767,52 +1186,6 @@
 			};
 			name = Debug;
 		};
-		35C44FFFF42F4D3EADBB7CF9 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",
-					"$(inherited)",
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				OTHER_LDFLAGS = " $(inherited)";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = ALL_BUILD;
-				SECTORDER_FLAGS = "";
-				SYMROOT = /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build;
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = "$(inherited)";
-			};
-			name = Release;
-		};
-		3672756A57224D0E8D6E0B68 /* RelWithDebInfo */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",
-					"$(inherited)",
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				OTHER_LDFLAGS = " $(inherited)";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = NightlyMemoryCheck;
-				SECTORDER_FLAGS = "";
-				SYMROOT = /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build;
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = "$(inherited)";
-			};
-			name = RelWithDebInfo;
-		};
 		41EA28A51D814E76A004A1FB /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1898,29 +1271,6 @@
 			};
 			name = MinSizeRel;
 		};
-		4A6E35AA03694EA2B7C48441 /* MinSizeRel */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",
-					"$(inherited)",
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				OTHER_LDFLAGS = " $(inherited)";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = Experimental;
-				SECTORDER_FLAGS = "";
-				SYMROOT = /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build;
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = "$(inherited)";
-			};
-			name = MinSizeRel;
-		};
 		4A7156588BE54895B130173D /* RelWithDebInfo */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1967,29 +1317,6 @@
 				WARNING_CFLAGS = "$(inherited)";
 			};
 			name = RelWithDebInfo;
-		};
-		56FF6FED2CA540B2896127FE /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",
-					"$(inherited)",
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				OTHER_LDFLAGS = " $(inherited)";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = NightlyMemoryCheck;
-				SECTORDER_FLAGS = "";
-				SYMROOT = /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build;
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = "$(inherited)";
-			};
-			name = Release;
 		};
 		59625041CE204658AF9E5CBA /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -2123,75 +1450,6 @@
 			};
 			name = Debug;
 		};
-		5D4298967DCD4BF5871BF09D /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",
-					"$(inherited)",
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				OTHER_LDFLAGS = " $(inherited)";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = install;
-				SECTORDER_FLAGS = "";
-				SYMROOT = /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build;
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = "$(inherited)";
-			};
-			name = Release;
-		};
-		5EB8BDD1DD974AC38E52B482 /* MinSizeRel */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",
-					"$(inherited)",
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				OTHER_LDFLAGS = " $(inherited)";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = Continuous;
-				SECTORDER_FLAGS = "";
-				SYMROOT = /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build;
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = "$(inherited)";
-			};
-			name = MinSizeRel;
-		};
-		6170C3D6824442BF9FAE8E5F /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",
-					"$(inherited)",
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				OTHER_LDFLAGS = " $(inherited)";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = ALL_BUILD;
-				SECTORDER_FLAGS = "";
-				SYMROOT = /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build;
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = "$(inherited)";
-			};
-			name = Debug;
-		};
 		64E724DD5D24463CB9E85F40 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -2237,75 +1495,6 @@
 				WARNING_CFLAGS = "$(inherited)";
 			};
 			name = Debug;
-		};
-		64E9801C293447B393820753 /* MinSizeRel */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",
-					"$(inherited)",
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				OTHER_LDFLAGS = " $(inherited)";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = install;
-				SECTORDER_FLAGS = "";
-				SYMROOT = /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build;
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = "$(inherited)";
-			};
-			name = MinSizeRel;
-		};
-		717BF560AE464A5A9996B1D9 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",
-					"$(inherited)",
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				OTHER_LDFLAGS = " $(inherited)";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = ZERO_CHECK;
-				SECTORDER_FLAGS = "";
-				SYMROOT = /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build;
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = "$(inherited)";
-			};
-			name = Release;
-		};
-		721A9E636C5743F3A0C906BA /* RelWithDebInfo */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",
-					"$(inherited)",
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				OTHER_LDFLAGS = " $(inherited)";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = RUN_TESTS;
-				SECTORDER_FLAGS = "";
-				SYMROOT = /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build;
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = "$(inherited)";
-			};
-			name = RelWithDebInfo;
 		};
 		807A83738B6B41E4A48DA8B1 /* Release */ = {
 			isa = XCBuildConfiguration;
@@ -2353,52 +1542,6 @@
 				WARNING_CFLAGS = "$(inherited)";
 			};
 			name = Release;
-		};
-		886FD3A288BF48999B447902 /* MinSizeRel */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",
-					"$(inherited)",
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				OTHER_LDFLAGS = " $(inherited)";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = NightlyMemoryCheck;
-				SECTORDER_FLAGS = "";
-				SYMROOT = /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build;
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = "$(inherited)";
-			};
-			name = MinSizeRel;
-		};
-		89E42063B6BF4038A98E39BB /* MinSizeRel */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",
-					"$(inherited)",
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				OTHER_LDFLAGS = " $(inherited)";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = ZERO_CHECK;
-				SECTORDER_FLAGS = "";
-				SYMROOT = /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build;
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = "$(inherited)";
-			};
-			name = MinSizeRel;
 		};
 		8AC03E8518D544A19BDCBB52 /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -2607,52 +1750,6 @@
 			};
 			name = MinSizeRel;
 		};
-		97A08E9FC6EE4FD2B19640CE /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",
-					"$(inherited)",
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				OTHER_LDFLAGS = " $(inherited)";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = Experimental;
-				SECTORDER_FLAGS = "";
-				SYMROOT = /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build;
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = "$(inherited)";
-			};
-			name = Release;
-		};
-		984A63C2B29B4C9295858F53 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",
-					"$(inherited)",
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				OTHER_LDFLAGS = " $(inherited)";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = Nightly;
-				SECTORDER_FLAGS = "";
-				SYMROOT = /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build;
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = "$(inherited)";
-			};
-			name = Release;
-		};
 		9D748042E6584A01B23F4799 /* MinSizeRel */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -2665,98 +1762,6 @@
 				SYMROOT = /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build/build;
 			};
 			name = MinSizeRel;
-		};
-		A18FC60E846E466EB0C76725 /* RelWithDebInfo */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",
-					"$(inherited)",
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				OTHER_LDFLAGS = " $(inherited)";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = ZERO_CHECK;
-				SECTORDER_FLAGS = "";
-				SYMROOT = /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build;
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = "$(inherited)";
-			};
-			name = RelWithDebInfo;
-		};
-		A9C881F2BBC348C7AC3CFA76 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",
-					"$(inherited)",
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				OTHER_LDFLAGS = " $(inherited)";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = RUN_TESTS;
-				SECTORDER_FLAGS = "";
-				SYMROOT = /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build;
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = "$(inherited)";
-			};
-			name = Debug;
-		};
-		ACF23514B8554E86B9837F95 /* MinSizeRel */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",
-					"$(inherited)",
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				OTHER_LDFLAGS = " $(inherited)";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = RUN_TESTS;
-				SECTORDER_FLAGS = "";
-				SYMROOT = /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build;
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = "$(inherited)";
-			};
-			name = MinSizeRel;
-		};
-		B9B82A5D2CB049C5BCAB4A2A /* RelWithDebInfo */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",
-					"$(inherited)",
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				OTHER_LDFLAGS = " $(inherited)";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = Nightly;
-				SECTORDER_FLAGS = "";
-				SYMROOT = /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build;
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = "$(inherited)";
-			};
-			name = RelWithDebInfo;
 		};
 		BC023A8352884E22BEF5FE5F /* RelWithDebInfo */ = {
 			isa = XCBuildConfiguration;
@@ -2848,75 +1853,6 @@
 				WARNING_CFLAGS = "$(inherited)";
 			};
 			name = MinSizeRel;
-		};
-		BD7864E45FB6462BB07F7D2F /* RelWithDebInfo */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",
-					"$(inherited)",
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				OTHER_LDFLAGS = " $(inherited)";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = Experimental;
-				SECTORDER_FLAGS = "";
-				SYMROOT = /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build;
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = "$(inherited)";
-			};
-			name = RelWithDebInfo;
-		};
-		BF98C25EE25B464787F9115D /* RelWithDebInfo */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",
-					"$(inherited)",
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				OTHER_LDFLAGS = " $(inherited)";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = Continuous;
-				SECTORDER_FLAGS = "";
-				SYMROOT = /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build;
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = "$(inherited)";
-			};
-			name = RelWithDebInfo;
-		};
-		C4CFA1DC1C734992AC6ABCD3 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",
-					"$(inherited)",
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				OTHER_LDFLAGS = " $(inherited)";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = Experimental;
-				SECTORDER_FLAGS = "";
-				SYMROOT = /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build;
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = "$(inherited)";
-			};
-			name = Debug;
 		};
 		C7413A8F519C41C8964793A8 /* Release */ = {
 			isa = XCBuildConfiguration;
@@ -3065,52 +2001,6 @@
 			};
 			name = Release;
 		};
-		E12183C016264E61B1E4803E /* MinSizeRel */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",
-					"$(inherited)",
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				OTHER_LDFLAGS = " $(inherited)";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = ALL_BUILD;
-				SECTORDER_FLAGS = "";
-				SYMROOT = /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build;
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = "$(inherited)";
-			};
-			name = MinSizeRel;
-		};
-		E28DD19B959B4ED6BED51A62 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",
-					"$(inherited)",
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				OTHER_LDFLAGS = " $(inherited)";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = RUN_TESTS;
-				SECTORDER_FLAGS = "";
-				SYMROOT = /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build;
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = "$(inherited)";
-			};
-			name = Release;
-		};
 		EC0642841094426A90CED71E /* RelWithDebInfo */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -3153,75 +2043,6 @@
 				WARNING_CFLAGS = "$(inherited)";
 			};
 			name = RelWithDebInfo;
-		};
-		ECE50BC05F244CC6AE26F756 /* RelWithDebInfo */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",
-					"$(inherited)",
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				OTHER_LDFLAGS = " $(inherited)";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = install;
-				SECTORDER_FLAGS = "";
-				SYMROOT = /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build;
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = "$(inherited)";
-			};
-			name = RelWithDebInfo;
-		};
-		EDEECFB8E83B49249FB4FFD1 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",
-					"$(inherited)",
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				OTHER_LDFLAGS = " $(inherited)";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = NightlyMemoryCheck;
-				SECTORDER_FLAGS = "";
-				SYMROOT = /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build;
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = "$(inherited)";
-			};
-			name = Debug;
-		};
-		EE231458B43E40A8A8743B4A /* MinSizeRel */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",
-					"$(inherited)",
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				OTHER_LDFLAGS = " $(inherited)";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = Nightly;
-				SECTORDER_FLAGS = "";
-				SYMROOT = /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build;
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = "$(inherited)";
-			};
-			name = MinSizeRel;
 		};
 		F38B40D930FB4817B136934E /* Release */ = {
 			isa = XCBuildConfiguration;
@@ -3309,54 +2130,9 @@
 			};
 			name = RelWithDebInfo;
 		};
-		FE262107247849B3A55EAEDE /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",
-					"$(inherited)",
-				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				INSTALL_PATH = "";
-				OTHER_LDFLAGS = " $(inherited)";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = Continuous;
-				SECTORDER_FLAGS = "";
-				SYMROOT = /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build;
-				USE_HEADERMAP = NO;
-				WARNING_CFLAGS = "$(inherited)";
-			};
-			name = Debug;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		4262F5882ADC465DAE57C457 /* Build configuration list for PBXAggregateTarget "Nightly" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				0F156CB385344494830C79ED /* Debug */,
-				984A63C2B29B4C9295858F53 /* Release */,
-				EE231458B43E40A8A8743B4A /* MinSizeRel */,
-				B9B82A5D2CB049C5BCAB4A2A /* RelWithDebInfo */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Debug;
-		};
-		4B7553FC3ADB4C0CB206463E /* Build configuration list for PBXAggregateTarget "ZERO_CHECK" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				18FADF07BEC64498A0CDEE60 /* Debug */,
-				717BF560AE464A5A9996B1D9 /* Release */,
-				89E42063B6BF4038A98E39BB /* MinSizeRel */,
-				A18FC60E846E466EB0C76725 /* RelWithDebInfo */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Debug;
-		};
 		4F840C4595164403803BD5DE /* Build configuration list for PBXNativeTarget "SPVRemapper" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -3390,28 +2166,6 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		6AC474B6802449259C2E9C10 /* Build configuration list for PBXAggregateTarget "Experimental" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				C4CFA1DC1C734992AC6ABCD3 /* Debug */,
-				97A08E9FC6EE4FD2B19640CE /* Release */,
-				4A6E35AA03694EA2B7C48441 /* MinSizeRel */,
-				BD7864E45FB6462BB07F7D2F /* RelWithDebInfo */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Debug;
-		};
-		71E8AC0528F44A29AC6C0640 /* Build configuration list for PBXAggregateTarget "install" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				01FD956993B54B64B7B6F20C /* Debug */,
-				5D4298967DCD4BF5871BF09D /* Release */,
-				64E9801C293447B393820753 /* MinSizeRel */,
-				ECE50BC05F244CC6AE26F756 /* RelWithDebInfo */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Debug;
-		};
 		972AE09140E34D4F8EF79F5E /* Build configuration list for PBXNativeTarget "OSDependent" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -3434,17 +2188,6 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		B2B99AAA39B847C1A0F3F687 /* Build configuration list for PBXAggregateTarget "NightlyMemoryCheck" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				EDEECFB8E83B49249FB4FFD1 /* Debug */,
-				56FF6FED2CA540B2896127FE /* Release */,
-				886FD3A288BF48999B447902 /* MinSizeRel */,
-				3672756A57224D0E8D6E0B68 /* RelWithDebInfo */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Debug;
-		};
 		C99468A9489B4191BC577521 /* Build configuration list for PBXProject "glslang" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -3456,28 +2199,6 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		DC33E840C4A64BF1AEA15730 /* Build configuration list for PBXAggregateTarget "RUN_TESTS" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				A9C881F2BBC348C7AC3CFA76 /* Debug */,
-				E28DD19B959B4ED6BED51A62 /* Release */,
-				ACF23514B8554E86B9837F95 /* MinSizeRel */,
-				721A9E636C5743F3A0C906BA /* RelWithDebInfo */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Debug;
-		};
-		E93D29458806400F9218142E /* Build configuration list for PBXAggregateTarget "Continuous" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				FE262107247849B3A55EAEDE /* Debug */,
-				247D87ABE3924F92A87CC96F /* Release */,
-				5EB8BDD1DD974AC38E52B482 /* MinSizeRel */,
-				BF98C25EE25B464787F9115D /* RelWithDebInfo */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Debug;
-		};
 		F5FC180A78DC4FBEAB32A283 /* Build configuration list for PBXNativeTarget "SPIRV" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -3485,17 +2206,6 @@
 				8E90ACD0925A4A42A4249D95 /* Release */,
 				BC32A53CA12645E581042079 /* MinSizeRel */,
 				CBD79FD26CBA4D84BF711072 /* RelWithDebInfo */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Debug;
-		};
-		F67C8EA60BDF4F778D3B7449 /* Build configuration list for PBXAggregateTarget "ALL_BUILD" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				6170C3D6824442BF9FAE8E5F /* Debug */,
-				35C44FFFF42F4D3EADBB7CF9 /* Release */,
-				E12183C016264E61B1E4803E /* MinSizeRel */,
-				0B3808753B3C4914AA2595C4 /* RelWithDebInfo */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
