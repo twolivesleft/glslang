@@ -1288,10 +1288,6 @@
 					"$(inherited)",
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				HEADER_SEARCH_PATHS = (
-					.,
-					"$(inherited)",
-				);
 				INSTALL_PATH = "";
 				LIBRARY_STYLE = STATIC;
 				OTHER_CPLUSPLUSFLAGS = (
@@ -1313,6 +1309,7 @@
 				PRODUCT_NAME = glslang;
 				SECTORDER_FLAGS = "";
 				SYMROOT = /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build/glslang;
+				USER_HEADER_SEARCH_PATHS = "./**";
 				USE_HEADERMAP = NO;
 				WARNING_CFLAGS = "$(inherited)";
 			};
@@ -1336,8 +1333,7 @@
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				HEADER_SEARCH_PATHS = (
-					/Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/SPIRV/..,
-					/Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/glslang/..,
+					.,
 					"$(inherited)",
 				);
 				INSTALL_PATH = "";
@@ -1467,10 +1463,6 @@
 					"$(inherited)",
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				HEADER_SEARCH_PATHS = (
-					.,
-					"$(inherited)",
-				);
 				INSTALL_PATH = "";
 				LIBRARY_STYLE = STATIC;
 				OTHER_CPLUSPLUSFLAGS = (
@@ -1491,6 +1483,7 @@
 				PRODUCT_NAME = glslang;
 				SECTORDER_FLAGS = "";
 				SYMROOT = /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build/glslang;
+				USER_HEADER_SEARCH_PATHS = "./**";
 				USE_HEADERMAP = NO;
 				WARNING_CFLAGS = "$(inherited)";
 			};
@@ -1513,10 +1506,6 @@
 					"$(inherited)",
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				HEADER_SEARCH_PATHS = (
-					.,
-					"$(inherited)",
-				);
 				INSTALL_PATH = "";
 				LIBRARY_STYLE = STATIC;
 				OTHER_CPLUSPLUSFLAGS = (
@@ -1538,6 +1527,7 @@
 				PRODUCT_NAME = glslang;
 				SECTORDER_FLAGS = "";
 				SYMROOT = /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build/glslang;
+				USER_HEADER_SEARCH_PATHS = "./**";
 				USE_HEADERMAP = NO;
 				WARNING_CFLAGS = "$(inherited)";
 			};
@@ -1586,10 +1576,6 @@
 					"$(inherited)",
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				HEADER_SEARCH_PATHS = (
-					.,
-					"$(inherited)",
-				);
 				INSTALL_PATH = "";
 				LIBRARY_STYLE = STATIC;
 				OTHER_CPLUSPLUSFLAGS = (
@@ -1611,6 +1597,7 @@
 				PRODUCT_NAME = glslang;
 				SECTORDER_FLAGS = "";
 				SYMROOT = /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build/glslang;
+				USER_HEADER_SEARCH_PATHS = "./**";
 				USE_HEADERMAP = NO;
 				WARNING_CFLAGS = "$(inherited)";
 			};
@@ -1634,8 +1621,7 @@
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				HEADER_SEARCH_PATHS = (
-					/Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/SPIRV/..,
-					/Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/glslang/..,
+					.,
 					"$(inherited)",
 				);
 				INSTALL_PATH = "";
@@ -1824,8 +1810,7 @@
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				HEADER_SEARCH_PATHS = (
-					/Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/SPIRV/..,
-					/Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/glslang/..,
+					.,
 					"$(inherited)",
 				);
 				INSTALL_PATH = "";
@@ -1915,8 +1900,7 @@
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				HEADER_SEARCH_PATHS = (
-					/Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/SPIRV/..,
-					/Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/glslang/..,
+					.,
 					"$(inherited)",
 				);
 				INSTALL_PATH = "";

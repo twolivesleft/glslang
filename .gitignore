@@ -8,3 +8,4 @@ Test/localResults/
 External/googletest
 External/spirv-tools
 .DS_Store
+xcuserdata
