@@ -1289,7 +1289,7 @@
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				HEADER_SEARCH_PATHS = (
-					/Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/glslang/..,
+					.,
 					"$(inherited)",
 				);
 				INSTALL_PATH = "";
@@ -1468,7 +1468,7 @@
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				HEADER_SEARCH_PATHS = (
-					/Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/glslang/..,
+					.,
 					"$(inherited)",
 				);
 				INSTALL_PATH = "";
@@ -1514,7 +1514,7 @@
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				HEADER_SEARCH_PATHS = (
-					/Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/glslang/..,
+					.,
 					"$(inherited)",
 				);
 				INSTALL_PATH = "";
@@ -1587,7 +1587,7 @@
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				HEADER_SEARCH_PATHS = (
-					/Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/glslang/..,
+					.,
 					"$(inherited)",
 				);
 				INSTALL_PATH = "";
