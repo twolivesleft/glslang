@@ -2140,7 +2140,6 @@
 				ONLY_ACTIVE_ARCH = NO;
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator xros xrsimulator";
-				SYMROOT = /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build/build;
 			};
 			name = Release;
 		};
@@ -2331,7 +2330,6 @@
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator xros xrsimulator";
-				SYMROOT = /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build/build;
 			};
 			name = Debug;
 		};
@@ -2938,7 +2936,6 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 13.6;
 				ONLY_ACTIVE_ARCH = NO;
 				SDKROOT = iphoneos;
-				SYMROOT = /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build/build;
 			};
 			name = MinSizeRel;
 		};
@@ -3152,7 +3149,6 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 13.6;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
-				SYMROOT = /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang/build/build;
 			};
 			name = RelWithDebInfo;
 		};
