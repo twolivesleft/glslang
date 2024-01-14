@@ -21,13 +21,14 @@ LabelsForSubprojects:
 
 # Submission information
 SubmitURL: http://
+SubmitInactivityTimeout: 
 
 # Dashboard start time
 NightlyStartTime: 00:00:00 EDT
 
 # Commands for the build/test/submit cycle
-ConfigureCommand: "/opt/homebrew/Cellar/cmake/3.22.1/bin/cmake" "/Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang"
-MakeCommand: /opt/homebrew/Cellar/cmake/3.22.1/bin/cmake --build . --config "${CTEST_CONFIGURATION_TYPE}"
+ConfigureCommand: "/opt/homebrew/Cellar/cmake/3.25.2/bin/cmake" "/Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang"
+MakeCommand: /opt/homebrew/Cellar/cmake/3.25.2/bin/cmake --build . --config "${CTEST_CONFIGURATION_TYPE}"
 DefaultCTestConfigurationType: Release
 
 # version control
@@ -63,7 +64,7 @@ UpdateType: git
 
 # Compiler info
 Compiler: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++
-CompilerVersion: 13.1.6.13160021
+CompilerVersion: 15.0.0.15000100
 
 # Dynamic analysis (MemCheck)
 PurifyCommand: 
