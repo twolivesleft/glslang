@@ -870,7 +870,7 @@
 				Base,
 			);
 			mainGroup = 38F22EA8C929429EAC1CDE4F;
-			projectDirPath = /Users/sim/Developer/Codea/Carbide/CarbideKit/Libraries/ShaderCross/ShaderCross/Libraries/glslang;
+			projectDirPath = ../;
 			projectRoot = "";
 			targets = (
 				6DF453DA36904D16B56226CD /* HLSL */,
