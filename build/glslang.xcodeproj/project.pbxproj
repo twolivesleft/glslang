@@ -1046,7 +1046,6 @@
 					"-Wunused-value",
 					"-Wunused-variable",
 					"-Wno-reorder",
-					"-fno-rtti",
 					"'-std=c++11'",
 				);
 				OTHER_LIBTOOLFLAGS = "";
@@ -1088,7 +1087,6 @@
 					"-Wunused-value",
 					"-Wunused-variable",
 					"-Wno-reorder",
-					"-fno-rtti",
 					"'-std=c++11'",
 				);
 				OTHER_LIBTOOLFLAGS = "";
@@ -1130,7 +1128,6 @@
 					"-Wunused-value",
 					"-Wunused-variable",
 					"-Wno-reorder",
-					"-fno-rtti",
 					"'-std=c++11'",
 				);
 				OTHER_LIBTOOLFLAGS = "";
@@ -1172,7 +1169,6 @@
 					"-Wunused-value",
 					"-Wunused-variable",
 					"-Wno-reorder",
-					"-fno-rtti",
 					"'-std=c++11'",
 				);
 				OTHER_LIBTOOLFLAGS = "";
@@ -1214,7 +1210,6 @@
 					"-Wunused-value",
 					"-Wunused-variable",
 					"-Wno-reorder",
-					"-fno-rtti",
 					"'-std=c++11'",
 				);
 				OTHER_LIBTOOLFLAGS = "";
@@ -1260,7 +1255,6 @@
 					"-Wunused-value",
 					"-Wunused-variable",
 					"-Wno-reorder",
-					"-fno-rtti",
 					"'-std=c++11'",
 				);
 				OTHER_LIBTOOLFLAGS = "";
@@ -1302,7 +1296,6 @@
 					"-Wunused-value",
 					"-Wunused-variable",
 					"-Wno-reorder",
-					"-fno-rtti",
 					"'-std=c++11'",
 				);
 				OTHER_LIBTOOLFLAGS = "";
@@ -1344,7 +1337,6 @@
 					"-Wunused-value",
 					"-Wunused-variable",
 					"-Wno-reorder",
-					"-fno-rtti",
 					"'-std=c++11'",
 				);
 				OTHER_LIBTOOLFLAGS = "";
@@ -1390,7 +1382,6 @@
 					"-Wunused-value",
 					"-Wunused-variable",
 					"-Wno-reorder",
-					"-fno-rtti",
 					"'-std=c++11'",
 				);
 				OTHER_LIBTOOLFLAGS = "";
@@ -1446,7 +1437,6 @@
 					"-Wunused-value",
 					"-Wunused-variable",
 					"-Wno-reorder",
-					"-fno-rtti",
 					"'-std=c++11'",
 				);
 				OTHER_LIBTOOLFLAGS = "";
@@ -1488,7 +1478,6 @@
 					"-Wunused-value",
 					"-Wunused-variable",
 					"-Wno-reorder",
-					"-fno-rtti",
 					"'-std=c++11'",
 				);
 				OTHER_LIBTOOLFLAGS = "";
@@ -1548,7 +1537,6 @@
 					"-Wunused-value",
 					"-Wunused-variable",
 					"-Wno-reorder",
-					"-fno-rtti",
 					"'-std=c++11'",
 				);
 				OTHER_LIBTOOLFLAGS = "";
@@ -1594,7 +1582,6 @@
 					"-Wunused-value",
 					"-Wunused-variable",
 					"-Wno-reorder",
-					"-fno-rtti",
 					"'-std=c++11'",
 				);
 				OTHER_LIBTOOLFLAGS = "";
@@ -1635,7 +1622,6 @@
 					"-Wunused-value",
 					"-Wunused-variable",
 					"-Wno-reorder",
-					"-fno-rtti",
 					"'-std=c++11'",
 				);
 				OTHER_LIBTOOLFLAGS = "";
@@ -1681,7 +1667,6 @@
 					"-Wunused-value",
 					"-Wunused-variable",
 					"-Wno-reorder",
-					"-fno-rtti",
 					"'-std=c++11'",
 				);
 				OTHER_LIBTOOLFLAGS = "";
@@ -1727,7 +1712,6 @@
 					"-Wunused-value",
 					"-Wunused-variable",
 					"-Wno-reorder",
-					"-fno-rtti",
 					"'-std=c++11'",
 				);
 				OTHER_LIBTOOLFLAGS = "";
@@ -1772,7 +1756,6 @@
 					"-Wunused-value",
 					"-Wunused-variable",
 					"-Wno-reorder",
-					"-fno-rtti",
 					"'-std=c++11'",
 				);
 				OTHER_LIBTOOLFLAGS = "";
@@ -1814,7 +1797,6 @@
 					"-Wunused-value",
 					"-Wunused-variable",
 					"-Wno-reorder",
-					"-fno-rtti",
 					"'-std=c++11'",
 				);
 				OTHER_LIBTOOLFLAGS = "";
@@ -1873,7 +1855,6 @@
 					"-Wunused-value",
 					"-Wunused-variable",
 					"-Wno-reorder",
-					"-fno-rtti",
 					"'-std=c++11'",
 				);
 				OTHER_LIBTOOLFLAGS = "";
@@ -1914,7 +1895,6 @@
 					"-Wunused-value",
 					"-Wunused-variable",
 					"-Wno-reorder",
-					"-fno-rtti",
 					"'-std=c++11'",
 				);
 				OTHER_LIBTOOLFLAGS = "";
@@ -1969,7 +1949,6 @@
 					"-Wunused-value",
 					"-Wunused-variable",
 					"-Wno-reorder",
-					"-fno-rtti",
 					"'-std=c++11'",
 				);
 				OTHER_LIBTOOLFLAGS = "";
@@ -2011,7 +1990,6 @@
 					"-Wunused-value",
 					"-Wunused-variable",
 					"-Wno-reorder",
-					"-fno-rtti",
 					"'-std=c++11'",
 				);
 				OTHER_LIBTOOLFLAGS = "";
@@ -2052,7 +2030,6 @@
 					"-Wunused-value",
 					"-Wunused-variable",
 					"-Wno-reorder",
-					"-fno-rtti",
 					"'-std=c++11'",
 				);
 				OTHER_LIBTOOLFLAGS = "";
@@ -2094,7 +2071,6 @@
 					"-Wunused-value",
 					"-Wunused-variable",
 					"-Wno-reorder",
-					"-fno-rtti",
 					"'-std=c++11'",
 				);
 				OTHER_LIBTOOLFLAGS = "";

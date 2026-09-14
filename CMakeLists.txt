@@ -56,7 +56,13 @@ CMAKE_DEPENDENT_OPTION(ENABLE_HLSL
     ON "NOT ENABLE_GLSLANG_WEBMIN"
     OFF)
 
-option(ENABLE_RTTI "Enables RTTI" OFF)
+# ON, against upstream. With RTTI off clang still emits the typeinfo it
+# needs for exception handling, but as hidden weak symbols -- so every
+# archive here carries its own `typeinfo for std::exception`, and linking
+# one into a framework makes that private copy shadow libc++abi's for the
+# whole image. `catch (const std::exception&)` then silently stops
+# matching. Keep this ON so a regenerated project does not bring it back.
+option(ENABLE_RTTI "Enables RTTI" ON)
 option(ENABLE_OPT "Enables spirv-opt capability if present" ON)
 option(ENABLE_PCH "Enables Precompiled header" ON)
 option(ENABLE_CTEST "Enables testing" ON)
